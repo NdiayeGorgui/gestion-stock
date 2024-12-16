@@ -1,8 +1,7 @@
 
 package com.gogo.billing_service.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.gogo.base_domaine_service.dto.Customer;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

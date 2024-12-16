@@ -19,4 +19,8 @@ public class BillingService {
     public int updateBillStatus(String productIdEvent,String status){
         return billRepository.updateBillStatus(productIdEvent,status);
     }
+
+    public int updateTheBillStatus(String orderIdEvent,String status){
+        return billRepository.updateTheBillStatus(orderIdEvent,status);
+    }
 }

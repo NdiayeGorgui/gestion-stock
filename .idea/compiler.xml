@@ -15,12 +15,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="base-domaine-service" target="17" />
-      <module name="billing-service" target="17" />
-      <module name="customer-service" target="17" />
-      <module name="inventory-service" target="17" />
       <module name="inventory-service (1)" target="17" />
-      <module name="order-service" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

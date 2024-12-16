@@ -19,6 +19,6 @@ public interface BillRepository extends JpaRepository<Bill,Long> {
     @Modifying
     @Transactional
     @Query("UPDATE Bill b SET b.status= :status WHERE b.orderRef= :orderRef")
-    int updateTheBillStatus(@Param("orderRef") String productIdEvent, @Param("status") String orderRef);
+    int updateTheBillStatus(@Param("orderRef") String orderRef, @Param("status") String status);
 
 }

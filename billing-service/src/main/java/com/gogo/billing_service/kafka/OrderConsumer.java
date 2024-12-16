@@ -64,7 +64,7 @@ public class OrderConsumer {
         if(event.getStatus().equalsIgnoreCase("CANCELLING")){
             event.setStatus("CANCELED");
            // Bill bill1=billRepository.findByOrderRef(event.getId());
-            billRepository.updateTheBillStatus(event.getId(), event.getStatus());
+            billingService.updateTheBillStatus(event.getId(), event.getStatus());
             billProducer.sendMessage(event);
         }
         LOGGER.info(String.format("Order event received in billing service => %s", event));
