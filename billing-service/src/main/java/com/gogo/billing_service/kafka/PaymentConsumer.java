@@ -9,24 +9,24 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProductConsumer {
+public class PaymentConsumer {
     @Autowired
     BillProducer billProducer;
     @Autowired
     BillingService billingService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProductConsumer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaymentConsumer.class);
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.quantity.update.name}"
-            , groupId = "${spring.kafka.update.bill.consumer.group-id}"
+            topics = "${spring.kafka.topic.payment.name}"
+            , groupId = "${spring.kafka.consumer.payment.group-id}"
     )
     public void consumeProductStatus(OrderEventDto event) {
 
-        if (event.getStatus().equalsIgnoreCase("MODIFIED")) {
+        if (event.getStatus().equalsIgnoreCase("COMPLETED")) {
 
-            event.setStatus("CREATED");
-            billingService.updateBillStatus(event.getProductEventDto().getProductIdEvent(), event.getStatus());
+            event.setStatus("COMPLETED");
+            billingService.updateTheBillStatus(event.getId(), event.getStatus());
 
             LOGGER.info("Product Update event with Created status sent to Order service => {}", event);
 

@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="inventory-service" />
         <module name="order-service" />
+        <module name="payment-service" />
         <module name="customer-service" />
         <module name="billing-service" />
         <module name="base-domaine-service" />
@@ -26,6 +27,7 @@
       <module name="inventory-service" options="-parameters" />
       <module name="inventory-service (1)" options="-parameters" />
       <module name="order-service" options="-parameters" />
+      <module name="payment-service" options="-parameters" />
     </option>
   </component>
 </project>

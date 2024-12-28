@@ -29,6 +29,16 @@ public class KafkaTopicConfig {
                 .build();
     }
 
+    @Value("${spring.kafka.topic.payment.name}")
+    private String topicName3;
+
+    // spring bean for kafka topic
+    @Bean
+    public NewTopic topic3(){
+        return TopicBuilder.name(topicName3)
+                .build();
+    }
+
 }
 
 

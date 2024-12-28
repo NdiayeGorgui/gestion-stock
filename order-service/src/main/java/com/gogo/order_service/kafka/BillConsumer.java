@@ -3,6 +3,7 @@ package com.gogo.order_service.kafka;
 import com.gogo.base_domaine_service.event.OrderEventDto;
 import com.gogo.order_service.model.Order;
 import com.gogo.order_service.model.Product;
+import com.gogo.order_service.model.ProductItem;
 import com.gogo.order_service.repository.OrderRepository;
 import com.gogo.order_service.service.OrderService;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ public class BillConsumer {
     public void consumeBill(OrderEventDto event) {
         String STATUS = "CREATED";
 
+
         if (event.getStatus().equalsIgnoreCase("CREATED")) {
 
             LOGGER.info(String.format("Bill event received in Order service => %s", event));
@@ -47,12 +49,15 @@ public class BillConsumer {
                 LOGGER.info(String.format("Order event with created status sent to Inventory service => %s", event));
 
             }
+            //String qtyStatus=event.getProductEventDto().getQtyStatus();
             int qtyUsed = event.getProductItemEventDto().getQty();
-            int qr = orderService.qtyRestante(product.getQty(), qtyUsed);
+            int qr = orderService.qtyRestante(product.getQty(), qtyUsed, event.getStatus());
             if (qr > 0) {
                 orderService.updateQuantity(event.getProductEventDto().getProductIdEvent(), qr);
                 orderService.updateOrderStatus(event.getId(), "CREATED");
 
+            }else {
+                throw new RuntimeException("Quantite insuffisante");
             }
 
         }
@@ -64,10 +69,23 @@ public class BillConsumer {
             Order order = orderRepository.findByOrderIdEvent(event.getId());
 
             boolean oderExist = orderRepository.existsByOrderIdEventAndOrderStatus(order.getOrderIdEvent(), STATUS);
-
+            ProductItem productItem = orderService.findProductItemByOrderEventId(event.getId());
             if (oderExist) {
 
+
+
                 orderService.updateOrderStatus(event.getId(), event.getStatus());
+                int qtyUsed = productItem.getQuantity();
+                String productIdEvent= productItem.getProductIdEvent();
+                Product product=orderService.findProductById(productIdEvent);
+                int qr = orderService.qtyRestante(product.getQty(), qtyUsed, event.getStatus());
+               // event.getProductEventDto().set
+                event.getProductEventDto().setQty(qr);
+               // if (qr > 0) {
+                    orderService.updateQuantity(productIdEvent, qr);
+                   // orderService.updateOrderStatus(event.getId(), "CREATED");
+
+               // }
 
                 LOGGER.info(String.format("Order event with created status sent to Inventory service => %s", event));
                 //   customerProducer.sendMessage(orderEventDto);

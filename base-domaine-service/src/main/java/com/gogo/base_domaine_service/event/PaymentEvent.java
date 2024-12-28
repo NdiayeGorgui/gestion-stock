@@ -1,8 +1,6 @@
 package com.gogo.base_domaine_service.event;
 
-import com.gogo.base_domaine_service.dto.Customer;
-import com.gogo.base_domaine_service.dto.Product;
-import com.gogo.base_domaine_service.dto.ProductItem;
+import com.gogo.base_domaine_service.dto.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,10 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentEvent {
-    private String paymentEventId;
     private String message;
     private String status;
-    private Customer customer;
-    private Product product;
-    private ProductItem productItem;
+    private Payment payment;
+
 }

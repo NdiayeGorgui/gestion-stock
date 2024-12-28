@@ -6,14 +6,19 @@ import com.gogo.inventory_service.kafka.ProductProducer;
 import com.gogo.inventory_service.model.ProductModel;
 import com.gogo.inventory_service.repository.ProductRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
-
+@Slf4j
+@EnableScheduling
 @Service
 public class ProductService {
 
-    ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     private final ProductProducer productProducer;
 
@@ -90,14 +95,12 @@ public class ProductService {
         productEvent.setProduct(product);
 
         productProducer.sendMessage(productEvent);
-
     }
 
     public void sendProductToUpdate(String productIdEvent, Product product){
         ProductModel productModel=productRepository.findProductByProductIdEvent(productIdEvent);
 
         product.setId(productModel.getProductIdEvent());
-
 
         ProductEvent productEvent=new ProductEvent();
 
@@ -106,7 +109,6 @@ public class ProductService {
         productEvent.setProduct(product);
 
         productProducer.sendMessage(productEvent);
-
     }
 
     @Transactional
@@ -115,8 +117,8 @@ public class ProductService {
 
     }
 
-    public int updateProduct(String productIdEvent,String status,String name,int qty, double price ){
-        return productRepository.updateProduct(productIdEvent,status,name,qty,price);
+    public int updateProduct(String productIdEvent,String status,String name,int qty, double price,String qtyStatus ){
+        return productRepository.updateProduct(productIdEvent,status,name,qty,price,qtyStatus);
 
     }
     public int updateProductQty(String productIdEvent,int qty ){
@@ -128,11 +130,34 @@ public class ProductService {
 
     }
 
-    public int qtyRestante(int quantity, int usedQuantity){
-        return (quantity-usedQuantity);
-
+    public int qtyRestante(int quantity, int usedQuantity, String status) {
+        if (status.equalsIgnoreCase("CREATED"))
+            return (quantity - usedQuantity);
+        else
+            return (quantity + usedQuantity);
     }
     public ProductModel findProductById(String id){
       return   productRepository.findProductByProductIdEvent(id);
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void productAvailable(){
+        List<ProductModel> productModelList=productRepository.findAll();
+        Product product=new Product();
+        ProductEvent productEvent=new ProductEvent();
+
+        productModelList.forEach(productModel -> {
+            if(productModel.getQty()==0 && productModel.getQtyStatus().equalsIgnoreCase("AVAILABLE")){
+                productModel.setQtyStatus("UNAVAILABLE");
+                product.setQtyStatus(productModel.getQtyStatus());
+                product.setId(productModel.getProductIdEvent());
+                productEvent.setStatus("UNAVAILABLE");
+                productEvent.setProduct(product);
+
+                productRepository.updateProductQtyStatus(productModel.getProductIdEvent(),productModel.getQtyStatus());
+                productProducer.sendMessage(productEvent);
+            }
+            log.info("ProductId : {} , Quantity : {}, Quantity Status : {}",productModel.getProductIdEvent(),productModel.getQty(),productModel.getQtyStatus());
+        });
     }
 }

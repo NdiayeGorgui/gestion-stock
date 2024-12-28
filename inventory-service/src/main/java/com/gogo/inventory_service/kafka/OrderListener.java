@@ -29,15 +29,23 @@ public class OrderListener {
         if (event.getStatus().equalsIgnoreCase("CREATED")) {
             ProductModel product=productService.findProductById(event.getProductEventDto().getProductIdEvent());
             int qtyUsed= event.getProductItemEventDto().getQty();
-            int qr=productService.qtyRestante(product.getQty(),qtyUsed);
+            int qr=productService.qtyRestante(product.getQty(),qtyUsed,event.getStatus());
             if(qr>0){
                 productService.updateProductQty(event.getProductEventDto().getProductIdEvent(),qr);
 
                 LOGGER.info(String.format("Product Update event with updated quantity status sent to order service => %s", event));
                // orderProducer.sendMessage(event);
             }else {
-                throw new RuntimeException("Quantite insuffisant");
+                throw new RuntimeException("Quantite insuffisante");
             }
+        }
+        if (event.getStatus().equalsIgnoreCase("CANCELED")) {
+            ProductModel product=productService.findProductById(event.getProductEventDto().getProductIdEvent());
+            int qtyUsed=event.getProductEventDto().getQty();
+            int qr=productService.qtyRestante(product.getQty(),qtyUsed,event.getStatus());
+
+                productService.updateProductQty(event.getProductEventDto().getProductIdEvent(),qr);
+
         }
         LOGGER.info(String.format("Product Updated event received in Inventory service => %s", event));
     }

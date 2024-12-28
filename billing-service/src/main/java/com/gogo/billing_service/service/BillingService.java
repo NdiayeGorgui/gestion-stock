@@ -23,4 +23,8 @@ public class BillingService {
     public int updateTheBillStatus(String orderIdEvent,String status){
         return billRepository.updateTheBillStatus(orderIdEvent,status);
     }
+
+    public  Bill  findByOrderRef(String orderRef){
+        return billRepository.findByOrderRef(orderRef);
+    }
 }

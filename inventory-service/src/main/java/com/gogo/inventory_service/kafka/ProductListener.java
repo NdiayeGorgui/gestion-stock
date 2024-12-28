@@ -32,7 +32,7 @@ public class ProductListener {
             productService.deleteProduct(orderEventDto.getId(), orderEventDto.getStatus());
         }
         if(orderEventDto.getStatus().equalsIgnoreCase("UPDATED")){
-            productService.updateProduct(orderEventDto.getId(),"CREATED", orderEventDto.getName(), orderEventDto.getProductEventDto().getQty(), orderEventDto.getProductEventDto().getPrice());
+            productService.updateProduct(orderEventDto.getId(),"CREATED", orderEventDto.getName(), orderEventDto.getProductEventDto().getQty(), orderEventDto.getProductEventDto().getPrice(),orderEventDto.getProductEventDto().getQtyStatus());
         }
 
         LOGGER.info(String.format("Product Updated event received in Inventory service => %s", orderEventDto));

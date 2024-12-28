@@ -38,7 +38,7 @@ public class CustomerConsumer {
         // save the customer event into the database
         if (event.getStatus().equalsIgnoreCase("PENDING")) {
 
-            LOGGER.info(String.format("Customer event received in Order service => %s", event));
+            LOGGER.info("Customer event received in Order service => {}", event);
             Customer client = new Customer();
             client.setCustomerIdEvent(event.getCustomer().getId());
             client.setName(event.getCustomer().getName());
@@ -61,7 +61,7 @@ public class CustomerConsumer {
                 orderEventDto.setId(event.getCustomer().getId());
                 // event.setStatus(STATUS);
                 // event.setMessage("customer status is in created state");
-                LOGGER.info(String.format("Customer Update event with created status sent to Customer service => %s", orderEventDto));
+                LOGGER.info("Customer Update event with created status sent to Customer service => {}", orderEventDto);
                 customerProducer.sendMessage(orderEventDto);
                 // updateKafkaTemplate.send(UPDATE_CUSTOMER_EVENT,updateCustomerEvent(event,STATUS));
             } else {
@@ -70,7 +70,7 @@ public class CustomerConsumer {
                 orderEventDto.setStatus("FAILED");
                 orderEventDto.setId(event.getCustomer().getId());
                 event.setMessage("customer status is in failed state");
-                LOGGER.info(String.format("Customer Update event with failed status sent to Customer service => %s", orderEventDto));
+                LOGGER.info("Customer Update event with failed status sent to Customer service => {}", orderEventDto);
                 customerProducer.sendMessage(orderEventDto);
                 // updateKafkaTemplate.send(UPDATE_CUSTOMER_EVENT,updateCustomerEvent(event,"FAILED"));
             }
@@ -88,7 +88,7 @@ public class CustomerConsumer {
                     orderEventDto.setId(event.getCustomer().getId());
                     // event.setStatus(STATUS);
                     // event.setMessage("customer status is in created state");
-                    LOGGER.info(String.format("Customer Update event with deleted status sent to Customer service => %s", orderEventDto));
+                    LOGGER.info("Customer Update event with deleted status sent to Customer service => {}", orderEventDto);
                     customerProducer.sendMessage(orderEventDto);
                 }
 

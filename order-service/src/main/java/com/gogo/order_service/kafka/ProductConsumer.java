@@ -88,7 +88,7 @@ public class ProductConsumer {
             OrderEventDto orderEventDto = new OrderEventDto();
             boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getId(), "CREATED");
             if (productExist) {
-                productRepository.updateProduct(event.getProduct().getId(), "CREATED", event.getProduct().getName(), event.getProduct().getQty(), event.getProduct().getPrice());
+                productRepository.updateProduct(event.getProduct().getId(), "CREATED", event.getProduct().getName(), event.getProduct().getQty(), event.getProduct().getPrice(),event.getProduct().getQtyStatus());
                 orderEventDto.setStatus("UPDATED");
                 orderEventDto.setId(event.getProduct().getId());
                 orderEventDto.setName(event.getProduct().getName());
@@ -96,11 +96,19 @@ public class ProductConsumer {
                 ProductEventDto productEventDto = new ProductEventDto();
                 productEventDto.setPrice(event.getProduct().getPrice());
                 productEventDto.setQty(event.getProduct().getQty());
+                productEventDto.setQtyStatus(event.getProduct().getQtyStatus());
 
                 orderEventDto.setProductEventDto(productEventDto);
                 event.setMessage("Product status is in updated state");
                 LOGGER.info(String.format("Product Update event with updated status sent to Inventory service => %s", orderEventDto));
                 productProducer.sendMessage(orderEventDto);
+            }
+        }
+        if(event.getStatus().equalsIgnoreCase("UNAVAILABLE")){
+            Product product=orderService.findProductById(event.getProduct().getId());
+            if(product.getQty()==0){
+                product.setQtyStatus("UNAVAILABLE");
+                productRepository.updateProductQtyStatus(product.getProductIdEvent(),product.getQtyStatus());
             }
         }
     }

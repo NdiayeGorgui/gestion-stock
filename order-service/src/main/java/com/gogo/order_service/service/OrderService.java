@@ -38,9 +38,11 @@ public class OrderService {
         productItemRepository.save(productItem);
     }
 
-    public int qtyRestante(int quantity, int usedQuantity) {
-        return (quantity - usedQuantity);
-
+    public int qtyRestante(int quantity, int usedQuantity, String status) {
+        if (status.equalsIgnoreCase("CREATED"))
+            return (quantity - usedQuantity);
+        else
+            return (quantity + usedQuantity);
     }
 
     public void updateQuantity(String productIdEvent, int qty) {
@@ -71,8 +73,10 @@ public class OrderService {
 
     public void createProductItem(OrderEvent orderEvent, Order savedOrder, ProductItem savedProductItem) {
         // createOrder( orderEvent, savedOrder);
-        savedProductItem.setProductIdEvent(orderEvent.getProductItem().getProductId());
-        savedProductItem.setPrice(orderEvent.getProductItem().getProductPrice());
+        //savedProductItem.setProductIdEvent(orderEvent.getProductItem().getProductId());
+        //savedProductItem.setPrice(orderEvent.getProductItem().getProductPrice());
+        savedProductItem.setProductIdEvent(orderEvent.getProduct().getId());
+        savedProductItem.setPrice(orderEvent.getProduct().getPrice());
         savedProductItem.setQuantity(orderEvent.getProductItem().getProductQty());
         savedProductItem.setOrderIdEvent(savedOrder.getOrderIdEvent());
         savedProductItem.setDiscount(this.getAmount(savedProductItem.getQuantity(), savedProductItem.getPrice())); //todo
@@ -201,5 +205,9 @@ public class OrderService {
 
     public Product findProductById(String productIdEvent) {
         return productRepository.findProductByProductIdEvent(productIdEvent);
+    }
+
+    public ProductItem findProductItemByOrderEventId(String orderEventId) {
+        return productItemRepository.findByOrderIdEvent(orderEventId);
     }
 }
