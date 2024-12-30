@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class Payment {
     private String paymentIdEvent;
     private String orderIdEvent;
+    private String customerIdEvent;
     private String paymentMode;
     private double amount;
     private String paymentStatus;

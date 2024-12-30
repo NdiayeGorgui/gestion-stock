@@ -203,6 +203,11 @@ public class OrderService {
 
     }
 
+    public void updateAllOrderStatus(String customerIdEvent,String status ){
+         orderRepository.updateAllOrderStatus(customerIdEvent,status);
+
+    }
+
     public Product findProductById(String productIdEvent) {
         return productRepository.findProductByProductIdEvent(productIdEvent);
     }

@@ -22,5 +22,8 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     Order findByOrderIdEvent(String orderRef);
 
-
+    @Modifying
+    @Transactional
+    @Query("UPDATE Order o SET o.orderStatus= :orderStatus WHERE o.customerIdEvent= :customerIdEvent")
+    void updateAllOrderStatus(@Param("customerIdEvent") String customerIdEvent, @Param("orderStatus") String orderStatus);
 }

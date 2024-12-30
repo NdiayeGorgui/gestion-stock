@@ -2,10 +2,13 @@ package com.gogo.billing_service.Repository;
 
 import com.gogo.billing_service.model.Bill;
 import jakarta.transaction.Transactional;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface BillRepository extends JpaRepository<Bill,Long> {
     boolean existsByOrderRefAndStatus(String orderId, String status);
@@ -20,5 +23,15 @@ public interface BillRepository extends JpaRepository<Bill,Long> {
     @Transactional
     @Query("UPDATE Bill b SET b.status= :status WHERE b.orderRef= :orderRef")
     int updateTheBillStatus(@Param("orderRef") String orderRef, @Param("status") String status);
+
+    @Query("SELECT sum(b.price) from Bill b where b.customerIdEvent = ?1")
+    double sumBill( String customerIdEvent);
+
+    List<Bill> findByCustomerIdEventAndStatus(String customerIdEvent, String status);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Bill b SET b.status= :status WHERE b.customerIdEvent= :customerIdEvent")
+    void updateAllBillCustomerStatus(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status);
 
 }

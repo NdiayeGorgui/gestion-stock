@@ -25,9 +25,9 @@ public class PaymentConsumer {
         if (event.getStatus().equalsIgnoreCase("COMPLETED")) {
 
             event.setStatus("COMPLETED");
-            orderService.updateOrderStatus(event.getId(), event.getStatus());
-
-            LOGGER.info("Product Update event with completed status sent to Order service => {}", event);
+           // orderService.updateOrderStatus(event.getId(), event.getStatus());
+            orderService.updateAllOrderStatus(event.getCustomerEventDto().getCustomerIdEvent(), event.getStatus());
+            LOGGER.info("Payment Update event with completed status sent to Order service => {}", event);
 
             //  billProducer.sendMessage(event);
         }

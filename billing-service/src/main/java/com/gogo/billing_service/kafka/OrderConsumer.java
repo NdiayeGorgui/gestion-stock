@@ -60,21 +60,10 @@ public class OrderConsumer {
 
             if (billExist) {
                 event.setStatus("CREATED");
-                billingService.updateBillStatus(event.getProductEventDto().getProductIdEvent(), event.getStatus());
+                billingService.updateTheBillStatus(event.getId(), event.getStatus());
                 LOGGER.info("Bill  event with created status sent to Order service => {}", event);
                 billProducer.sendMessage(event);
 
-               /* PaymentEvent paymentEvent=new PaymentEvent();
-                paymentEvent.setPaymentIdEvent(UUID.randomUUID().toString());
-                paymentEvent.setStatus("PENDING");
-                paymentEvent.setMessage("Creating payment");
-                paymentEvent.setAmount((bill.getQuantity()*bill.getPrice())-(bill.getDiscount()));
-                Order order=new Order();
-                order.setOrderId(bill.getOrderRef());
-                order.setQty(bill.getQuantity());
-                order.setPrice(bill.getPrice());
-                paymentEvent.setOrder(order);
-                paymentProducer.sendMessage(paymentEvent);*/
 
             }else {
                 event.setStatus("FAILED");
@@ -98,6 +87,6 @@ public class OrderConsumer {
             billProducer.sendMessage(event);
             }
         }
-        LOGGER.info(String.format("Order event received in billing service => %s", event));
+        LOGGER.info("Order event received in billing service => {}", event);
     }
 }
