@@ -1,8 +1,10 @@
 package com.gogo.inventory_service.service;
 
 import com.gogo.base_domaine_service.dto.Product;
+import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.ProductEvent;
 import com.gogo.inventory_service.kafka.ProductProducer;
+import com.gogo.inventory_service.mapper.ProductMapper;
 import com.gogo.inventory_service.model.ProductModel;
 import com.gogo.inventory_service.repository.ProductRepository;
 import jakarta.transaction.Transactional;
@@ -43,19 +45,13 @@ public class ProductService {
     }
 
     public void saveAndSendProduct(Product product){
-        ProductModel savedProduct=new ProductModel();
-        savedProduct.setProductIdEvent(UUID.randomUUID().toString());
-        savedProduct.setName(product.getName());
-        savedProduct.setQty(product.getQty());
-        savedProduct.setPrice(product.getPrice());
-        savedProduct.setStatus("PENDING");
-        savedProduct.setQtyStatus("AVAILABLE");
+        ProductModel savedProduct= ProductMapper.mapToProduct(product);
         this.saveProduct(savedProduct);
 
         product.setId(savedProduct.getProductIdEvent());
         ProductEvent productEvent = new ProductEvent();
-       // productEvent.setEventType("CreateProduct");
-        productEvent.setStatus("PENDING");
+
+        productEvent.setStatus(EventStatus.PENDING.name());
         productEvent.setMessage("Product status is in pending state");
         productEvent.setProduct(product);
 
@@ -70,10 +66,8 @@ public class ProductService {
         existingProduct.setQty(product.getQty());
         this.saveProduct(existingProduct);
 
-       // product.setId(UUID.randomUUID().toString());
         ProductEvent productEvent = new ProductEvent();
-       // productEvent.setEventType("UpdateProduct");
-        productEvent.setStatus("PENDING");
+        productEvent.setStatus(EventStatus.PENDING.name());
         productEvent.setMessage("Product status is in pending state");
         productEvent.setProduct(product);
 
@@ -90,7 +84,7 @@ public class ProductService {
 
         ProductEvent productEvent=new ProductEvent();
 
-        productEvent.setStatus("DELETING");
+        productEvent.setStatus(EventStatus.DELETING.name());
         productEvent.setMessage("Product status is in deleting state");
         productEvent.setProduct(product);
 
@@ -104,7 +98,7 @@ public class ProductService {
 
         ProductEvent productEvent=new ProductEvent();
 
-        productEvent.setStatus("UPDATING");
+        productEvent.setStatus(EventStatus.UPDATING.name());
         productEvent.setMessage("Product status is in updating state");
         productEvent.setProduct(product);
 
@@ -131,7 +125,7 @@ public class ProductService {
     }
 
     public int qtyRestante(int quantity, int usedQuantity, String status) {
-        if (status.equalsIgnoreCase("CREATED"))
+        if (status.equalsIgnoreCase(EventStatus.CREATED.name()))
             return (quantity - usedQuantity);
         else
             return (quantity + usedQuantity);
@@ -147,11 +141,11 @@ public class ProductService {
         ProductEvent productEvent=new ProductEvent();
 
         productModelList.forEach(productModel -> {
-            if(productModel.getQty()==0 && productModel.getQtyStatus().equalsIgnoreCase("AVAILABLE")){
-                productModel.setQtyStatus("UNAVAILABLE");
+            if(productModel.getQty()==0 && productModel.getQtyStatus().equalsIgnoreCase(EventStatus.AVAILABLE.name())){
+                productModel.setQtyStatus(EventStatus.UNAVAILABLE.name());
                 product.setQtyStatus(productModel.getQtyStatus());
                 product.setId(productModel.getProductIdEvent());
-                productEvent.setStatus("UNAVAILABLE");
+                productEvent.setStatus(EventStatus.UNAVAILABLE.name());
                 productEvent.setProduct(product);
 
                 productRepository.updateProductQtyStatus(productModel.getProductIdEvent(),productModel.getQtyStatus());

@@ -1,8 +1,10 @@
 package com.gogo.order_service.kafka;
 
 import com.gogo.base_domaine_service.event.CustomerEvent;
+import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
 import com.gogo.base_domaine_service.event.CustomerEventDto;
+import com.gogo.order_service.mapper.OrderMapper;
 import com.gogo.order_service.model.Customer;
 import com.gogo.order_service.repository.CustomerRepository;
 import com.gogo.order_service.repository.OrderRepository;
@@ -34,30 +36,21 @@ public class CustomerConsumer {
             , groupId = "${spring.kafka.consumer.group-id}"
     )
     public void consumeOrder(CustomerEvent event) {
-        String STATUS = "CREATED";
         // save the customer event into the database
-        if (event.getStatus().equalsIgnoreCase("PENDING")) {
-
+        if (event.getStatus().equalsIgnoreCase(EventStatus.PENDING.name())) {
             LOGGER.info("Customer event received in Order service => {}", event);
-            Customer client = new Customer();
-            client.setCustomerIdEvent(event.getCustomer().getId());
-            client.setName(event.getCustomer().getName());
-            client.setEmail(event.getCustomer().getEmail());
-            client.setAddress(event.getCustomer().getAddress());
-            client.setPhone(event.getCustomer().getPhone());
-            client.setStatus(STATUS);
-            orderService.saveClient(client);
-
+            Customer customer = OrderMapper.mapToCustomerModel(event);
+            orderService.saveClient(customer);
 
             OrderEventDto orderEventDto = new OrderEventDto();
 
-            boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), STATUS);
+            boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), EventStatus.CREATED.name());
 
             if (customerExist) {
                 //update customer with created
                 // updateCustomerEvent(event,STATUS);
 
-                orderEventDto.setStatus(STATUS);
+                orderEventDto.setStatus(EventStatus.CREATED.name());
                 orderEventDto.setId(event.getCustomer().getId());
                 // event.setStatus(STATUS);
                 // event.setMessage("customer status is in created state");
@@ -67,7 +60,7 @@ public class CustomerConsumer {
             } else {
                 //update customer with failed
                 // updateCustomerEvent(event,"FAILED");
-                orderEventDto.setStatus("FAILED");
+                orderEventDto.setStatus(EventStatus.FAILED.name());
                 orderEventDto.setId(event.getCustomer().getId());
                 event.setMessage("customer status is in failed state");
                 LOGGER.info("Customer Update event with failed status sent to Customer service => {}", orderEventDto);
@@ -75,16 +68,16 @@ public class CustomerConsumer {
                 // updateKafkaTemplate.send(UPDATE_CUSTOMER_EVENT,updateCustomerEvent(event,"FAILED"));
             }
         }
-        if (event.getStatus().equalsIgnoreCase("DELETING")) {
+        if (event.getStatus().equalsIgnoreCase(EventStatus.DELETING.name())) {
             OrderEventDto orderEventDto = new OrderEventDto();
-            boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), "CREATED");
+            boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), EventStatus.CREATED.name());
             if (customerExist) {
                 Customer customer= customerRepository.findCustomerByCustomerIdEvent(event.getCustomer().getId());
                 customerRepository.deleteCustomer(customer.getCustomerIdEvent());
                 //verifying if exists customer object
-                boolean customerDeletedExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), "CREATED");
+                boolean customerDeletedExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), EventStatus.CREATED.name());
                 if(!customerDeletedExist){
-                    orderEventDto.setStatus("DELETED");
+                    orderEventDto.setStatus(EventStatus.DELETED.name());
                     orderEventDto.setId(event.getCustomer().getId());
                     // event.setStatus(STATUS);
                     // event.setMessage("customer status is in created state");
@@ -94,13 +87,13 @@ public class CustomerConsumer {
 
             }
         }
-        if (event.getStatus().equalsIgnoreCase("UPDATING")) {
+        if (event.getStatus().equalsIgnoreCase(EventStatus.UPDATING.name())) {
             OrderEventDto orderEventDto = new OrderEventDto();
-            boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), "CREATED");
+            boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), EventStatus.CREATED.name());
             if (customerExist) {
                 Customer customer = customerRepository.findCustomerByCustomerIdEvent(event.getCustomer().getId());
-                customerRepository.updateCustomer(event.getCustomer().getId(),"CREATED",event.getCustomer().getName(),event.getCustomer().getPhone(),event.getCustomer().getEmail(),event.getCustomer().getAddress());
-                orderEventDto.setStatus("UPDATED");
+                customerRepository.updateCustomer(event.getCustomer().getId(),EventStatus.CREATED.name(),event.getCustomer().getName(),event.getCustomer().getPhone(),event.getCustomer().getEmail(),event.getCustomer().getAddress());
+                orderEventDto.setStatus(EventStatus.UPDATED.name());
                 orderEventDto.setId(event.getCustomer().getId());
                 orderEventDto.setName(event.getCustomer().getName());
 

@@ -1,5 +1,6 @@
 package com.gogo.order_service.kafka;
 
+import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
 import com.gogo.order_service.model.Order;
 import com.gogo.order_service.model.Product;
@@ -31,22 +32,20 @@ public class BillConsumer {
             , groupId = "${spring.kafka.consumer.bill.group-id}"
     )
     public void consumeBill(OrderEventDto event) {
-        String STATUS = "CREATED";
 
+        if (event.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())) {
 
-        if (event.getStatus().equalsIgnoreCase("CREATED")) {
-
-            LOGGER.info(String.format("Bill event received in Order service => %s", event));
+            LOGGER.info("Bill event received in Order service => {}", event);
 
             Product product = orderService.findProductById(event.getProductEventDto().getProductIdEvent());
 
-            boolean oderExist = orderRepository.existsByOrderIdEventAndOrderStatus(event.getId(), STATUS);
+            boolean oderExist = orderRepository.existsByOrderIdEventAndOrderStatus(event.getId(), EventStatus.CREATED.name());
 
             if (oderExist) {
 
-                orderService.updateOrderStatus(event.getId(), "CREATE");
+                orderService.updateOrderStatus(event.getId(), EventStatus.CREATED.name());
 
-                LOGGER.info(String.format("Order event with created status sent to Inventory service => %s", event));
+                LOGGER.info("Order event with created status sent to Inventory service => {}", event);
 
             }
             //String qtyStatus=event.getProductEventDto().getQtyStatus();
@@ -54,7 +53,7 @@ public class BillConsumer {
             int qr = orderService.qtyRestante(product.getQty(), qtyUsed, event.getStatus());
             if (qr > 0) {
                 orderService.updateQuantity(event.getProductEventDto().getProductIdEvent(), qr);
-                orderService.updateOrderStatus(event.getId(), "CREATED");
+                orderService.updateOrderStatus(event.getId(), EventStatus.CREATED.name());
 
             }else {
                 throw new RuntimeException("Quantite insuffisante");
@@ -62,13 +61,13 @@ public class BillConsumer {
 
         }
 
-        if (event.getStatus().equalsIgnoreCase("CANCELED")) {
+        if (event.getStatus().equalsIgnoreCase(EventStatus.CANCELED.name())) {
 
-            LOGGER.info(String.format("Bill event for cancel order received in Order service => %s", event));
+            LOGGER.info("Bill event for cancel order received in Order service => {}", event);
 
             Order order = orderRepository.findByOrderIdEvent(event.getId());
 
-            boolean oderExist = orderRepository.existsByOrderIdEventAndOrderStatus(order.getOrderIdEvent(), STATUS);
+            boolean oderExist = orderRepository.existsByOrderIdEventAndOrderStatus(order.getOrderIdEvent(), EventStatus.CREATED.name());
             ProductItem productItem = orderService.findProductItemByOrderEventId(event.getId());
             if (oderExist) {
 

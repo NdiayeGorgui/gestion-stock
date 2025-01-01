@@ -20,4 +20,11 @@ public class CustomerModel {
     private String phone;
     private String email;
     private String status;
+
+    public CustomerModel(String name, String address, String phone, String email) {
+        this.name = name;
+        this.address = address;
+        this.phone = phone;
+        this.email = email;
+    }
 }

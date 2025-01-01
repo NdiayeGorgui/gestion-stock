@@ -12,4 +12,10 @@ public class Customer {
     private String phone;
     private String email;
 
+    public Customer(String name, String address, String phone, String email) {
+        this.name = name;
+        this.address = address;
+        this.phone = phone;
+        this.email = email;
+    }
 }

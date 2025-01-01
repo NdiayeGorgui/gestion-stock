@@ -20,4 +20,5 @@ public class ProductModel {
     private  double price;
     private String status;
     private String qtyStatus;
+
 }

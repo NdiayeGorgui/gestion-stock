@@ -1,6 +1,7 @@
 package com.gogo.order_service.service;
 
 import com.gogo.base_domaine_service.event.*;
+import com.gogo.base_domaine_service.event.OrderStatus;
 import com.gogo.order_service.kafka.OrderProducer;
 import com.gogo.order_service.model.*;
 import com.gogo.order_service.repository.CustomerRepository;
@@ -39,7 +40,7 @@ public class OrderService {
     }
 
     public int qtyRestante(int quantity, int usedQuantity, String status) {
-        if (status.equalsIgnoreCase("CREATED"))
+        if (status.equalsIgnoreCase(EventStatus.CREATED.name()))
             return (quantity - usedQuantity);
         else
             return (quantity + usedQuantity);
@@ -59,15 +60,14 @@ public class OrderService {
     }
 
     public List<Product> getProducts() {
-        List<Product> productList = productRepository.findAll();
-        return productList;
+        return productRepository.findAll();
     }
 
     public void createOrder(OrderEvent orderEvent, Order savedOrder) {
 
         savedOrder.setCustomerIdEvent(orderEvent.getCustomer().getId());
         savedOrder.setOrderIdEvent(UUID.randomUUID().toString());
-        savedOrder.setOrderStatus(OrderStatus.PENDING.toString());
+        savedOrder.setOrderStatus(EventStatus.PENDING.name());
         savedOrder.setDate(LocalDateTime.now());
     }
 
@@ -93,7 +93,7 @@ public class OrderService {
         ProductItemEventDto productItemEventDto = new ProductItemEventDto();
 
         orderEventDto.setId(orderEvent.getOrderIdEvent());
-        orderEventDto.setStatus("PENDING");
+        orderEventDto.setStatus(EventStatus.PENDING.name());
         orderEventDto.setName("Order");
 
         customerEventDto.setCustomerIdEvent(orderEvent.getCustomer().getId());
@@ -106,7 +106,7 @@ public class OrderService {
         productEventDto.setName(orderEvent.getProduct().getName());
         productEventDto.setPrice(orderEvent.getProduct().getPrice());
         productEventDto.setQty(orderEvent.getProduct().getQty());
-        productEventDto.setQtyStatus("MODIFYING");
+        productEventDto.setQtyStatus(EventStatus.MODIFYING.name());
 
         //   ProductItem productItem=productItemRepository.findByOrderIdEvent(orderEvent.getOrderIdEvent());
 
@@ -136,7 +136,7 @@ public class OrderService {
 
         OrderEventDto orderEventDto=new OrderEventDto();
         orderEventDto.setId(orderIdEvent);
-        orderEventDto.setStatus("CANCELLING");
+        orderEventDto.setStatus(EventStatus.CANCELLING.name());
         orderProducer.sendMessage(orderEventDto);
     }
 
@@ -181,8 +181,9 @@ public class OrderService {
 
     public List<Customer> getCustomerById(String id) {
         List<Customer> customers = customerRepository.findAll();
-        List<Customer> orderList = customers.stream().filter(cus -> cus.getCustomerIdEvent().equalsIgnoreCase(id)).collect(Collectors.toList());
-        return orderList;
+        return customers.stream()
+                .filter(cus -> cus.getCustomerIdEvent().equalsIgnoreCase(id))
+                .collect(Collectors.toList());
     }
 
     public double getAmount(int qty, double price) {

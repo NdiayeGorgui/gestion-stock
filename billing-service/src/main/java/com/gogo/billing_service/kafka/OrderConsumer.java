@@ -64,7 +64,6 @@ public class OrderConsumer {
                 LOGGER.info("Bill  event with created status sent to Order service => {}", event);
                 billProducer.sendMessage(event);
 
-
             }else {
                 event.setStatus("FAILED");
                // event.setMessage("Bill status is in failed state");

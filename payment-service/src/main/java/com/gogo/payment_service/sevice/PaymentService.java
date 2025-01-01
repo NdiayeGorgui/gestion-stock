@@ -4,6 +4,7 @@ package com.gogo.payment_service.sevice;
 import com.gogo.base_domaine_service.dto.Payment;
 
 import com.gogo.base_domaine_service.event.CustomerEventDto;
+import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
 import com.gogo.payment_service.kafka.PaymentProducer;
 import com.gogo.payment_service.model.Bill;
@@ -37,13 +38,13 @@ public class PaymentService {
         PaymentModel savedPayment=new PaymentModel();
         OrderEventDto orderEventDto=new OrderEventDto();
 
-        double amount= this.getAmount(payment.getCustomerIdEvent(),"CREATED");
-        double discount=this.getDiscount(payment.getCustomerIdEvent(),"CREATED");
+        double amount= this.getAmount(payment.getCustomerIdEvent(), EventStatus.CREATED.name());
+        double discount=this.getDiscount(payment.getCustomerIdEvent(),EventStatus.CREATED.name());
 
        // List<Bill> bills=this.getBillsByCustomer(payment.getCustomerIdEvent(),"CREATED");
 
         savedPayment.setPaymentIdEvent(UUID.randomUUID().toString());
-        savedPayment.setPaymentStatus("COMPLETED");
+        savedPayment.setPaymentStatus(EventStatus.COMPLETED.name());
         savedPayment.setPaymentMode(payment.getPaymentMode());
         savedPayment.setCustomerIdEvent(payment.getCustomerIdEvent());
         savedPayment.setAmount((amount-discount));

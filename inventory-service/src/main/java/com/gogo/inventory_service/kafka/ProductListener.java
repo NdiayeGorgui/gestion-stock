@@ -23,19 +23,19 @@ public class ProductListener {
     )
     public void consumeProductStatus(OrderEventDto orderEventDto){
 
-        if(orderEventDto.getStatus().equalsIgnoreCase("CREATED")){
+        if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())){
 
             productService.updateProductStatus(orderEventDto.getId(), orderEventDto.getStatus());
         }
 
-        if(orderEventDto.getStatus().equalsIgnoreCase("DELETED")){
+        if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.DELETED.name())){
             productService.deleteProduct(orderEventDto.getId(), orderEventDto.getStatus());
         }
-        if(orderEventDto.getStatus().equalsIgnoreCase("UPDATED")){
-            productService.updateProduct(orderEventDto.getId(),"CREATED", orderEventDto.getName(), orderEventDto.getProductEventDto().getQty(), orderEventDto.getProductEventDto().getPrice(),orderEventDto.getProductEventDto().getQtyStatus());
+        if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.UPDATED.name())){
+            productService.updateProduct(orderEventDto.getId(),EventStatus.CREATED.name(), orderEventDto.getName(), orderEventDto.getProductEventDto().getQty(), orderEventDto.getProductEventDto().getPrice(),orderEventDto.getProductEventDto().getQtyStatus());
         }
 
-        LOGGER.info(String.format("Product Updated event received in Inventory service => %s", orderEventDto));
+        LOGGER.info("Product Updated event received in Inventory service => {}", orderEventDto);
 
 
     }

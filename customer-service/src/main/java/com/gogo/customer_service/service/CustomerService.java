@@ -2,8 +2,10 @@ package com.gogo.customer_service.service;
 
 import com.gogo.base_domaine_service.dto.Customer;
 import com.gogo.base_domaine_service.event.CustomerEvent;
+import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderStatus;
 import com.gogo.customer_service.kafka.CustomerProducer;
+import com.gogo.customer_service.mapper.CustomerMapper;
 import com.gogo.customer_service.model.CustomerModel;
 import com.gogo.customer_service.repository.CustomerRepository;
 import jakarta.transaction.Transactional;
@@ -28,18 +30,12 @@ public class CustomerService {
     }
 
     public void saveAndSendCustomer(Customer customer){
-        CustomerModel savedCustomer=new CustomerModel();
-        savedCustomer.setCustomerIdEvent(UUID.randomUUID().toString());
-        savedCustomer.setName(customer.getName());
-        savedCustomer.setAddress(customer.getAddress());
-        savedCustomer.setEmail(customer.getEmail());
-        savedCustomer.setStatus("PENDING");
-        savedCustomer.setPhone(customer.getPhone());
+        CustomerModel savedCustomer= CustomerMapper.mapToCustomerModel(customer);
         this.saveCustomer(savedCustomer);
 
         customer.setId(savedCustomer.getCustomerIdEvent());
         CustomerEvent customerEvent = new CustomerEvent();
-        customerEvent.setStatus("PENDING");
+        customerEvent.setStatus(EventStatus.PENDING.name());
         customerEvent.setMessage("customer status is in pending state");
         customerEvent.setCustomer(customer);
 
@@ -49,6 +45,7 @@ public class CustomerService {
     public void sendCustomerToDelete(String customerIdEvent){
         CustomerModel customerModel=customerRepository.findCustomerByCustomerIdEvent(customerIdEvent);
         Customer customer=new Customer();
+
         customer.setId(customerModel.getCustomerIdEvent());
         customer.setName(customerModel.getName());
         customer.setPhone(customerModel.getPhone());
@@ -57,7 +54,7 @@ public class CustomerService {
 
         CustomerEvent customerEvent=new CustomerEvent();
 
-        customerEvent.setStatus("DELETING");
+        customerEvent.setStatus(EventStatus.DELETING.name());
         customerEvent.setMessage("customer status is in deleting state");
         customerEvent.setCustomer(customer);
 
@@ -76,7 +73,7 @@ public class CustomerService {
 
         CustomerEvent customerEvent=new CustomerEvent();
 
-        customerEvent.setStatus("UPDATING");
+        customerEvent.setStatus(EventStatus.UPDATING.name());
         customerEvent.setMessage("customer status is in updating state");
         customerEvent.setCustomer(customer);
 

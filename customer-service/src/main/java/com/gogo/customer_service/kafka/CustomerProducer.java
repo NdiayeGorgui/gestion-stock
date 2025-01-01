@@ -25,7 +25,7 @@ public class CustomerProducer {
     }
 
     public void sendMessage(CustomerEvent event){
-        LOGGER.info(String.format("Customer event => %s", event.toString()));
+        LOGGER.info("Customer event => {}", event.toString());
 
         // create Message
         Message<CustomerEvent> message = MessageBuilder

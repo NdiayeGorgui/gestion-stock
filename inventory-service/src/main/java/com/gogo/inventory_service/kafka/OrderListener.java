@@ -1,6 +1,7 @@
 
 package com.gogo.inventory_service.kafka;
 
+import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
 import com.gogo.inventory_service.model.ProductModel;
 import com.gogo.inventory_service.service.ProductService;
@@ -26,7 +27,7 @@ public class OrderListener {
     )
     public void consumeProductStatus(OrderEventDto event){
 
-        if (event.getStatus().equalsIgnoreCase("CREATED")) {
+        if (event.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())) {
             ProductModel product=productService.findProductById(event.getProductEventDto().getProductIdEvent());
             int qtyUsed= event.getProductItemEventDto().getQty();
             int qr=productService.qtyRestante(product.getQty(),qtyUsed,event.getStatus());
@@ -39,7 +40,7 @@ public class OrderListener {
                 throw new RuntimeException("Quantite insuffisante");
             }
         }
-        if (event.getStatus().equalsIgnoreCase("CANCELED")) {
+        if (event.getStatus().equalsIgnoreCase(EventStatus.CANCELED.name())) {
             ProductModel product=productService.findProductById(event.getProductEventDto().getProductIdEvent());
             int qtyUsed=event.getProductEventDto().getQty();
             int qr=productService.qtyRestante(product.getQty(),qtyUsed,event.getStatus());
@@ -47,7 +48,7 @@ public class OrderListener {
                 productService.updateProductQty(event.getProductEventDto().getProductIdEvent(),qr);
 
         }
-        LOGGER.info(String.format("Product Updated event received in Inventory service => %s", event));
+        LOGGER.info("Product Updated event received in Inventory service => {}", event);
     }
 }
 

@@ -28,28 +28,33 @@ public class OrderController {
 
     @PostMapping("/orders")
     public ResponseEntity<?> placeOrder(@RequestBody OrderEvent orderEvent){
+       if (orderEvent.getProduct().getQty()>=orderEvent.getProductItem().getProductQty()){
+           // save order
+           Order savedOrder=new Order();
+           orderService.createOrder(orderEvent,savedOrder);
+           orderService.saveOrder(savedOrder);
 
-         // save order
-        Order savedOrder=new Order();
-        orderService.createOrder(orderEvent,savedOrder);
-        orderService.saveOrder(savedOrder);
+           //save product item
+           ProductItem savedProductItem=new ProductItem();
+           orderService.createProductItem(orderEvent,savedOrder,savedProductItem);
+           orderService.saveProductItem(savedProductItem);
 
-       //save product item
-        ProductItem savedProductItem=new ProductItem();
-        orderService.createProductItem(orderEvent,savedOrder,savedProductItem);
-        orderService.saveProductItem(savedProductItem);
+           //send the event to the queue
 
-        //send the event to the queue
+           OrderEventDto orderEventDto =new OrderEventDto();
+           orderService.sendEvent(orderEvent, orderEventDto);
+           //recuperer le id du order dans la methode create order pour l'envoyer dans le billing service
+           orderEvent.setOrderIdEvent(savedOrder.getOrderIdEvent());
+           orderEventDto.setId(orderEvent.getOrderIdEvent());
 
-        OrderEventDto orderEventDto =new OrderEventDto();
-        orderService.sendEvent(orderEvent, orderEventDto);
-        //recuperer le id du order dans la methode create order pour l'envoyer dans le billing service
-        orderEvent.setOrderIdEvent(savedOrder.getOrderIdEvent());
-        orderEventDto.setId(orderEvent.getOrderIdEvent());
+           orderProducer.sendMessage(orderEventDto);
 
-        orderProducer.sendMessage(orderEventDto);
+           return ResponseEntity.ok("Order placed successfully ...");
+       }else {
+           return ResponseEntity.ok("Insufficient quantity ...");
+       }
 
-        return ResponseEntity.ok("Order placed successfully ...");
+
     }
 
     @GetMapping("/orders")
