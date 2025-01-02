@@ -20,16 +20,17 @@ public class CustomerListener {
             topics = "${spring.kafka.topic.customer.update.name}"
             ,groupId = "${spring.kafka.update.customer.consumer.group-id}"
     )
-    public void consumeCustomerStatus(OrderEventDto orderEventDto){
-        if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())){
-            customerService.updateCustomerStatus(orderEventDto.getId(), orderEventDto.getStatus());
-        }
-        if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.DELETED.name())){
-            customerService.deleteCustomer(orderEventDto.getId(), orderEventDto.getStatus());
-        }
-        if (orderEventDto.getStatus().equalsIgnoreCase(EventStatus.UPDATED.name())) {
-            if(orderEventDto.getCustomerEventDto()!=null){
-                customerService.updateCustomer(orderEventDto.getId(), EventStatus.CREATED.name(), orderEventDto.getName(), orderEventDto.getCustomerEventDto().getPhone(), orderEventDto.getCustomerEventDto().getEmail(), orderEventDto.getCustomerEventDto().getAddress());
+    public void consumeCustomerStatus(OrderEventDto orderEventDto) {
+        if (orderEventDto.getCustomerEventDto() != null) {
+            if (orderEventDto.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())) {
+                customerService.updateCustomerStatus(orderEventDto.getCustomerEventDto().getCustomerIdEvent(), orderEventDto.getStatus());
+            }
+            if (orderEventDto.getStatus().equalsIgnoreCase(EventStatus.DELETED.name())) {
+                customerService.deleteCustomer(orderEventDto.getCustomerEventDto().getCustomerIdEvent(), orderEventDto.getStatus());
+            }
+            if (orderEventDto.getStatus().equalsIgnoreCase(EventStatus.UPDATED.name())) {
+
+                customerService.updateCustomer(orderEventDto.getCustomerEventDto().getCustomerIdEvent(), EventStatus.CREATED.name(), orderEventDto.getCustomerEventDto().getName(), orderEventDto.getCustomerEventDto().getPhone(), orderEventDto.getCustomerEventDto().getEmail(), orderEventDto.getCustomerEventDto().getAddress());
             }
 
         }

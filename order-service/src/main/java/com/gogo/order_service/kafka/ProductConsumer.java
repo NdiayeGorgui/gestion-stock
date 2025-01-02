@@ -29,18 +29,20 @@ public class ProductConsumer {
             , groupId = "${spring.kafka.consumer.group-id}"
     )
     public void consumeOrder(ProductEvent event) {
-
+        OrderEventDto orderEventDto = new OrderEventDto();
         if (event.getStatus().equalsIgnoreCase(EventStatus.PENDING.name())) {
             Product product = OrderMapper.mapToProductModel(event);
             orderService.saveProduit(product);
 
-            OrderEventDto orderEventDto = new OrderEventDto();
-
             boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getId(), EventStatus.CREATED.name());
             if (productExist) {
                 //update product with created
+                ProductEventDto productEventDto=new ProductEventDto();
                 orderEventDto.setStatus(EventStatus.CREATED.name());
-                orderEventDto.setId(event.getProduct().getId());
+
+                productEventDto.setProductIdEvent(event.getProduct().getId());
+
+                orderEventDto.setProductEventDto(productEventDto);
 
                 // event.setMessage("Product status is in created state");
                 LOGGER.info("Product Update event with created status sent to Inventory service => {}", orderEventDto);
@@ -49,14 +51,18 @@ public class ProductConsumer {
             } else {
                 //update customer with failed
                 orderEventDto.setStatus(EventStatus.FAILED.name());
-                orderEventDto.setId(event.getProduct().getId());
+
+                ProductEventDto productEventDto=new ProductEventDto();
+                productEventDto.setProductIdEvent(event.getProduct().getId());
+                orderEventDto.setProductEventDto(productEventDto);
+
                 // event.setMessage("Product status is in failed state");
                 LOGGER.info("Product Update event with failed status sent to Customer service => {}", orderEventDto);
                 productProducer.sendMessage(orderEventDto);
             }
         }
         if (event.getStatus().equalsIgnoreCase(EventStatus.DELETING.name())) {
-            OrderEventDto orderEventDto = new OrderEventDto();
+
             boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getId(), EventStatus.CREATED.name());
             if (productExist) {
                 Product product = productRepository.findProductByProductIdEvent(event.getProduct().getId());
@@ -65,12 +71,10 @@ public class ProductConsumer {
                 boolean productDeletedExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getId(), EventStatus.CREATED.name());
                 if (!productDeletedExist) {
                     orderEventDto.setStatus(EventStatus.DELETED.name());
-                    orderEventDto.setId(event.getProduct().getId());
                     orderEventDto.setName(event.getProduct().getName());
 
-                    ProductEventDto productEventDto = new ProductEventDto();
-                    productEventDto.setPrice(event.getProduct().getPrice());
-                    productEventDto.setQty(event.getProduct().getQty());
+                    ProductEventDto productEventDto=new ProductEventDto();
+                    productEventDto.setProductIdEvent(event.getProduct().getId());
 
                     orderEventDto.setProductEventDto(productEventDto);
                     LOGGER.info("Product Update event with deleted status sent to Inventory service => {}", orderEventDto);
@@ -79,22 +83,24 @@ public class ProductConsumer {
             }
         }
         if (event.getStatus().equalsIgnoreCase(EventStatus.UPDATING.name())) {
-            OrderEventDto orderEventDto = new OrderEventDto();
+
             boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getId(), EventStatus.CREATED.name());
             if (productExist) {
                 productRepository.updateProduct(event.getProduct().getId(), EventStatus.CREATED.name(), event.getProduct().getName(), event.getProduct().getQty(), event.getProduct().getPrice(),event.getProduct().getQtyStatus());
+
                 orderEventDto.setStatus(EventStatus.UPDATED.name());
-                orderEventDto.setId(event.getProduct().getId());
-                orderEventDto.setName(event.getProduct().getName());
 
                 ProductEventDto productEventDto = new ProductEventDto();
+
+                productEventDto.setProductIdEvent(event.getProduct().getId());
+                productEventDto.setName(event.getProduct().getName());
                 productEventDto.setPrice(event.getProduct().getPrice());
                 productEventDto.setQty(event.getProduct().getQty());
                 productEventDto.setQtyStatus(event.getProduct().getQtyStatus());
 
                 orderEventDto.setProductEventDto(productEventDto);
                 event.setMessage("Product status is in updated state");
-                LOGGER.info(String.format("Product Update event with updated status sent to Inventory service => %s", orderEventDto));
+                LOGGER.info("Product Update event with updated status sent to Inventory service => {}", orderEventDto);
                 productProducer.sendMessage(orderEventDto);
             }
         }

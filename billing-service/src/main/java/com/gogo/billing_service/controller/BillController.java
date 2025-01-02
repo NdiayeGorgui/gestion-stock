@@ -24,16 +24,13 @@ public class BillController {
 
     @GetMapping("/bills/{id}")
     public Bill getBill(@PathVariable("id") Long id){
-        Bill bill=billingService.getBill(id);
-        return bill;
+        return billingService.getBill(id);
     }
 
     @GetMapping("/bills/{customerIdEvent}/{status}")
     public List<Bill> getCustomerBillsStatus(@PathVariable("customerIdEvent") String customerIdEvent,@PathVariable("status") String status)  {
         return billingService.billList(customerIdEvent,status);
     }
-
-
 
     @GetMapping("/bills/export/{customerIdEvent}/{status}")
     public void exportToExcel(HttpServletResponse response,@PathVariable("customerIdEvent") String customerIdEvent,@PathVariable("status") String status) throws IOException {
@@ -51,9 +48,7 @@ public class BillController {
 
             excelExporter.export(response,customerIdEvent,status);
         }else {
-            throw new RuntimeException("Liste vide");
+            throw new RuntimeException("Empty list");
         }
-
-
     }
 }

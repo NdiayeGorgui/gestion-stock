@@ -1,5 +1,6 @@
 package com.gogo.billing_service.kafka;
 
+import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
 import com.gogo.billing_service.service.BillingService;
 import org.slf4j.Logger;
@@ -23,9 +24,9 @@ public class ProductConsumer {
     )
     public void consumeProductStatus(OrderEventDto event) {
 
-        if (event.getStatus().equalsIgnoreCase("MODIFIED")) {
+        if (event.getStatus().equalsIgnoreCase(EventStatus.MODIFIED.name())) {
 
-            event.setStatus("CREATED");
+            event.setStatus(EventStatus.CREATED.name());
             billingService.updateBillStatus(event.getProductEventDto().getProductIdEvent(), event.getStatus());
 
             LOGGER.info("Product Update event with Created status sent to Order service => {}", event);

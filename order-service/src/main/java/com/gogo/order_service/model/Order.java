@@ -1,7 +1,6 @@
 package com.gogo.order_service.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.gogo.base_domaine_service.event.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

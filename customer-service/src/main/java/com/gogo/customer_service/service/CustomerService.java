@@ -3,7 +3,6 @@ package com.gogo.customer_service.service;
 import com.gogo.base_domaine_service.dto.Customer;
 import com.gogo.base_domaine_service.event.CustomerEvent;
 import com.gogo.base_domaine_service.event.EventStatus;
-import com.gogo.base_domaine_service.event.OrderStatus;
 import com.gogo.customer_service.kafka.CustomerProducer;
 import com.gogo.customer_service.mapper.CustomerMapper;
 import com.gogo.customer_service.model.CustomerModel;

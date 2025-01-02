@@ -1,12 +1,12 @@
-package com.gogo.payment_service.mapper;
+package com.gogo.billing_service.mapper;
 
-import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
-import com.gogo.payment_service.model.Bill;
+import com.gogo.billing_service.model.Bill;
 
 import java.time.LocalDateTime;
 
-public class PaymentMapper {
+public class BillMapper {
+
     public static Bill mapToBill(OrderEventDto orderEventDto){
         return new Bill(
                 null,

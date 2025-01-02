@@ -22,21 +22,20 @@ public class ProductListener {
             ,groupId = "${spring.kafka.update.product.consumer.group-id}"
     )
     public void consumeProductStatus(OrderEventDto orderEventDto){
-
-        if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())){
-
-            productService.updateProductStatus(orderEventDto.getId(), orderEventDto.getStatus());
+        if (orderEventDto.getProductEventDto() != null) {
+            if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())){
+                productService.updateProductStatus(orderEventDto.getProductEventDto().getProductIdEvent(), orderEventDto.getStatus());
+            }
+            if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.DELETED.name())){
+                productService.deleteProduct(orderEventDto.getProductEventDto().getProductIdEvent(), orderEventDto.getStatus());
+            }
+            if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.UPDATED.name())){
+                productService.updateProduct(orderEventDto.getProductEventDto().getProductIdEvent(),EventStatus.CREATED.name(), orderEventDto.getProductEventDto().getName(), orderEventDto.getProductEventDto().getQty(), orderEventDto.getProductEventDto().getPrice(),orderEventDto.getProductEventDto().getQtyStatus());
+            }
         }
 
-        if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.DELETED.name())){
-            productService.deleteProduct(orderEventDto.getId(), orderEventDto.getStatus());
-        }
-        if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.UPDATED.name())){
-            productService.updateProduct(orderEventDto.getId(),EventStatus.CREATED.name(), orderEventDto.getName(), orderEventDto.getProductEventDto().getQty(), orderEventDto.getProductEventDto().getPrice(),orderEventDto.getProductEventDto().getQtyStatus());
-        }
+
 
         LOGGER.info("Product Updated event received in Inventory service => {}", orderEventDto);
-
-
     }
 }

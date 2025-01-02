@@ -1,6 +1,5 @@
 package com.gogo.order_service.mapper;
 
-import com.gogo.base_domaine_service.dto.Customer;
 import com.gogo.base_domaine_service.event.CustomerEvent;
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.ProductEvent;

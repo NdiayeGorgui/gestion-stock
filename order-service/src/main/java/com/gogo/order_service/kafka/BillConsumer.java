@@ -58,7 +58,6 @@ public class BillConsumer {
             }else {
                 throw new RuntimeException("Quantite insuffisante");
             }
-
         }
 
         if (event.getStatus().equalsIgnoreCase(EventStatus.CANCELED.name())) {
@@ -70,9 +69,6 @@ public class BillConsumer {
             boolean oderExist = orderRepository.existsByOrderIdEventAndOrderStatus(order.getOrderIdEvent(), EventStatus.CREATED.name());
             ProductItem productItem = orderService.findProductItemByOrderEventId(event.getId());
             if (oderExist) {
-
-
-
                 orderService.updateOrderStatus(event.getId(), event.getStatus());
                 int qtyUsed = productItem.getQuantity();
                 String productIdEvent= productItem.getProductIdEvent();

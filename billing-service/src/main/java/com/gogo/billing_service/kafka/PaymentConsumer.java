@@ -1,5 +1,6 @@
 package com.gogo.billing_service.kafka;
 
+import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
 import com.gogo.billing_service.service.BillingService;
 import org.slf4j.Logger;
@@ -23,14 +24,13 @@ public class PaymentConsumer {
     )
     public void consumeProductStatus(OrderEventDto event) {
 
-        if (event.getStatus().equalsIgnoreCase("COMPLETED")) {
+        if (event.getStatus().equalsIgnoreCase(EventStatus.COMPLETED.name())) {
 
-            event.setStatus("COMPLETED");
+            event.setStatus(EventStatus.COMPLETED.name());
            // billingService.updateTheBillStatus(event.getId(), event.getStatus());
             billingService.updateAllBillCustomerStatus(event.getCustomerEventDto().getCustomerIdEvent(), event.getStatus());
 
             LOGGER.info("Product Update event with Created status sent to Order service => {}", event);
-
             //  billProducer.sendMessage(event);
         }
     }

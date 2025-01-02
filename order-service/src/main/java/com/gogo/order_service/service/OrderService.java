@@ -1,7 +1,6 @@
 package com.gogo.order_service.service;
 
 import com.gogo.base_domaine_service.event.*;
-import com.gogo.base_domaine_service.event.OrderStatus;
 import com.gogo.order_service.kafka.OrderProducer;
 import com.gogo.order_service.model.*;
 import com.gogo.order_service.repository.CustomerRepository;
@@ -21,11 +20,12 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class OrderService {
 
-    CustomerRepository customerRepository;
-    ProductRepository productRepository;
-    ProductItemRepository productItemRepository;
-    OrderRepository orderRepository;
+    private CustomerRepository customerRepository;
+    private ProductRepository productRepository;
+    private ProductItemRepository productItemRepository;
+    private OrderRepository orderRepository;
     private final OrderProducer orderProducer;
+
     public void saveClient(Customer customer) {
         customerRepository.save(customer);
 
@@ -55,8 +55,7 @@ public class OrderService {
     }
 
     public List<Customer> getCustomers() {
-        List<Customer> customerList = customerRepository.findAll();
-        return customerList;
+        return customerRepository.findAll();
     }
 
     public List<Product> getProducts() {
@@ -168,15 +167,13 @@ public class OrderService {
     }
 
     public ProductItem getOrderById(Long id) {
-        ProductItem productItem = productItemRepository.findById(id).orElse(null);
 
-        return productItem;
+        return productItemRepository.findById(id).orElse(null);
     }
 
     public List<ProductItem> getOrderById(String id) {
-        List<ProductItem> list = productItemRepository.findByOrderCustomerIdEvent(id);
 
-        return list;
+        return productItemRepository.findByOrderCustomerIdEvent(id);
     }
 
     public List<Customer> getCustomerById(String id) {

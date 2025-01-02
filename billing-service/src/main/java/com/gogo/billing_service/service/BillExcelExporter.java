@@ -1,5 +1,6 @@
 package com.gogo.billing_service.service;
 
+import com.gogo.base_domaine_service.constante.Constante;
 import com.gogo.billing_service.model.Bill;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
@@ -50,8 +51,6 @@ public class BillExcelExporter {
                 .findAny().orElse(null);
     }
 
-
-
     public  double getDiscount(String customerIdEvent,String status){
         List<Bill> customerBills=this.billList;
         return customerBills.stream()
@@ -75,10 +74,10 @@ public class BillExcelExporter {
         //style.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.index);
 
         //sheet.addMergedRegion(new CellRangeAddress(1,1,1,4)); //fusionnera de B2 à E2
-        createCell(row, 0, "Description", style);
-        createCell(row, 1, "Quantité", style);
-        createCell(row, 2, "Prix Unitaire", style);
-        createCell(row, 3, "Montant HT", style);
+        createCell(row, 0, Constante.DESCRIPTION, style);
+        createCell(row, 1, Constante.QUANTITE, style);
+        createCell(row, 2, Constante.PRIX_UNITAIRE, style);
+        createCell(row, 3, Constante.MONTANT_HT, style);
 
 
     }
@@ -133,33 +132,33 @@ public class BillExcelExporter {
         //add many others here
         cell1.setCellStyle(cellStyle); //apply that style to the cell*/
 
-        createCell(row00, columnCount00, "Gorgui Solution Inc", style);
-        createCell(row00, columnCount00+2, "Nom Client:", style);
+        createCell(row00, columnCount00, Constante.NOM_COMPAGNIE, style);
+        createCell(row00, columnCount00+2, Constante.NOM_CLIENT, style);
         createCell(row00, columnCount00+3, name, style);
         rowCount=1;
         Row row01 = sheet.createRow(rowCount++);
-        createCell(row01, 2, "N° Telephone:", style);
+        createCell(row01, 2, Constante.NUMERO_TELEPHONE, style);
         createCell(row01, 3, telephone, style);
         rowCount = 3;
         int columnCount1 = 1;
 
         Row row0 = sheet.createRow(rowCount++);
-        createCell(row0, columnCount1++, "FACTURE", style);
+        createCell(row0, columnCount1++, Constante.FACTURE, style);
 
 
 
         int columnCount2 = 0;
         Row row11 = sheet.createRow(rowCount++);
 
-        createCell(row11, columnCount2++, "N° Facture", style);
-        createCell(row11, columnCount2++, "FA"+comp++, style);
+        createCell(row11, columnCount2++, Constante.NUMERO_FACTURE, style);
+        createCell(row11, columnCount2++, Constante.PREFIXE+comp++, style);
 
         Row row12 = sheet.createRow(rowCount++);
-        createCell(row12, columnCount2-2, "Date Facture", style);
+        createCell(row12, columnCount2-2, Constante.DATE_FACTURE, style);
         createCell(row12, columnCount2-1, LocalDateTime.now().toString(), style);
 
         Row row13 = sheet.createRow(rowCount++);
-        createCell(row13, columnCount2-2, "N° Client", style);
+        createCell(row13, columnCount2-2, Constante.NUMERO_CLIENT, style);
         createCell(row13, columnCount2-1, customerIdEvent, style);
 
         rowCount = 11;
@@ -188,19 +187,19 @@ public class BillExcelExporter {
             int columnCount = 2;
             Row row = sheet.createRow(rowCount++);
 
-            createCell(row, columnCount++, "Total HT", style);
+            createCell(row, columnCount++, Constante.TOTAL_HT, style);
             createCell(row, columnCount++, amount, style);
 
             Row row1 = sheet.createRow(rowCount++);
-            createCell(row1, columnCount-2, "Remise", style);
+            createCell(row1, columnCount-2, Constante.REMISE, style);
             createCell(row1, columnCount-1, discount, style);
 
             Row row2 = sheet.createRow(rowCount++);
-            createCell(row2, columnCount-2, "TVA 20%", style);
+            createCell(row2, columnCount-2, Constante.TVA, style);
             createCell(row2, columnCount-1, amount*0.2, style);
 
             Row row3 = sheet.createRow(rowCount++);
-            createCell(row3, columnCount-2, "Total TTC", style);
+            createCell(row3, columnCount-2, Constante.TOTAL_TTC, style);
             createCell(row3, columnCount-1, (0.2*amount+(amount-discount)), style);
 
 
