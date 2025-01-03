@@ -60,7 +60,6 @@ public class BillExcelExporter {
                 .mapToDouble(i->i).sum();
     }
 
-
     private void writeHeaderLine() {
         sheet = workbook.createSheet("Bills");
 
@@ -78,11 +77,7 @@ public class BillExcelExporter {
         createCell(row, 1, Constante.QUANTITE, style);
         createCell(row, 2, Constante.PRIX_UNITAIRE, style);
         createCell(row, 3, Constante.MONTANT_HT, style);
-
-
     }
-
-
 
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
         sheet.autoSizeColumn(columnCount);
@@ -125,7 +120,6 @@ public class BillExcelExporter {
         font.setFontHeight(14);
         style.setFont(font);
 
-
         /*CellStyle cellStyle = workbook.createCellStyle();
         cellStyle.setBorderTop(BorderStyle.valueOf((short) 1)); // single line border
         cellStyle.setBorderBottom(BorderStyle.valueOf((short) 1)); // single line border
@@ -144,7 +138,6 @@ public class BillExcelExporter {
 
         Row row0 = sheet.createRow(rowCount++);
         createCell(row0, columnCount1++, Constante.FACTURE, style);
-
 
 
         int columnCount2 = 0;
@@ -170,9 +163,7 @@ public class BillExcelExporter {
             createCell(row, columnCount++, bill.getQuantity(), style);
             createCell(row, columnCount++, bill.getPrice(), style);
             createCell(row, columnCount++, bill.getPrice()*bill.getQuantity(), style);
-
         }
-
     }
 
     private void writeTaxLine(String customerIdEvent,String status) {
@@ -201,8 +192,6 @@ public class BillExcelExporter {
             Row row3 = sheet.createRow(rowCount++);
             createCell(row3, columnCount-2, Constante.TOTAL_TTC, style);
             createCell(row3, columnCount-1, (0.2*amount+(amount-discount)), style);
-
-
     }
 
     public void export(HttpServletResponse response,String customerIdEvent,String status) throws IOException {
@@ -212,11 +201,8 @@ public class BillExcelExporter {
 
         ServletOutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);
+
         workbook.close();
-
         outputStream.close();
-
     }
-
-
 }

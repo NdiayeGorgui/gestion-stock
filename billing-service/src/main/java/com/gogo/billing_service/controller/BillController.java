@@ -1,5 +1,6 @@
 package com.gogo.billing_service.controller;
 
+import com.gogo.billing_service.exception.BillNotFoundException;
 import com.gogo.billing_service.model.Bill;
 import com.gogo.billing_service.service.BillExcelExporter;
 import com.gogo.billing_service.service.BillingService;
@@ -15,6 +16,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -23,12 +25,20 @@ public class BillController {
     BillingService billingService;
 
     @GetMapping("/bills/{id}")
-    public Bill getBill(@PathVariable("id") Long id){
-        return billingService.getBill(id);
+    public Bill getBill(@PathVariable("id") Long id) throws BillNotFoundException {
+        Optional<Bill> bill = Optional.ofNullable(billingService.getBill(id));
+        if (bill.isPresent()) {
+            return bill.get();
+        }
+            throw new BillNotFoundException("Bill not available with id: " + id );
     }
 
     @GetMapping("/bills/{customerIdEvent}/{status}")
-    public List<Bill> getCustomerBillsStatus(@PathVariable("customerIdEvent") String customerIdEvent,@PathVariable("status") String status)  {
+    public List<Bill> getCustomerBillsStatus(@PathVariable("customerIdEvent") String customerIdEvent,@PathVariable("status") String status) throws BillNotFoundException {
+        List<Bill> bills=billingService.getBills(customerIdEvent);
+        if(bills.isEmpty()){
+            throw new BillNotFoundException("Customer not available with id: "+customerIdEvent);
+        }
         return billingService.billList(customerIdEvent,status);
     }
 

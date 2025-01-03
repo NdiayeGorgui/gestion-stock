@@ -7,6 +7,7 @@ import com.gogo.base_domaine_service.event.CustomerEventDto;
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
 import com.gogo.payment_service.kafka.PaymentProducer;
+import com.gogo.payment_service.mapper.PaymentMapper;
 import com.gogo.payment_service.model.Bill;
 import com.gogo.payment_service.model.PaymentModel;
 import com.gogo.payment_service.repository.BillRepository;
@@ -15,9 +16,8 @@ import com.gogo.payment_service.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
@@ -28,27 +28,23 @@ public class PaymentService {
     @Autowired
     private PaymentProducer paymentProducer;
 
-
     public void savePayment(PaymentModel paymentModel){
         paymentRepository.save(paymentModel);
     }
 
+    public void saveBill(Bill bill){
+        billRepository.save(bill);
+    }
 
     public void saveAndSendPayment(Payment payment){
-        PaymentModel savedPayment=new PaymentModel();
+
         OrderEventDto orderEventDto=new OrderEventDto();
 
         double amount= this.getAmount(payment.getCustomerIdEvent(), EventStatus.CREATED.name());
         double discount=this.getDiscount(payment.getCustomerIdEvent(),EventStatus.CREATED.name());
 
-       // List<Bill> bills=this.getBillsByCustomer(payment.getCustomerIdEvent(),"CREATED");
+        PaymentModel savedPayment= PaymentMapper.mapToPaymentModel(payment,amount,discount);
 
-        savedPayment.setPaymentIdEvent(UUID.randomUUID().toString());
-        savedPayment.setPaymentStatus(EventStatus.COMPLETED.name());
-        savedPayment.setPaymentMode(payment.getPaymentMode());
-        savedPayment.setCustomerIdEvent(payment.getCustomerIdEvent());
-        savedPayment.setAmount((amount-discount));
-        savedPayment.setTimeStamp(LocalDateTime.now());
         this.savePayment(savedPayment);
 
         billRepository.updateAllBillCustomerStatus(savedPayment.getCustomerIdEvent(),savedPayment.getPaymentStatus());
@@ -83,4 +79,22 @@ public class PaymentService {
                 .mapToDouble(i->i).sum();
     }
 
+    public void updateTheBillStatus(String orderIdEvent, String status){
+        billRepository.updateTheBillStatus(orderIdEvent, status);
+    }
+
+    public boolean billExist(String orderRef,String status){
+        return billRepository.existsByOrderRefAndStatus(orderRef,status);
+    }
+
+    public Bill findByOrderIdEvent(String orderIdEvent){
+        return billRepository.findByOrderRef(orderIdEvent);
+    }
+
+    public List<Bill> findByCustomer(String customerIdEvent){
+        List<Bill> customerBills=billRepository.findByCustomerIdEvent(customerIdEvent);
+        return customerBills.stream()
+                .filter(bill -> bill.getCustomerIdEvent().equalsIgnoreCase(customerIdEvent))
+                .collect(Collectors.toList());
+    }
 }

@@ -2,6 +2,7 @@ package com.gogo.order_service.service;
 
 import com.gogo.base_domaine_service.event.*;
 import com.gogo.order_service.kafka.OrderProducer;
+import com.gogo.order_service.mapper.OrderMapper;
 import com.gogo.order_service.model.*;
 import com.gogo.order_service.repository.CustomerRepository;
 import com.gogo.order_service.repository.OrderRepository;
@@ -71,9 +72,7 @@ public class OrderService {
     }
 
     public void createProductItem(OrderEvent orderEvent, Order savedOrder, ProductItem savedProductItem) {
-        // createOrder( orderEvent, savedOrder);
-        //savedProductItem.setProductIdEvent(orderEvent.getProductItem().getProductId());
-        //savedProductItem.setPrice(orderEvent.getProductItem().getProductPrice());
+
         savedProductItem.setProductIdEvent(orderEvent.getProduct().getId());
         savedProductItem.setPrice(orderEvent.getProduct().getPrice());
         savedProductItem.setQuantity(orderEvent.getProductItem().getProductQty());
@@ -85,34 +84,13 @@ public class OrderService {
 
     public void sendEvent(OrderEvent orderEvent, OrderEventDto orderEventDto) {
 
-        orderEvent.setOrderIdEvent(orderEvent.getOrderIdEvent());
-
-        CustomerEventDto customerEventDto = new CustomerEventDto();
-        ProductEventDto productEventDto = new ProductEventDto();
-        ProductItemEventDto productItemEventDto = new ProductItemEventDto();
-
         orderEventDto.setId(orderEvent.getOrderIdEvent());
         orderEventDto.setStatus(EventStatus.PENDING.name());
         orderEventDto.setName("Order");
 
-        customerEventDto.setCustomerIdEvent(orderEvent.getCustomer().getId());
-        customerEventDto.setName(orderEvent.getCustomer().getName());
-        customerEventDto.setAddress(orderEvent.getCustomer().getAddress());
-        customerEventDto.setEmail(orderEvent.getCustomer().getEmail());
-        customerEventDto.setPhone(orderEvent.getCustomer().getPhone());
-
-        productEventDto.setProductIdEvent(orderEvent.getProduct().getId());
-        productEventDto.setName(orderEvent.getProduct().getName());
-        productEventDto.setPrice(orderEvent.getProduct().getPrice());
-        productEventDto.setQty(orderEvent.getProduct().getQty());
-        productEventDto.setQtyStatus(EventStatus.MODIFYING.name());
-
-        //   ProductItem productItem=productItemRepository.findByOrderIdEvent(orderEvent.getOrderIdEvent());
-
-        productItemEventDto.setProductIdEvent(orderEvent.getProductItem().getProductId());
-        productItemEventDto.setPrice(orderEvent.getProductItem().getProductPrice());
-        productItemEventDto.setQty(orderEvent.getProductItem().getProductQty());
-        productItemEventDto.setDiscount(orderEvent.getProductItem().getDiscount());
+        CustomerEventDto customerEventDto = OrderMapper.mapToCustomerEventDto(orderEvent);
+        ProductEventDto productEventDto = OrderMapper.mapToProductEventDto(orderEvent);
+        ProductItemEventDto productItemEventDto = OrderMapper.mapToProductItemEventDto(orderEvent);
 
         List<ProductItem> productItems = productItemRepository.findAll();
         List<Order> orders = orderRepository.findAll();
@@ -122,7 +100,6 @@ public class OrderService {
                     productItemEventDto.setDiscount(productItem.getDiscount());
                 }
             }
-
         }
 
         orderEventDto.setProductEventDto(productEventDto);
@@ -130,7 +107,7 @@ public class OrderService {
         orderEventDto.setProductItemEventDto(productItemEventDto);
     }
 
-    public void sendOrderToCancel(OrderEvent orderEvent,String orderIdEvent){
+    public void sendOrderToCancel(String orderIdEvent){
        // Order order=orderRepository.findByOrderIdEvent(orderIdEvent);
 
         OrderEventDto orderEventDto=new OrderEventDto();
@@ -196,8 +173,8 @@ public class OrderService {
         return amount;
     }
 
-    public int updateOrderStatus(String oderIdEvent,String status ){
-        return orderRepository.updateOrderStatus(oderIdEvent,status);
+    public void updateOrderStatus(String oderIdEvent, String status ){
+        orderRepository.updateOrderStatus(oderIdEvent, status);
 
     }
 

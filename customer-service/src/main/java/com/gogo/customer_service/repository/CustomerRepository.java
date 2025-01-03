@@ -14,11 +14,11 @@ public interface CustomerRepository extends JpaRepository<CustomerModel,Long> {
     @Modifying
     @Transactional
     @Query("UPDATE CustomerModel c SET c.status= :status,  c.name= :name,  c.phone= :phone,  c.email= :email,  c.address= :address WHERE c.customerIdEvent= :customerIdEvent")
-    int updateCustomer(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status, @Param("name") String name, @Param("phone") String phone, @Param("email") String email, @Param("address") String address);
+    void updateCustomer(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status, @Param("name") String name, @Param("phone") String phone, @Param("email") String email, @Param("address") String address);
 
     @Modifying
     @Query("UPDATE CustomerModel c SET c.status= :status WHERE c.customerIdEvent= :customerIdEvent")
-    int updateCustomerStatus(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status);
+    void updateCustomerStatus(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status);
 
     @Modifying
     @Transactional

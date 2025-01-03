@@ -34,7 +34,7 @@ public class OrderListener {
             if(qr>0){
                 productService.updateProductQty(event.getProductEventDto().getProductIdEvent(),qr);
 
-                LOGGER.info(String.format("Product Update event with updated quantity status sent to order service => %s", event));
+                LOGGER.info("Product Update event with updated quantity status sent to order service => {}", event);
                // orderProducer.sendMessage(event);
             }else {
                 throw new RuntimeException("Quantite insuffisante");

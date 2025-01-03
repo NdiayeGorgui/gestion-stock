@@ -66,9 +66,9 @@ public class OrderController {
         return orderService.getOrders();
         }
     @PutMapping("/orders/{orderIdEvent}")
-    public String sendOrderToCancel(@RequestBody  OrderEvent orderEvent, @PathVariable("orderIdEvent") String orderIdEvent){
+    public String sendOrderToCancel( @PathVariable("orderIdEvent") String orderIdEvent){
 
-        orderService.sendOrderToCancel(orderEvent,orderIdEvent);
+        orderService.sendOrderToCancel(orderIdEvent);
 
         return "Order for update sent successfully ...";
     }

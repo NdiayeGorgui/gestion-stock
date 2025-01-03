@@ -1,8 +1,6 @@
 package com.gogo.order_service.mapper;
 
-import com.gogo.base_domaine_service.event.CustomerEvent;
-import com.gogo.base_domaine_service.event.EventStatus;
-import com.gogo.base_domaine_service.event.ProductEvent;
+import com.gogo.base_domaine_service.event.*;
 import com.gogo.order_service.model.Product;
 
 public class OrderMapper {
@@ -30,4 +28,60 @@ public class OrderMapper {
                 EventStatus.AVAILABLE.name()
         );
     }
+
+    public static CustomerEventDto mapToCustomerEventDto(CustomerEvent customerEvent){
+
+        return new CustomerEventDto(
+                customerEvent.getCustomer().getId(),
+                null,
+                customerEvent.getCustomer().getName(),
+                customerEvent.getCustomer().getPhone(),
+                customerEvent.getCustomer().getEmail(),
+                customerEvent.getCustomer().getAddress()
+        );
+    }
+
+    public static ProductEventDto mapToProductEventDto(ProductEvent productEvent){
+        return new ProductEventDto(
+                productEvent.getProduct().getId(),
+                null,
+                productEvent.getProduct().getName(),
+                productEvent.getProduct().getQty(),
+                productEvent.getProduct().getPrice(),
+                productEvent.getProduct().getQtyStatus()
+        );
+    }
+
+    public static CustomerEventDto mapToCustomerEventDto(OrderEvent orderEvent){
+        return new CustomerEventDto(
+                orderEvent.getCustomer().getId(),
+                null,
+                orderEvent.getCustomer().getName(),
+                orderEvent.getCustomer().getPhone(),
+                orderEvent.getCustomer().getEmail(),
+                orderEvent.getCustomer().getAddress()
+        );
+    }
+
+    public static ProductEventDto mapToProductEventDto(OrderEvent orderEvent){
+        return new ProductEventDto(
+                orderEvent.getProduct().getId(),
+                null,
+                orderEvent.getProduct().getName(),
+                orderEvent.getProduct().getQty(),
+                orderEvent.getProduct().getPrice(),
+                EventStatus.MODIFYING.name()
+        );
+    }
+
+    public static ProductItemEventDto mapToProductItemEventDto(OrderEvent orderEvent){
+        return new ProductItemEventDto(
+                orderEvent.getProductItem().getProductId(),
+                null,
+                orderEvent.getProductItem().getProductQty(),
+                orderEvent.getProductItem().getProductPrice(),
+                orderEvent.getProductItem().getDiscount()
+        );
+    }
 }
+

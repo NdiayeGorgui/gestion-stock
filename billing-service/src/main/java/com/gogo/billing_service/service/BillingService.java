@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BillingService {
@@ -17,12 +18,12 @@ public class BillingService {
     public Bill getBill(Long id){
         return billRepository.findById(id).orElse(null);
     }
-    public int updateBillStatus(String productIdEvent,String status){
-        return billRepository.updateBillStatus(productIdEvent,status);
+    public void updateBillStatus(String productIdEvent, String status){
+        billRepository.updateBillStatus(productIdEvent, status);
     }
 
-    public int updateTheBillStatus(String orderIdEvent,String status){
-        return billRepository.updateTheBillStatus(orderIdEvent,status);
+    public void updateTheBillStatus(String orderIdEvent, String status){
+        billRepository.updateTheBillStatus(orderIdEvent, status);
     }
 
     public void updateAllBillCustomerStatus(String customerIdEvent,String status){
@@ -37,14 +38,12 @@ public class BillingService {
         return billRepository.findByCustomerIdEventAndStatus(customerIdEvent,status);
     }
 
-
-    /*public  double getAmount(String customerIdEvent){
+    public List<Bill> getBills(String customerIdEvent){
         List<Bill> customerBills=billRepository.findAll();
         return customerBills.stream()
                 .filter(bill -> bill.getCustomerIdEvent().equalsIgnoreCase(customerIdEvent))
-                .map(bill -> (bill.getPrice()*bill.getQuantity()))
-                .mapToDouble(i->i).sum();
-    }*/
+                .collect(Collectors.toList());
+    }
 
     public  double getAmount(String customerIdEvent){
         return billRepository.sumBill(customerIdEvent);

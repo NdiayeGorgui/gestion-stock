@@ -15,7 +15,7 @@ public interface BillRepository extends JpaRepository <Bill,Long>{
     @Modifying
     @Transactional
     @Query("UPDATE Bill b SET b.status= :status WHERE b.orderRef= :orderRef")
-    int updateTheBillStatus(@Param("orderRef") String orderRef, @Param("status") String status);
+    void updateTheBillStatus(@Param("orderRef") String orderRef, @Param("status") String status);
 
     List<Bill> findByCustomerIdEventAndStatus(String customerIdEvent, String status);
 
@@ -24,4 +24,7 @@ public interface BillRepository extends JpaRepository <Bill,Long>{
     @Query("UPDATE Bill b SET b.status= :status WHERE b.customerIdEvent= :customerIdEvent")
     void updateAllBillCustomerStatus(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status);
 
+    List<Bill> findByCustomerIdEvent(String customerIdEvent);
+
+    boolean existsByOrderRefAndStatus(String orderId, String status);
 }

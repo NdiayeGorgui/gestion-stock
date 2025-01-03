@@ -17,15 +17,15 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     @Modifying
     @Transactional
     @Query("UPDATE Product p SET p.status= :status,  p.name= :name,  p.qty= :qty,  p.price= :price,p.qtyStatus= :qtyStatus WHERE p.productIdEvent= :productIdEvent")
-    int updateProduct(@Param("productIdEvent") String productIdEvent, @Param("status") String status, @Param("name") String name, @Param("qty") int qty, @Param("price") double price,@Param("qtyStatus") String qtyStatus);
+    void updateProduct(@Param("productIdEvent") String productIdEvent, @Param("status") String status, @Param("name") String name, @Param("qty") int qty, @Param("price") double price,@Param("qtyStatus") String qtyStatus);
 
     @Modifying
     @Transactional
     @Query("UPDATE Product p SET p.qty= :qty WHERE p.productIdEvent= :productIdEvent")
-    int updateQuantity(@Param("productIdEvent") String productIdEvent, @Param("qty") int qty);
+    void updateQuantity(@Param("productIdEvent") String productIdEvent, @Param("qty") int qty);
 
     @Transactional
     @Modifying
     @Query("UPDATE Product p SET p.qtyStatus= :qtyStatus WHERE p.productIdEvent= :productIdEvent")
-    int updateProductQtyStatus(String productIdEvent, String qtyStatus);
+    void updateProductQtyStatus(String productIdEvent, String qtyStatus);
 }

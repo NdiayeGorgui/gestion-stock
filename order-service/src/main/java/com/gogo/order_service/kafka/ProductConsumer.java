@@ -35,31 +35,22 @@ public class ProductConsumer {
             orderService.saveProduit(product);
 
             boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getId(), EventStatus.CREATED.name());
+            ProductEventDto productEventDto=OrderMapper.mapToProductEventDto(event);
             if (productExist) {
                 //update product with created
-                ProductEventDto productEventDto=new ProductEventDto();
                 orderEventDto.setStatus(EventStatus.CREATED.name());
-
-                productEventDto.setProductIdEvent(event.getProduct().getId());
-
                 orderEventDto.setProductEventDto(productEventDto);
-
                 // event.setMessage("Product status is in created state");
                 LOGGER.info("Product Update event with created status sent to Inventory service => {}", orderEventDto);
-                productProducer.sendMessage(orderEventDto);
                 // updateKafkaTemplate.send(UPDATE_CUSTOMER_EVENT,updateCustomerEvent(event,STATUS));
             } else {
                 //update customer with failed
                 orderEventDto.setStatus(EventStatus.FAILED.name());
-
-                ProductEventDto productEventDto=new ProductEventDto();
-                productEventDto.setProductIdEvent(event.getProduct().getId());
                 orderEventDto.setProductEventDto(productEventDto);
-
                 // event.setMessage("Product status is in failed state");
                 LOGGER.info("Product Update event with failed status sent to Customer service => {}", orderEventDto);
-                productProducer.sendMessage(orderEventDto);
             }
+            productProducer.sendMessage(orderEventDto);
         }
         if (event.getStatus().equalsIgnoreCase(EventStatus.DELETING.name())) {
 
@@ -70,12 +61,9 @@ public class ProductConsumer {
                 //verifying if exists customer object
                 boolean productDeletedExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getId(), EventStatus.CREATED.name());
                 if (!productDeletedExist) {
+                    ProductEventDto productEventDto=OrderMapper.mapToProductEventDto(event);
+
                     orderEventDto.setStatus(EventStatus.DELETED.name());
-                    orderEventDto.setName(event.getProduct().getName());
-
-                    ProductEventDto productEventDto=new ProductEventDto();
-                    productEventDto.setProductIdEvent(event.getProduct().getId());
-
                     orderEventDto.setProductEventDto(productEventDto);
                     LOGGER.info("Product Update event with deleted status sent to Inventory service => {}", orderEventDto);
                     productProducer.sendMessage(orderEventDto);
@@ -87,17 +75,9 @@ public class ProductConsumer {
             boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getId(), EventStatus.CREATED.name());
             if (productExist) {
                 productRepository.updateProduct(event.getProduct().getId(), EventStatus.CREATED.name(), event.getProduct().getName(), event.getProduct().getQty(), event.getProduct().getPrice(),event.getProduct().getQtyStatus());
+                ProductEventDto productEventDto=OrderMapper.mapToProductEventDto(event);
 
                 orderEventDto.setStatus(EventStatus.UPDATED.name());
-
-                ProductEventDto productEventDto = new ProductEventDto();
-
-                productEventDto.setProductIdEvent(event.getProduct().getId());
-                productEventDto.setName(event.getProduct().getName());
-                productEventDto.setPrice(event.getProduct().getPrice());
-                productEventDto.setQty(event.getProduct().getQty());
-                productEventDto.setQtyStatus(event.getProduct().getQtyStatus());
-
                 orderEventDto.setProductEventDto(productEventDto);
                 event.setMessage("Product status is in updated state");
                 LOGGER.info("Product Update event with updated status sent to Inventory service => {}", orderEventDto);

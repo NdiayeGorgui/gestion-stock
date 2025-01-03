@@ -22,4 +22,15 @@ public class CustomerMapper {
                 EventStatus.PENDING.name()
         );
     }
+
+    public static Customer mapToCustomer(CustomerModel customerModel){
+
+        return new Customer(
+                customerModel.getCustomerIdEvent(),
+                customerModel.getName(),
+                customerModel.getAddress(),
+                customerModel.getPhone(),
+                customerModel.getEmail()
+        );
+    }
 }

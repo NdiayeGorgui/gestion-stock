@@ -20,6 +20,6 @@ public interface CustomerRepository extends JpaRepository<Customer,Long> {
     @Modifying
     @Transactional
     @Query("UPDATE Customer c SET c.status= :status,  c.name= :name,  c.phone= :phone,  c.email= :email,  c.address= :address WHERE c.customerIdEvent= :customerIdEvent")
-    int updateCustomer(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status, @Param("name") String name, @Param("phone") String phone, @Param("email") String email, @Param("address") String address);
+    void updateCustomer(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status, @Param("name") String name, @Param("phone") String phone, @Param("email") String email, @Param("address") String address);
 
 }

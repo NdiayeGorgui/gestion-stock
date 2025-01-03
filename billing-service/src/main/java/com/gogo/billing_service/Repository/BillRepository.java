@@ -2,7 +2,6 @@ package com.gogo.billing_service.Repository;
 
 import com.gogo.billing_service.model.Bill;
 import jakarta.transaction.Transactional;
-import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,14 +14,14 @@ public interface BillRepository extends JpaRepository<Bill,Long> {
     @Modifying
     @Transactional
     @Query("UPDATE Bill b SET b.status= :status WHERE b.productIdEvent= :productIdEvent")
-    int updateBillStatus(@Param("productIdEvent") String productIdEvent, @Param("status") String status);
+    void updateBillStatus(@Param("productIdEvent") String productIdEvent, @Param("status") String status);
 
     Bill  findByOrderRef(String orderRef);
 
     @Modifying
     @Transactional
     @Query("UPDATE Bill b SET b.status= :status WHERE b.orderRef= :orderRef")
-    int updateTheBillStatus(@Param("orderRef") String orderRef, @Param("status") String status);
+    void updateTheBillStatus(@Param("orderRef") String orderRef, @Param("status") String status);
 
     @Query("SELECT sum(b.price) from Bill b where b.customerIdEvent = ?1")
     double sumBill( String customerIdEvent);

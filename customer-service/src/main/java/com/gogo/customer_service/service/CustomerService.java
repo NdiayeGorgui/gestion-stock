@@ -11,7 +11,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
 
 @Service
 public class CustomerService {
@@ -43,13 +42,8 @@ public class CustomerService {
 
     public void sendCustomerToDelete(String customerIdEvent){
         CustomerModel customerModel=customerRepository.findCustomerByCustomerIdEvent(customerIdEvent);
-        Customer customer=new Customer();
 
-        customer.setId(customerModel.getCustomerIdEvent());
-        customer.setName(customerModel.getName());
-        customer.setPhone(customerModel.getPhone());
-        customer.setEmail(customerModel.getEmail());
-        customer.setAddress(customerModel.getAddress());
+        Customer customer=CustomerMapper.mapToCustomer(customerModel);
 
         CustomerEvent customerEvent=new CustomerEvent();
 
@@ -65,10 +59,6 @@ public class CustomerService {
         CustomerModel customerModel=customerRepository.findCustomerByCustomerIdEvent(customerIdEvent);
 
         customer.setId(customerModel.getCustomerIdEvent());
-      //  customer.setName(customerModel.getName());
-       // customer.setPhone(customerModel.getPhone());
-      //  customer.setEmail(customerModel.getEmail());
-       // customer.setAddress(customerModel.getAddress());
 
         CustomerEvent customerEvent=new CustomerEvent();
 
@@ -77,16 +67,15 @@ public class CustomerService {
         customerEvent.setCustomer(customer);
 
         customerProducer.sendMessage(customerEvent);
-
     }
 
     @Transactional
-   public int updateCustomerStatus(String customerIdEvent,String status ){
-        return customerRepository.updateCustomerStatus(customerIdEvent,status);
+   public void updateCustomerStatus(String customerIdEvent, String status ){
+        customerRepository.updateCustomerStatus(customerIdEvent, status);
 
-   }
-    public int updateCustomer(String customerIdEvent,String status ,String name,String phone,String email,String address){
-        return customerRepository.updateCustomer(customerIdEvent,status,name,phone,email,address);
+    }
+    public void updateCustomer(String customerIdEvent, String status , String name, String phone, String email, String address){
+        customerRepository.updateCustomer(customerIdEvent, status, name, phone, email, address);
 
     }
     public void deleteCustomer(String customerIdEvent,String status ){
@@ -94,5 +83,7 @@ public class CustomerService {
 
     }
 
-
+    public CustomerModel findCustomerById(String customerIdEvent){
+        return customerRepository.findCustomerByCustomerIdEvent(customerIdEvent);
+    }
 }

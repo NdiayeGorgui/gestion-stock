@@ -34,8 +34,6 @@ public class ProductListener {
             }
         }
 
-
-
         LOGGER.info("Product Updated event received in Inventory service => {}", orderEventDto);
     }
 }

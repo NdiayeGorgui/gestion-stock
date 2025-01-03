@@ -28,7 +28,6 @@ public class CustomerConsumer {
     private CustomerProducer customerProducer;
     @Autowired
     private KafkaTemplate<String, CustomerEventDto> updateKafkaTemplate;
-    private final String UPDATE_CUSTOMER_EVENT = "update_customer_event";
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomerConsumer.class);
 
     @KafkaListener(
@@ -45,25 +44,21 @@ public class CustomerConsumer {
 
             boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), EventStatus.CREATED.name());
 
+            CustomerEventDto customerEventDto=OrderMapper.mapToCustomerEventDto(event);
             if (customerExist) {
                 //update customer with created
                 orderEventDto.setStatus(EventStatus.CREATED.name());
-                CustomerEventDto customerEventDto=new CustomerEventDto();
-                customerEventDto.setCustomerIdEvent(event.getCustomer().getId());
                 orderEventDto.setCustomerEventDto(customerEventDto);
                 // event.setMessage("customer status is in created state");
                 LOGGER.info("Customer Update event with created status sent to Customer service => {}", orderEventDto);
-                customerProducer.sendMessage(orderEventDto);
             } else {
                 //update customer with failed
                 orderEventDto.setStatus(EventStatus.FAILED.name());
-                CustomerEventDto customerEventDto=new CustomerEventDto();
-                customerEventDto.setCustomerIdEvent(event.getCustomer().getId());
                 orderEventDto.setCustomerEventDto(customerEventDto);
                 event.setMessage("customer status is in failed state");
                 LOGGER.info("Customer Update event with failed status sent to Customer service => {}", orderEventDto);
-                customerProducer.sendMessage(orderEventDto);
             }
+            customerProducer.sendMessage(orderEventDto);
         }
         if (event.getStatus().equalsIgnoreCase(EventStatus.DELETING.name())) {
 
@@ -74,9 +69,9 @@ public class CustomerConsumer {
                 //verifying if exists customer object
                 boolean customerDeletedExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), EventStatus.CREATED.name());
                 if(!customerDeletedExist){
+                    CustomerEventDto customerEventDto=OrderMapper.mapToCustomerEventDto(event);
+
                     orderEventDto.setStatus(EventStatus.DELETED.name());
-                    CustomerEventDto customerEventDto=new CustomerEventDto();
-                    customerEventDto.setCustomerIdEvent(event.getCustomer().getId());
                     orderEventDto.setCustomerEventDto(customerEventDto);
                     // event.setMessage("customer status is in created state");
                     LOGGER.info("Customer Update event with deleted status sent to Customer service => {}", orderEventDto);
@@ -88,17 +83,11 @@ public class CustomerConsumer {
 
             boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), EventStatus.CREATED.name());
             if (customerExist) {
-                Customer customer = customerRepository.findCustomerByCustomerIdEvent(event.getCustomer().getId());
+               // Customer customer = customerRepository.findCustomerByCustomerIdEvent(event.getCustomer().getId());
                 customerRepository.updateCustomer(event.getCustomer().getId(),EventStatus.CREATED.name(),event.getCustomer().getName(),event.getCustomer().getPhone(),event.getCustomer().getEmail(),event.getCustomer().getAddress());
+                CustomerEventDto customerEventDto=OrderMapper.mapToCustomerEventDto(event);
+
                 orderEventDto.setStatus(EventStatus.UPDATED.name());
-
-                CustomerEventDto customerEventDto =new CustomerEventDto();
-
-                customerEventDto.setCustomerIdEvent(event.getCustomer().getId());
-                customerEventDto.setName(event.getCustomer().getName());
-                customerEventDto.setEmail(event.getCustomer().getEmail());
-                customerEventDto.setPhone(event.getCustomer().getPhone());
-                customerEventDto.setAddress(event.getCustomer().getAddress());
                 orderEventDto.setCustomerEventDto(customerEventDto);
                 event.setMessage("customer status is in updated state");
                 LOGGER.info("Customer Update event with updated status sent to Customer service => {}", orderEventDto);

@@ -11,7 +11,7 @@ public class ProductMapper {
 
 
 
-        public static ProductModel mapToProduct(Product product){
+        public static ProductModel mapToProductModel(Product product){
 
             return new ProductModel(
                     null,
@@ -23,5 +23,16 @@ public class ProductMapper {
                     EventStatus.AVAILABLE.name()
             );
         }
+
+    public static Product mapToProduct(ProductModel productModel){
+
+        return new Product(
+                productModel.getProductIdEvent(),
+                productModel.getName(),
+                productModel.getQty(),
+                productModel.getPrice(),
+                productModel.getQtyStatus()
+        );
+    }
     }
 

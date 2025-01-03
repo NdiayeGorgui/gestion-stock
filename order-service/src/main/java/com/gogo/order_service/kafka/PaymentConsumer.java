@@ -24,12 +24,10 @@ public class PaymentConsumer {
     public void consumeProductStatus(OrderEventDto event) {
 
         if (event.getStatus().equalsIgnoreCase(EventStatus.COMPLETED.name())) {
-
             event.setStatus(EventStatus.COMPLETED.name());
            // orderService.updateOrderStatus(event.getId(), event.getStatus());
             orderService.updateAllOrderStatus(event.getCustomerEventDto().getCustomerIdEvent(), event.getStatus());
             LOGGER.info("Payment Update event with completed status sent to Order service => {}", event);
-
             //  billProducer.sendMessage(event);
         }
     }

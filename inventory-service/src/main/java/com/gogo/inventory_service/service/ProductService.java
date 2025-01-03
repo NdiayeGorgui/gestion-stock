@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
+
 @Slf4j
 @EnableScheduling
 @Service
@@ -45,7 +45,7 @@ public class ProductService {
     }
 
     public void saveAndSendProduct(Product product){
-        ProductModel savedProduct= ProductMapper.mapToProduct(product);
+        ProductModel savedProduct= ProductMapper.mapToProductModel(product);
         this.saveProduct(savedProduct);
 
         product.setId(savedProduct.getProductIdEvent());
@@ -76,11 +76,8 @@ public class ProductService {
 
     public void sendProductToDelete(String productIdEvent){
         ProductModel productModel=productRepository.findProductByProductIdEvent(productIdEvent);
-        Product product=new Product();
-        product.setId(productModel.getProductIdEvent());
-        product.setName(productModel.getName());
-        product.setQty(productModel.getQty());
-        product.setPrice(productModel.getPrice());
+
+        Product product=ProductMapper.mapToProduct(productModel);
 
         ProductEvent productEvent=new ProductEvent();
 
@@ -106,17 +103,17 @@ public class ProductService {
     }
 
     @Transactional
-    public int updateProductStatus(String productIdEvent,String status ){
-        return productRepository.updateProductStatus(productIdEvent,status);
+    public void updateProductStatus(String productIdEvent, String status ){
+        productRepository.updateProductStatus(productIdEvent, status);
 
     }
 
-    public int updateProduct(String productIdEvent,String status,String name,int qty, double price,String qtyStatus ){
-        return productRepository.updateProduct(productIdEvent,status,name,qty,price,qtyStatus);
+    public void updateProduct(String productIdEvent, String status, String name, int qty, double price, String qtyStatus ){
+        productRepository.updateProduct(productIdEvent, status, name, qty, price, qtyStatus);
 
     }
-    public int updateProductQty(String productIdEvent,int qty ){
-        return productRepository.updateQuantity(productIdEvent,qty);
+    public void updateProductQty(String productIdEvent, int qty ){
+        productRepository.updateQuantity(productIdEvent, qty);
 
     }
     public void deleteProduct(String productIdEvent,String status ){
