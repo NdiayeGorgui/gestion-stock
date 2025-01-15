@@ -32,6 +32,10 @@ public class CustomerListener {
 
                 customerService.updateCustomer(orderEventDto.getCustomerEventDto().getCustomerIdEvent(), EventStatus.CREATED.name(), orderEventDto.getCustomerEventDto().getName(), orderEventDto.getCustomerEventDto().getPhone(), orderEventDto.getCustomerEventDto().getEmail(), orderEventDto.getCustomerEventDto().getAddress());
             }
+            if (orderEventDto.getStatus().equalsIgnoreCase(EventStatus.FAILED.name())) {
+
+                customerService.updateCustomer(orderEventDto.getCustomerEventDto().getCustomerIdEvent(), EventStatus.FAILED.name(), orderEventDto.getCustomerEventDto().getName(), orderEventDto.getCustomerEventDto().getPhone(), orderEventDto.getCustomerEventDto().getEmail(), orderEventDto.getCustomerEventDto().getAddress());
+            }
         }
 
         LOGGER.info("Customer Updated event received in Customer service => {}", orderEventDto);

@@ -11,6 +11,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 public class CustomerService {
@@ -85,5 +87,9 @@ public class CustomerService {
 
     public CustomerModel findCustomerById(String customerIdEvent){
         return customerRepository.findCustomerByCustomerIdEvent(customerIdEvent);
+    }
+
+    public List<CustomerModel> getAllCustomers() {
+        return customerRepository.findAll();
     }
 }

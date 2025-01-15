@@ -32,6 +32,9 @@ public class ProductListener {
             if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.UPDATED.name())){
                 productService.updateProduct(orderEventDto.getProductEventDto().getProductIdEvent(),EventStatus.CREATED.name(), orderEventDto.getProductEventDto().getName(), orderEventDto.getProductEventDto().getQty(), orderEventDto.getProductEventDto().getPrice(),orderEventDto.getProductEventDto().getQtyStatus());
             }
+            if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.FAILED.name())){
+                productService.updateProduct(orderEventDto.getProductEventDto().getProductIdEvent(),EventStatus.FAILED.name(), orderEventDto.getProductEventDto().getName(), orderEventDto.getProductEventDto().getQty(), orderEventDto.getProductEventDto().getPrice(),orderEventDto.getProductEventDto().getQtyStatus());
+            }
         }
 
         LOGGER.info("Product Updated event received in Inventory service => {}", orderEventDto);

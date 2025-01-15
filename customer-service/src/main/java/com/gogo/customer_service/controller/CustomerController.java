@@ -10,9 +10,10 @@ import com.gogo.customer_service.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/v1")
 public class CustomerController {
@@ -31,6 +32,12 @@ public class CustomerController {
     public String saveAndSendCustomer(@RequestBody Customer customer) {
         customerService.saveAndSendCustomer(customer);
         return "Customer sent successfully ...";
+    }
+
+    @GetMapping("/customers")
+    public List<CustomerModel> getCustomers() {
+        return customerService.getAllCustomers();
+
     }
 
     @PutMapping("/customers/{customerIdEvent}")
@@ -53,5 +60,10 @@ public class CustomerController {
             return "Customer sent successfully ...";
         }
         throw new CustomerNotFoundException("Customer not available with id: " + customerIdEvent);
+    }
+
+    @GetMapping("/customers/{customerIdEvent}")
+    public CustomerModel getCustomer(@PathVariable String customerIdEvent){
+        return customerService.findCustomerById(customerIdEvent);
     }
 }

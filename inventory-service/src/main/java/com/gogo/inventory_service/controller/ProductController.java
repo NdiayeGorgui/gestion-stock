@@ -8,7 +8,9 @@ import com.gogo.inventory_service.model.ProductModel;
 import com.gogo.inventory_service.service.ProductService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/v1")
 public class ProductController {
@@ -26,6 +28,13 @@ public class ProductController {
 
        productService.saveAndSendProduct(product);
        return "Product sent successfully ...";
+    }
+
+    @GetMapping("/products")
+    public List<ProductModel> getProducts(){
+
+        return productService.getAllProducts();
+
     }
 
     @DeleteMapping("/products/{productIdEvent}")
@@ -46,5 +55,9 @@ public class ProductController {
             return "Product sent successfully ...";
         }
         throw new ProductNotFoundException("Product not available with id: " + productIdEvent);
+    }
+    @GetMapping("/products/{productIdEvent}")
+    public ProductModel getProduct(@PathVariable("productIdEvent") String productIdEvent){
+        return productService.getProduct(productIdEvent);
     }
 }

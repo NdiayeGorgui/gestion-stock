@@ -151,4 +151,12 @@ public class ProductService {
             log.info("ProductId : {} , Quantity : {}, Quantity Status : {}",productModel.getProductIdEvent(),productModel.getQty(),productModel.getQtyStatus());
         });
     }
+
+    public List<ProductModel> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    public ProductModel getProduct(String id){
+        return productRepository.findProductByProductIdEvent(id);
+    }
 }

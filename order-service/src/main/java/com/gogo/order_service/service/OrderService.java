@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -40,11 +42,21 @@ public class OrderService {
         productItemRepository.save(productItem);
     }
 
-    public int qtyRestante(int quantity, int usedQuantity, String status) {
+    /*public int qtyRestante(int quantity, int usedQuantity, String status) {
         if (status.equalsIgnoreCase(EventStatus.CREATED.name()))
             return (quantity - usedQuantity);
         else
             return (quantity + usedQuantity);
+    }*/
+    public int qtyRestante(int quantity, int usedQuantity, String status) {
+        if (status == null || quantity < 0 || usedQuantity < 0) {
+            throw new IllegalArgumentException("Les paramètres ne doivent pas être nulles ou négatifs.");
+        }
+
+        if (EventStatus.valueOf(status.toUpperCase()) == EventStatus.CREATED) {
+            return quantity - usedQuantity;
+        }
+        return quantity + usedQuantity;
     }
 
     public void updateQuantity(String productIdEvent, int qty) {
@@ -94,6 +106,34 @@ public class OrderService {
 
         List<ProductItem> productItems = productItemRepository.findAll();
         List<Order> orders = orderRepository.findAll();
+
+        // Utilisation des streams pour associer les discounts aux productItemEventDto
+        Optional<Double> discount = orders.stream()
+                .filter(order -> order.getOrderIdEvent().equalsIgnoreCase(orderEvent.getOrderIdEvent()))
+                .flatMap(order -> productItems.stream()
+                        .filter(productItem -> productItem.getOrder().getOrderIdEvent().equalsIgnoreCase(order.getOrderIdEvent()))
+                        .map(ProductItem::getDiscount))
+                .findFirst();
+
+        discount.ifPresent(productItemEventDto::setDiscount);
+
+        orderEventDto.setProductEventDto(productEventDto);
+        orderEventDto.setCustomerEventDto(customerEventDto);
+        orderEventDto.setProductItemEventDto(productItemEventDto);
+    }
+
+   /* public void sendEvent(OrderEvent orderEvent, OrderEventDto orderEventDto) {
+
+        orderEventDto.setId(orderEvent.getOrderIdEvent());
+        orderEventDto.setStatus(EventStatus.PENDING.name());
+        orderEventDto.setName("Order");
+
+        CustomerEventDto customerEventDto = OrderMapper.mapToCustomerEventDto(orderEvent);
+        ProductEventDto productEventDto = OrderMapper.mapToProductEventDto(orderEvent);
+        ProductItemEventDto productItemEventDto = OrderMapper.mapToProductItemEventDto(orderEvent);
+
+        List<ProductItem> productItems = productItemRepository.findAll();
+        List<Order> orders = orderRepository.findAll();
         for (Order order : orders) {
             for (ProductItem productItem : productItems) {
                 if (productItem.getOrder().getOrderIdEvent().equalsIgnoreCase(order.getOrderIdEvent())) {
@@ -105,7 +145,7 @@ public class OrderService {
         orderEventDto.setProductEventDto(productEventDto);
         orderEventDto.setCustomerEventDto(customerEventDto);
         orderEventDto.setProductItemEventDto(productItemEventDto);
-    }
+    }*/
 
     public void sendOrderToCancel(String orderIdEvent){
        // Order order=orderRepository.findByOrderIdEvent(orderIdEvent);
@@ -120,7 +160,7 @@ public class OrderService {
         return productItemRepository.findAll();
     }
 
-    public void getCustomerAndProduct() {
+   /* public void getCustomerAndProduct1() {
         List<Order> orders = orderRepository.findAll();
         List<Customer> customers = customerRepository.findAll();
         List<ProductItem> productItems = productItemRepository.findAll();
@@ -130,7 +170,6 @@ public class OrderService {
             for (Customer customer : customers) {
                 if (customer.getCustomerIdEvent().equalsIgnoreCase(order.getCustomerIdEvent())) {
                     order.setCustomer(customer);
-
                 }
             }
         }
@@ -141,15 +180,38 @@ public class OrderService {
                 }
             }
         }
+    }*/
+
+    public void getCustomerAndProduct() {
+        // Récupérer toutes les listes nécessaires
+        List<Order> orders = orderRepository.findAll();
+        List<Customer> customers = customerRepository.findAll();
+        List<ProductItem> productItems = productItemRepository.findAll();
+        List<Product> products = productRepository.findAll();
+
+        // Créer des maps pour un accès plus rapide par clé (customerIdEvent et productIdEvent)
+        Map<String, Customer> customerMap = customers.stream()
+                .collect(Collectors.toMap(Customer::getCustomerIdEvent, customer -> customer));
+
+        Map<String, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getProductIdEvent, product -> product));
+
+        // Associer les clients aux commandes
+        orders.forEach(order ->
+                order.setCustomer(customerMap.get(order.getCustomerIdEvent()))
+        );
+
+        // Associer les produits aux ProductItems
+        productItems.forEach(productItem ->
+                productItem.setProduct(productMap.get(productItem.getProductIdEvent()))
+        );
     }
 
     public ProductItem getOrderById(Long id) {
-
         return productItemRepository.findById(id).orElse(null);
     }
 
     public List<ProductItem> getOrderById(String id) {
-
         return productItemRepository.findByOrderCustomerIdEvent(id);
     }
 
@@ -162,7 +224,7 @@ public class OrderService {
 
     public double getAmount(int qty, double price) {
         double total = qty * price;
-        double amount = 0;
+        double amount ;
         if (total < 100) {
             amount = 0;
         } else if (total >= 100 && total < 200) {
@@ -175,12 +237,10 @@ public class OrderService {
 
     public void updateOrderStatus(String oderIdEvent, String status ){
         orderRepository.updateOrderStatus(oderIdEvent, status);
-
     }
 
     public void updateAllOrderStatus(String customerIdEvent,String status ){
          orderRepository.updateAllOrderStatus(customerIdEvent,status);
-
     }
 
     public Product findProductById(String productIdEvent) {
