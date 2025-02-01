@@ -29,7 +29,7 @@ public class OrderController {
     @PostMapping("/orders")
     public ResponseEntity<?> placeOrder(@RequestBody OrderEvent orderEvent){
 
-        Product product=orderService.findProductById(orderEvent.getProduct().getId());
+        Product product=orderService.findProductById(orderEvent.getProduct().getProductIdEvent());
         if(product!=null){
             if (product.getQty()>=orderEvent.getProductItem().getProductQty()){
                 // save order
@@ -65,7 +65,14 @@ public class OrderController {
         orderService.getCustomerAndProduct();
         return orderService.getOrders();
         }
-    @PutMapping("/orders/{orderIdEvent}")
+
+    @GetMapping("/orders/status/{status}")
+    public List<ProductItem> getCreatedOrders(@PathVariable("status") String status) {
+        orderService.getCustomerAndProduct();
+        return orderService.getCreatedOrders(status);
+    }
+
+    @GetMapping("/orders/update/{orderIdEvent}")
     public String sendOrderToCancel( @PathVariable("orderIdEvent") String orderIdEvent){
 
         orderService.sendOrderToCancel(orderIdEvent);
@@ -77,6 +84,13 @@ public class OrderController {
    public List<ProductItem>  findOrdersByCustomer(@PathVariable("customerIdEvent") String customerIdEvent){
         orderService.getCustomerAndProduct();
         return orderService.getOrderById(customerIdEvent);
+
+    }
+
+    @GetMapping("/orders/order/{orderIdEvent}")
+    public ProductItem  findOrdersByOrderIdEvent(@PathVariable("orderIdEvent") String orderIdEvent){
+        orderService.getCustomerAndProduct();
+        return orderService.findProductItemByOrderEventId(orderIdEvent);
 
     }
 
@@ -98,3 +112,4 @@ public class OrderController {
 
     }
 }
+//http://localhost:8081/swagger-ui/index.html

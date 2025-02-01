@@ -33,7 +33,7 @@ public class CustomerService {
         CustomerModel savedCustomer= CustomerMapper.mapToCustomerModel(customer);
         this.saveCustomer(savedCustomer);
 
-        customer.setId(savedCustomer.getCustomerIdEvent());
+        customer.setCustomerIdEvent(savedCustomer.getCustomerIdEvent());
         CustomerEvent customerEvent = new CustomerEvent();
         customerEvent.setStatus(EventStatus.PENDING.name());
         customerEvent.setMessage("customer status is in pending state");
@@ -60,7 +60,7 @@ public class CustomerService {
     public void sendCustomerToUpdate(String customerIdEvent, Customer customer){
         CustomerModel customerModel=customerRepository.findCustomerByCustomerIdEvent(customerIdEvent);
 
-        customer.setId(customerModel.getCustomerIdEvent());
+        customer.setCustomerIdEvent(customerModel.getCustomerIdEvent());
 
         CustomerEvent customerEvent=new CustomerEvent();
 

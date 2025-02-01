@@ -42,7 +42,7 @@ public class CustomerConsumer {
             Customer customer = OrderMapper.mapToCustomerModel(event);
             orderService.saveClient(customer);
 
-            boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), EventStatus.CREATED.name());
+            boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getCustomerIdEvent(), EventStatus.CREATED.name());
 
             CustomerEventDto customerEventDto=OrderMapper.mapToCustomerEventDto(event);
             if (customerExist) {
@@ -62,12 +62,12 @@ public class CustomerConsumer {
         }
         if (event.getStatus().equalsIgnoreCase(EventStatus.DELETING.name())) {
 
-            boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), EventStatus.CREATED.name());
+            boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getCustomerIdEvent(), EventStatus.CREATED.name());
             if (customerExist) {
-                Customer customer= customerRepository.findCustomerByCustomerIdEvent(event.getCustomer().getId());
+                Customer customer= customerRepository.findCustomerByCustomerIdEvent(event.getCustomer().getCustomerIdEvent());
                 customerRepository.deleteCustomer(customer.getCustomerIdEvent());
                 //verifying if exists customer object
-                boolean customerDeletedExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), EventStatus.CREATED.name());
+                boolean customerDeletedExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getCustomerIdEvent(), EventStatus.CREATED.name());
                 if(!customerDeletedExist){
                     CustomerEventDto customerEventDto=OrderMapper.mapToCustomerEventDto(event);
 
@@ -81,10 +81,10 @@ public class CustomerConsumer {
         }
         if (event.getStatus().equalsIgnoreCase(EventStatus.UPDATING.name())) {
 
-            boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getId(), EventStatus.CREATED.name());
+            boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getCustomerIdEvent(), EventStatus.CREATED.name());
             if (customerExist) {
                // Customer customer = customerRepository.findCustomerByCustomerIdEvent(event.getCustomer().getId());
-                customerRepository.updateCustomer(event.getCustomer().getId(),EventStatus.CREATED.name(),event.getCustomer().getName(),event.getCustomer().getPhone(),event.getCustomer().getEmail(),event.getCustomer().getAddress());
+                customerRepository.updateCustomer(event.getCustomer().getCustomerIdEvent(),EventStatus.CREATED.name(),event.getCustomer().getName(),event.getCustomer().getPhone(),event.getCustomer().getEmail(),event.getCustomer().getAddress());
                 CustomerEventDto customerEventDto=OrderMapper.mapToCustomerEventDto(event);
 
                 orderEventDto.setStatus(EventStatus.UPDATED.name());

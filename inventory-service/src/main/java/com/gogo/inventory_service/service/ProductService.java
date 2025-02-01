@@ -48,7 +48,7 @@ public class ProductService {
         ProductModel savedProduct= ProductMapper.mapToProductModel(product);
         this.saveProduct(savedProduct);
 
-        product.setId(savedProduct.getProductIdEvent());
+        product.setProductIdEvent(savedProduct.getProductIdEvent());
         ProductEvent productEvent = new ProductEvent();
 
         productEvent.setStatus(EventStatus.PENDING.name());
@@ -91,7 +91,7 @@ public class ProductService {
     public void sendProductToUpdate(String productIdEvent, Product product){
         ProductModel productModel=productRepository.findProductByProductIdEvent(productIdEvent);
 
-        product.setId(productModel.getProductIdEvent());
+        product.setProductIdEvent(productModel.getProductIdEvent());
 
         ProductEvent productEvent=new ProductEvent();
 
@@ -141,7 +141,7 @@ public class ProductService {
             if(productModel.getQty()==0 && productModel.getQtyStatus().equalsIgnoreCase(EventStatus.AVAILABLE.name())){
                 productModel.setQtyStatus(EventStatus.UNAVAILABLE.name());
                 product.setQtyStatus(productModel.getQtyStatus());
-                product.setId(productModel.getProductIdEvent());
+                product.setProductIdEvent(productModel.getProductIdEvent());
                 productEvent.setStatus(EventStatus.UNAVAILABLE.name());
                 productEvent.setProduct(product);
 

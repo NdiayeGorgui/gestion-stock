@@ -34,7 +34,7 @@ public class ProductConsumer {
             Product product = OrderMapper.mapToProductModel(event);
             orderService.saveProduit(product);
 
-            boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getId(), EventStatus.CREATED.name());
+            boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name());
             ProductEventDto productEventDto=OrderMapper.mapToProductEventDto(event);
             if (productExist) {
                 //update product with created
@@ -54,12 +54,12 @@ public class ProductConsumer {
         }
         if (event.getStatus().equalsIgnoreCase(EventStatus.DELETING.name())) {
 
-            boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getId(), EventStatus.CREATED.name());
+            boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name());
             if (productExist) {
-                Product product = productRepository.findProductByProductIdEvent(event.getProduct().getId());
+                Product product = productRepository.findProductByProductIdEvent(event.getProduct().getProductIdEvent());
                 productRepository.deleteProduct(product.getProductIdEvent());
                 //verifying if exists customer object
-                boolean productDeletedExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getId(), EventStatus.CREATED.name());
+                boolean productDeletedExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name());
                 if (!productDeletedExist) {
                     ProductEventDto productEventDto=OrderMapper.mapToProductEventDto(event);
 
@@ -72,9 +72,9 @@ public class ProductConsumer {
         }
         if (event.getStatus().equalsIgnoreCase(EventStatus.UPDATING.name())) {
 
-            boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getId(), EventStatus.CREATED.name());
+            boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name());
             if (productExist) {
-                productRepository.updateProduct(event.getProduct().getId(), EventStatus.CREATED.name(), event.getProduct().getName(), event.getProduct().getQty(), event.getProduct().getPrice(),event.getProduct().getQtyStatus());
+                productRepository.updateProduct(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name(), event.getProduct().getName(), event.getProduct().getQty(), event.getProduct().getPrice(),event.getProduct().getQtyStatus());
                 ProductEventDto productEventDto=OrderMapper.mapToProductEventDto(event);
 
                 orderEventDto.setStatus(EventStatus.UPDATED.name());
@@ -85,7 +85,7 @@ public class ProductConsumer {
             }
         }
         if(event.getStatus().equalsIgnoreCase(EventStatus.UNAVAILABLE.name())){
-            Product product=orderService.findProductById(event.getProduct().getId());
+            Product product=orderService.findProductById(event.getProduct().getProductIdEvent());
             if(product.getQty()==0){
                 product.setQtyStatus(EventStatus.UNAVAILABLE.name());
                 productRepository.updateProductQtyStatus(product.getProductIdEvent(),product.getQtyStatus());

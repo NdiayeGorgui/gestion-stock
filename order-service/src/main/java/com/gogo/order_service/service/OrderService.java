@@ -77,16 +77,17 @@ public class OrderService {
 
     public void createOrder(OrderEvent orderEvent, Order savedOrder) {
 
-        savedOrder.setCustomerIdEvent(orderEvent.getCustomer().getId());
+        savedOrder.setCustomerIdEvent(orderEvent.getCustomer().getCustomerIdEvent());
         savedOrder.setOrderIdEvent(UUID.randomUUID().toString());
         savedOrder.setOrderStatus(EventStatus.PENDING.name());
         savedOrder.setDate(LocalDateTime.now());
     }
 
     public void createProductItem(OrderEvent orderEvent, Order savedOrder, ProductItem savedProductItem) {
+        Product product=productRepository.findProductByProductIdEvent(orderEvent.getProduct().getProductIdEvent());
 
-        savedProductItem.setProductIdEvent(orderEvent.getProduct().getId());
-        savedProductItem.setPrice(orderEvent.getProduct().getPrice());
+        savedProductItem.setProductIdEvent(orderEvent.getProduct().getProductIdEvent());
+        savedProductItem.setPrice(product.getPrice());
         savedProductItem.setQuantity(orderEvent.getProductItem().getProductQty());
         savedProductItem.setOrderIdEvent(savedOrder.getOrderIdEvent());
         savedProductItem.setDiscount(this.getAmount(savedProductItem.getQuantity(), savedProductItem.getPrice())); //todo
@@ -94,11 +95,22 @@ public class OrderService {
         savedProductItem.setOrder(order);
     }
 
-    public void sendEvent(OrderEvent orderEvent, OrderEventDto orderEventDto) {
+   /* public void sendEvent1(OrderEvent orderEvent, OrderEventDto orderEventDto) {
 
         orderEventDto.setId(orderEvent.getOrderIdEvent());
         orderEventDto.setStatus(EventStatus.PENDING.name());
         orderEventDto.setName("Order");
+
+         Customer customer=customerRepository.findCustomerByCustomerIdEvent(orderEvent.getCustomer().getId());
+         orderEvent.getCustomer().setName(customer.getName());
+         orderEvent.getCustomer().setPhone(customer.getPhone());
+         orderEvent.getCustomer().setEmail(customer.getEmail());
+         orderEvent.getCustomer().setAddress(customer.getAddress());
+
+        Product product=productRepository.findProductByProductIdEvent(orderEvent.getProduct().getId());
+        orderEvent.getProduct().setName(product.getName());
+        orderEvent.getProduct().setPrice(product.getPrice());
+        orderEvent.getProduct().setQty(product.getQty());
 
         CustomerEventDto customerEventDto = OrderMapper.mapToCustomerEventDto(orderEvent);
         ProductEventDto productEventDto = OrderMapper.mapToProductEventDto(orderEvent);
@@ -120,13 +132,24 @@ public class OrderService {
         orderEventDto.setProductEventDto(productEventDto);
         orderEventDto.setCustomerEventDto(customerEventDto);
         orderEventDto.setProductItemEventDto(productItemEventDto);
-    }
+    }*/
 
-   /* public void sendEvent(OrderEvent orderEvent, OrderEventDto orderEventDto) {
+    public void sendEvent(OrderEvent orderEvent, OrderEventDto orderEventDto) {
 
         orderEventDto.setId(orderEvent.getOrderIdEvent());
         orderEventDto.setStatus(EventStatus.PENDING.name());
         orderEventDto.setName("Order");
+
+        Customer customer=customerRepository.findCustomerByCustomerIdEvent(orderEvent.getCustomer().getCustomerIdEvent());
+        orderEvent.getCustomer().setName(customer.getName());
+        orderEvent.getCustomer().setPhone(customer.getPhone());
+        orderEvent.getCustomer().setEmail(customer.getEmail());
+        orderEvent.getCustomer().setAddress(customer.getAddress());
+
+        Product product=productRepository.findProductByProductIdEvent(orderEvent.getProduct().getProductIdEvent());
+        orderEvent.getProduct().setName(product.getName());
+        orderEvent.getProduct().setPrice(product.getPrice());
+        orderEvent.getProduct().setQty(product.getQty());
 
         CustomerEventDto customerEventDto = OrderMapper.mapToCustomerEventDto(orderEvent);
         ProductEventDto productEventDto = OrderMapper.mapToProductEventDto(orderEvent);
@@ -145,7 +168,7 @@ public class OrderService {
         orderEventDto.setProductEventDto(productEventDto);
         orderEventDto.setCustomerEventDto(customerEventDto);
         orderEventDto.setProductItemEventDto(productItemEventDto);
-    }*/
+    }
 
     public void sendOrderToCancel(String orderIdEvent){
        // Order order=orderRepository.findByOrderIdEvent(orderIdEvent);
@@ -158,6 +181,10 @@ public class OrderService {
 
     public List<ProductItem> getOrders() {
         return productItemRepository.findAll();
+    }
+
+    public List<ProductItem> getCreatedOrders(String status) {
+        return productItemRepository.findByOrderOrderStatus(status);
     }
 
    /* public void getCustomerAndProduct1() {

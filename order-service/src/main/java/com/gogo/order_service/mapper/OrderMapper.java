@@ -8,7 +8,7 @@ public class OrderMapper {
     public static com.gogo.order_service.model.Customer mapToCustomerModel(CustomerEvent customerEvent){
         return new com.gogo.order_service.model.Customer(
                 null,
-                customerEvent.getCustomer().getId(),
+                customerEvent.getCustomer().getCustomerIdEvent(),
                 customerEvent.getCustomer().getName(),
                 customerEvent.getCustomer().getAddress(),
                 customerEvent.getCustomer().getPhone(),
@@ -20,7 +20,7 @@ public class OrderMapper {
     public static com.gogo.order_service.model.Product mapToProductModel(ProductEvent productEvent){
         return new Product(
                 null,
-                productEvent.getProduct().getId(),
+                productEvent.getProduct().getProductIdEvent(),
                 productEvent.getProduct().getName(),
                 productEvent.getProduct().getQty(),
                 productEvent.getProduct().getPrice(),
@@ -32,7 +32,7 @@ public class OrderMapper {
     public static CustomerEventDto mapToCustomerEventDto(CustomerEvent customerEvent){
 
         return new CustomerEventDto(
-                customerEvent.getCustomer().getId(),
+                customerEvent.getCustomer().getCustomerIdEvent(),
                 null,
                 customerEvent.getCustomer().getName(),
                 customerEvent.getCustomer().getPhone(),
@@ -43,7 +43,7 @@ public class OrderMapper {
 
     public static ProductEventDto mapToProductEventDto(ProductEvent productEvent){
         return new ProductEventDto(
-                productEvent.getProduct().getId(),
+                productEvent.getProduct().getProductIdEvent(),
                 null,
                 productEvent.getProduct().getName(),
                 productEvent.getProduct().getQty(),
@@ -54,7 +54,7 @@ public class OrderMapper {
 
     public static CustomerEventDto mapToCustomerEventDto(OrderEvent orderEvent){
         return new CustomerEventDto(
-                orderEvent.getCustomer().getId(),
+                orderEvent.getCustomer().getCustomerIdEvent(),
                 null,
                 orderEvent.getCustomer().getName(),
                 orderEvent.getCustomer().getPhone(),
@@ -65,7 +65,7 @@ public class OrderMapper {
 
     public static ProductEventDto mapToProductEventDto(OrderEvent orderEvent){
         return new ProductEventDto(
-                orderEvent.getProduct().getId(),
+                orderEvent.getProduct().getProductIdEvent(),
                 null,
                 orderEvent.getProduct().getName(),
                 orderEvent.getProduct().getQty(),
