@@ -19,6 +19,7 @@ public class Product {
     private  Long id;
     private String productIdEvent;
     private String name;
+    private String category;
     private int qty;
     private  double price;
     private String status;

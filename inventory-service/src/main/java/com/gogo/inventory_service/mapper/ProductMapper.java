@@ -17,6 +17,7 @@ public class ProductMapper {
                     null,
                     UUID.randomUUID().toString(),
                     product.getName(),
+                    product.getCategory(),
                     product.getQty(),
                     product.getPrice(),
                     EventStatus.PENDING.name(),
@@ -29,6 +30,7 @@ public class ProductMapper {
         return new Product(
                 productModel.getProductIdEvent(),
                 productModel.getName(),
+                productModel.getCategory(),
                 productModel.getQty(),
                 productModel.getPrice(),
                 productModel.getQtyStatus()

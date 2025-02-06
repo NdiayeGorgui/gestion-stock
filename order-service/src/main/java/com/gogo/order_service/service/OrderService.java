@@ -34,6 +34,11 @@ public class OrderService {
 
     }
 
+    public void saveOder(Order order) {
+        orderRepository.save(order);
+
+    }
+
     public void saveProduit(Product product) {
         productRepository.save(product);
     }
@@ -148,6 +153,7 @@ public class OrderService {
 
         Product product=productRepository.findProductByProductIdEvent(orderEvent.getProduct().getProductIdEvent());
         orderEvent.getProduct().setName(product.getName());
+        orderEvent.getProduct().setCategory(product.getCategory());
         orderEvent.getProduct().setPrice(product.getPrice());
         orderEvent.getProduct().setQty(product.getQty());
 
@@ -185,6 +191,13 @@ public class OrderService {
 
     public List<ProductItem> getCreatedOrders(String status) {
         return productItemRepository.findByOrderOrderStatus(status);
+    }
+
+    public List<Order> findByCustomer(String customerIdEvent){
+        List<Order> customerOrders=orderRepository.findByCustomerIdEvent(customerIdEvent);
+        return customerOrders.stream()
+                .filter(order -> order.getCustomerIdEvent().equalsIgnoreCase(customerIdEvent))
+                .collect(Collectors.toList());
     }
 
    /* public void getCustomerAndProduct1() {

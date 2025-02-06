@@ -26,8 +26,8 @@ public interface ProductRepository extends JpaRepository<ProductModel,Long> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE ProductModel p SET p.status= :status,  p.name= :name,  p.qty= :qty,  p.price= :price,p.qtyStatus= :qtyStatus WHERE p.productIdEvent= :productIdEvent")
-    int updateProduct(@Param("productIdEvent") String productIdEvent, @Param("status") String status, @Param("name") String name, @Param("qty") int qty, @Param("price") double price,@Param("qtyStatus") String qtyStatus);
+    @Query("UPDATE ProductModel p SET p.status= :status,  p.name= :name, p.category= :category,   p.qty= :qty,  p.price= :price,p.qtyStatus= :qtyStatus WHERE p.productIdEvent= :productIdEvent")
+    int updateProduct(@Param("productIdEvent") String productIdEvent, @Param("status") String status, @Param("name") String name, @Param("category") String category, @Param("qty") int qty, @Param("price") double price,@Param("qtyStatus") String qtyStatus);
 
     @Modifying
     @Transactional

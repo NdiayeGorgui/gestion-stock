@@ -38,6 +38,7 @@ public class ProductService {
         ProductModel existingProduct=productRepository.findById(id).get();
 
         existingProduct.setName(product.getName());
+        existingProduct.setCategory(product.getCategory());
         existingProduct.setPrice(product.getPrice());
         existingProduct.setQty(product.getQty());
 
@@ -62,6 +63,7 @@ public class ProductService {
         ProductModel existingProduct=productRepository.findById(id).get();
 
         existingProduct.setName(product.getName());
+        existingProduct.setCategory(product.getCategory());
         existingProduct.setPrice(product.getPrice());
         existingProduct.setQty(product.getQty());
         this.saveProduct(existingProduct);
@@ -108,8 +110,8 @@ public class ProductService {
 
     }
 
-    public void updateProduct(String productIdEvent, String status, String name, int qty, double price, String qtyStatus ){
-        productRepository.updateProduct(productIdEvent, status, name, qty, price, qtyStatus);
+    public void updateProduct(String productIdEvent, String status, String name,String category, int qty, double price, String qtyStatus ){
+        productRepository.updateProduct(productIdEvent, status, name,category, qty, price, qtyStatus);
 
     }
     public void updateProductQty(String productIdEvent, int qty ){

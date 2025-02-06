@@ -26,6 +26,10 @@ public class BillingService {
         billRepository.updateTheBillStatus(orderIdEvent, status);
     }
 
+    public void saveBill(Bill bill){
+        billRepository.save(bill);
+    }
+
     public void updateAllBillCustomerStatus(String customerIdEvent,String status){
          billRepository.updateAllBillCustomerStatus(customerIdEvent, status);
     }

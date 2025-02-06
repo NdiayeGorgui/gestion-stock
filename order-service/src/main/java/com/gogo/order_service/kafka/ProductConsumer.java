@@ -74,7 +74,7 @@ public class ProductConsumer {
 
             boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name());
             if (productExist) {
-                productRepository.updateProduct(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name(), event.getProduct().getName(), event.getProduct().getQty(), event.getProduct().getPrice(),event.getProduct().getQtyStatus());
+                productRepository.updateProduct(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name(), event.getProduct().getName(),event.getProduct().getCategory(), event.getProduct().getQty(), event.getProduct().getPrice(),event.getProduct().getQtyStatus());
                 ProductEventDto productEventDto=OrderMapper.mapToProductEventDto(event);
 
                 orderEventDto.setStatus(EventStatus.UPDATED.name());

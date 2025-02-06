@@ -22,6 +22,7 @@ public class OrderMapper {
                 null,
                 productEvent.getProduct().getProductIdEvent(),
                 productEvent.getProduct().getName(),
+                productEvent.getProduct().getCategory(),
                 productEvent.getProduct().getQty(),
                 productEvent.getProduct().getPrice(),
                 EventStatus.CREATED.name(),
@@ -46,6 +47,7 @@ public class OrderMapper {
                 productEvent.getProduct().getProductIdEvent(),
                 null,
                 productEvent.getProduct().getName(),
+                productEvent.getProduct().getCategory(),
                 productEvent.getProduct().getQty(),
                 productEvent.getProduct().getPrice(),
                 productEvent.getProduct().getQtyStatus()
@@ -68,6 +70,7 @@ public class OrderMapper {
                 orderEvent.getProduct().getProductIdEvent(),
                 null,
                 orderEvent.getProduct().getName(),
+                orderEvent.getProduct().getCategory(),
                 orderEvent.getProduct().getQty(),
                 orderEvent.getProduct().getPrice(),
                 EventStatus.MODIFYING.name()
