@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,8 +43,9 @@ public class PaymentService {
 
         double amount= this.getAmount(payment.getCustomerIdEvent(), EventStatus.CREATED.name());
         double discount=this.getDiscount(payment.getCustomerIdEvent(),EventStatus.CREATED.name());
+        double ttc=amount*1.2; // la taxe est de 20%
 
-        PaymentModel savedPayment= PaymentMapper.mapToPaymentModel(payment,amount,discount);
+        PaymentModel savedPayment= PaymentMapper.mapToPaymentModel(payment,ttc,discount);
 
         this.savePayment(savedPayment);
 
@@ -69,6 +71,7 @@ public class PaymentService {
                 .map(bill -> (bill.getPrice()*bill.getQuantity()))
                 .mapToDouble(i->i).sum();
     }
+
 
     public  double getDiscount(String customerIdEvent,String status){
         List<Bill> customerBills=this.getBillsByCustomer(customerIdEvent,status);
@@ -96,5 +99,16 @@ public class PaymentService {
         return customerBills.stream()
                 .filter(bill -> bill.getCustomerIdEvent().equalsIgnoreCase(customerIdEvent))
                 .collect(Collectors.toList());
+    }
+
+    public List<PaymentModel> findAllPayments(){
+        return paymentRepository.findAll();
+    }
+
+    public PaymentModel findPaymentById(String paymentIdEvent){
+        return paymentRepository.findByPaymentIdEvent(paymentIdEvent);
+    }
+    public  List<Bill> getBills(){
+       return billRepository.findAll();
     }
 }

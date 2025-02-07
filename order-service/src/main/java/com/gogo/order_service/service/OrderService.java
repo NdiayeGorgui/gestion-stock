@@ -287,6 +287,10 @@ public class OrderService {
         return productRepository.findProductByProductIdEvent(productIdEvent);
     }
 
+    public Customer findCustomerById(String customerIdEvent) {
+        return customerRepository.findCustomerByCustomerIdEvent(customerIdEvent);
+    }
+
     public ProductItem findProductItemByOrderEventId(String orderEventId) {
         return productItemRepository.findByOrderIdEvent(orderEventId);
     }

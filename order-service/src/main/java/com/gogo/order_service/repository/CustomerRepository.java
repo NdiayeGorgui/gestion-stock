@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface CustomerRepository extends JpaRepository<Customer,Long> {
     Customer findCustomerById(Long id);
+
     Customer findCustomerByCustomerIdEvent(String id);
     boolean existsByCustomerIdEventAndStatus(String customerIdEvent,String customerStatus);
 

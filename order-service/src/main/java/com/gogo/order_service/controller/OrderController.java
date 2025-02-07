@@ -111,5 +111,18 @@ public class OrderController {
         return  orderService.getCustomers();
 
     }
+
+
+    @GetMapping("/orders/products/{productIdEvent}")
+    public Product   findProductById(@PathVariable String productIdEvent){
+        return  orderService.findProductById(productIdEvent);
+
+    }
+
+    @GetMapping("/orders/customers/{customerIdEvent}")
+    public Customer   findCustomerById(@PathVariable String customerIdEvent){
+        return  orderService.findCustomerById(customerIdEvent);
+
+    }
 }
 //http://localhost:8081/swagger-ui/index.html
