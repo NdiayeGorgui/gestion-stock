@@ -2,6 +2,7 @@ package com.gogo.order_service.controller;
 
 import com.gogo.base_domaine_service.event.OrderEvent;
 import com.gogo.base_domaine_service.event.OrderEventDto;
+import com.gogo.order_service.dto.AmountDto;
 import com.gogo.order_service.kafka.OrderProducer;
 
 import com.gogo.order_service.model.*;
@@ -84,6 +85,13 @@ public class OrderController {
    public List<ProductItem>  findOrdersByCustomer(@PathVariable("customerIdEvent") String customerIdEvent){
         orderService.getCustomerAndProduct();
         return orderService.getOrderById(customerIdEvent);
+
+    }
+
+    @GetMapping("/orders/customers/{customerIdEvent}/{status}")
+    public AmountDto getAmount(@PathVariable("customerIdEvent") String customerIdEvent, @PathVariable("status") String status){
+
+        return orderService.getAmount(customerIdEvent,status);
 
     }
 

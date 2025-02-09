@@ -1,6 +1,7 @@
 package com.gogo.order_service.service;
 
 import com.gogo.base_domaine_service.event.*;
+import com.gogo.order_service.dto.AmountDto;
 import com.gogo.order_service.kafka.OrderProducer;
 import com.gogo.order_service.mapper.OrderMapper;
 import com.gogo.order_service.model.*;
@@ -145,12 +146,14 @@ public class OrderService {
         orderEventDto.setStatus(EventStatus.PENDING.name());
         orderEventDto.setName("Order");
 
+        //recuperer les infos du customer
         Customer customer=customerRepository.findCustomerByCustomerIdEvent(orderEvent.getCustomer().getCustomerIdEvent());
         orderEvent.getCustomer().setName(customer.getName());
         orderEvent.getCustomer().setPhone(customer.getPhone());
         orderEvent.getCustomer().setEmail(customer.getEmail());
         orderEvent.getCustomer().setAddress(customer.getAddress());
 
+        //recuperer les infos du product
         Product product=productRepository.findProductByProductIdEvent(orderEvent.getProduct().getProductIdEvent());
         orderEvent.getProduct().setName(product.getName());
         orderEvent.getProduct().setCategory(product.getCategory());
@@ -255,6 +258,37 @@ public class OrderService {
         return productItemRepository.findByOrderCustomerIdEvent(id);
     }
 
+    List<ProductItem> findByOrderCustomerIdEventAndStatus(String id,String status){
+        return productItemRepository.findByOrderCustomerIdEventAndOrderOrderStatus( id, status);
+    }
+
+    public AmountDto getAmount(String customerIdEvent, String status){
+        List<ProductItem> orders=this.findByOrderCustomerIdEventAndStatus(customerIdEvent,status);
+        AmountDto amountDto=new AmountDto();
+         double amount =orders.stream()
+                .map(ProductItem::getAmount)
+                .mapToDouble(i->i).sum();
+         double discount=this.getDiscount(customerIdEvent,status);
+         amountDto.setAmount((amount+discount)*0.2+amount);
+
+         return amountDto;
+    }
+
+    public  double getDiscount(String customerIdEvent,String status){
+        List<ProductItem> orders=this.findByOrderCustomerIdEventAndStatus(customerIdEvent,status);
+        return orders.stream()
+                .map(ProductItem::getDiscount)
+                .mapToDouble(i->i).sum();
+    }
+
+  /*  public double getTotal(String customerIdEvent,String status){
+        double total=this.getAmount(customerIdEvent,status);
+
+        return total*1.2;   //total +tax
+    }*/
+
+
+
     public List<Customer> getCustomerById(String id) {
         List<Customer> customers = customerRepository.findAll();
         return customers.stream()
@@ -262,7 +296,7 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    public double getAmount(int qty, double price) {
+  /*  public double getAmount(int qty, double price) {
         double total = qty * price;
         double amount ;
         if (total < 100) {
@@ -273,6 +307,11 @@ public class OrderService {
             amount = 0.01 * total;
         }
         return amount;
+    }*/
+
+    public double getAmount(int qty, double price) {
+        double total = qty * price;
+        return (total < 100) ? 0 : (total < 200) ? 0.005 * total : 0.01 * total;
     }
 
     public void updateOrderStatus(String oderIdEvent, String status ){

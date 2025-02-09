@@ -1,6 +1,7 @@
 package com.gogo.order_service.mapper;
 
 import com.gogo.base_domaine_service.event.*;
+import com.gogo.order_service.model.Customer;
 import com.gogo.order_service.model.Product;
 
 public class OrderMapper {

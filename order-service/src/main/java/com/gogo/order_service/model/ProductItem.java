@@ -25,6 +25,6 @@ public class ProductItem {
     private Order order;
 
     public double getAmount(){
-        return price*quantity-discount;
+        return ((price*quantity)-discount);
     }
 }

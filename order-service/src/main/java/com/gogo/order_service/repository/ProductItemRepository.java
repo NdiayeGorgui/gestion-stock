@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface ProductItemRepository extends JpaRepository<ProductItem,Long> {
     List<ProductItem> findByOrderCustomerIdEvent(String id);
+    List<ProductItem> findByOrderCustomerIdEventAndOrderOrderStatus(String id,String status);
     List<ProductItem> findByOrderOrderStatus(String status);
     ProductItem findByOrderIdEvent(String id);
 
