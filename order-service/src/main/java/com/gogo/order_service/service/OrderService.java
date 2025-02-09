@@ -1,5 +1,6 @@
 package com.gogo.order_service.service;
 
+import com.gogo.base_domaine_service.constante.Constante;
 import com.gogo.base_domaine_service.event.*;
 import com.gogo.order_service.dto.AmountDto;
 import com.gogo.order_service.kafka.OrderProducer;
@@ -48,12 +49,6 @@ public class OrderService {
         productItemRepository.save(productItem);
     }
 
-    /*public int qtyRestante(int quantity, int usedQuantity, String status) {
-        if (status.equalsIgnoreCase(EventStatus.CREATED.name()))
-            return (quantity - usedQuantity);
-        else
-            return (quantity + usedQuantity);
-    }*/
     public int qtyRestante(int quantity, int usedQuantity, String status) {
         if (status == null || quantity < 0 || usedQuantity < 0) {
             throw new IllegalArgumentException("Les paramètres ne doivent pas être nulles ou négatifs.");
@@ -262,16 +257,19 @@ public class OrderService {
         return productItemRepository.findByOrderCustomerIdEventAndOrderOrderStatus( id, status);
     }
 
-    public AmountDto getAmount(String customerIdEvent, String status){
-        List<ProductItem> orders=this.findByOrderCustomerIdEventAndStatus(customerIdEvent,status);
-        AmountDto amountDto=new AmountDto();
-         double amount =orders.stream()
+    public AmountDto getAmount(String customerIdEvent, String status) {
+        List<ProductItem> orders = this.findByOrderCustomerIdEventAndStatus(customerIdEvent, status);
+        AmountDto amountDto = new AmountDto();
+        double amount = orders.stream()
                 .map(ProductItem::getAmount)
-                .mapToDouble(i->i).sum();
-         double discount=this.getDiscount(customerIdEvent,status);
-         amountDto.setAmount((amount+discount)*0.2+amount);
+                .mapToDouble(i -> i).sum();
+        double discount = this.getDiscount(customerIdEvent, status);
+        amountDto.setDiscount(discount);
+        amountDto.setTax((amount + discount) * Constante.TAX);
+        amountDto.setAmount(amount + discount);
+        amountDto.setTotalAmount((amount + discount) * Constante.TAX + amount);
 
-         return amountDto;
+        return amountDto;
     }
 
     public  double getDiscount(String customerIdEvent,String status){
@@ -281,33 +279,12 @@ public class OrderService {
                 .mapToDouble(i->i).sum();
     }
 
-  /*  public double getTotal(String customerIdEvent,String status){
-        double total=this.getAmount(customerIdEvent,status);
-
-        return total*1.2;   //total +tax
-    }*/
-
-
-
     public List<Customer> getCustomerById(String id) {
         List<Customer> customers = customerRepository.findAll();
         return customers.stream()
                 .filter(cus -> cus.getCustomerIdEvent().equalsIgnoreCase(id))
                 .collect(Collectors.toList());
     }
-
-  /*  public double getAmount(int qty, double price) {
-        double total = qty * price;
-        double amount ;
-        if (total < 100) {
-            amount = 0;
-        } else if (total >= 100 && total < 200) {
-            amount = 0.005 * total;
-        } else {
-            amount = 0.01 * total;
-        }
-        return amount;
-    }*/
 
     public double getAmount(int qty, double price) {
         double total = qty * price;

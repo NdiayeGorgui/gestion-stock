@@ -9,4 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class AmountDto {
     double amount;
+    double totalAmount;
+    double tax;
+    double discount;
 }

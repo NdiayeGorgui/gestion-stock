@@ -166,32 +166,32 @@ public class BillExcelExporter {
         }
     }
 
-    private void writeTaxLine(String customerIdEvent,String status) {
-        double amount= this.getAmount(customerIdEvent,status);
-        double discount=this.getDiscount(customerIdEvent,status);
-        rowCount=rowCount+1;
+    private void writeTaxLine(String customerIdEvent, String status) {
+        double amount = this.getAmount(customerIdEvent, status);
+        double discount = this.getDiscount(customerIdEvent, status);
+        rowCount = rowCount + 1;
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         font.setFontHeight(14);
         style.setFont(font);
 
-            int columnCount = 2;
-            Row row = sheet.createRow(rowCount++);
+        int columnCount = 2;
+        Row row = sheet.createRow(rowCount++);
 
-            createCell(row, columnCount++, Constante.TOTAL_HT, style);
-            createCell(row, columnCount++, amount, style);
+        createCell(row, columnCount++, Constante.TOTAL_HT, style);
+        createCell(row, columnCount++, amount, style);
 
-            Row row1 = sheet.createRow(rowCount++);
-            createCell(row1, columnCount-2, Constante.REMISE, style);
-            createCell(row1, columnCount-1, discount, style);
+        Row row1 = sheet.createRow(rowCount++);
+        createCell(row1, columnCount - 2, Constante.REMISE, style);
+        createCell(row1, columnCount - 1, discount, style);
 
-            Row row2 = sheet.createRow(rowCount++);
-            createCell(row2, columnCount-2, Constante.TVA, style);
-            createCell(row2, columnCount-1, amount*0.2, style);
+        Row row2 = sheet.createRow(rowCount++);
+        createCell(row2, columnCount - 2, Constante.TVA, style);
+        createCell(row2, columnCount - 1, amount * Constante.TAX, style);
 
-            Row row3 = sheet.createRow(rowCount++);
-            createCell(row3, columnCount-2, Constante.TOTAL_TTC, style);
-            createCell(row3, columnCount-1, (0.2*amount+(amount-discount)), style);
+        Row row3 = sheet.createRow(rowCount++);
+        createCell(row3, columnCount - 2, Constante.TOTAL_TTC, style);
+        createCell(row3, columnCount - 1, (Constante.TAX * amount + (amount - discount)), style);
     }
 
     public void export(HttpServletResponse response,String customerIdEvent,String status) throws IOException {

@@ -17,4 +17,5 @@ public class Constante {
     public static final String REMISE = "Remise";
     public static final String TVA = "TVA 20%";
     public static final String TOTAL_TTC = "Total TTC";
+    public static final double TAX = 0.2;
 }
