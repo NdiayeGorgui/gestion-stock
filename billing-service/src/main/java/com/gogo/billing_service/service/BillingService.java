@@ -52,4 +52,12 @@ public class BillingService {
     public  double getAmount(String customerIdEvent){
         return billRepository.sumBill(customerIdEvent);
     }
+
+    public  List<Bill> getBills(){
+        return billRepository.findAll();
+    }
+
+    public Bill findByOrderIdEvent(String orderIdEvent){
+        return billRepository.findByOrderRef(orderIdEvent);
+    }
 }

@@ -58,4 +58,14 @@ public class BillController {
             throw new RuntimeException("Empty list");
         }
     }
+
+    @GetMapping("/bills")
+    public List<Bill> getAllBills(){
+        return billingService.getBills();
+    }
+
+    @GetMapping("/bills/bill/{orderIdEvent}")
+    public Bill getBill(@PathVariable String orderIdEvent){
+        return billingService.findByOrderIdEvent(orderIdEvent);
+    }
 }
