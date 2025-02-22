@@ -1,0 +1,8 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: mysql-storage
+provisioner: kubernetes.io/aws-ebs  # Remplace par ton provisioner (GCP, Azure, etc.)
+allowVolumeExpansion: true
+reclaimPolicy: Retain
+volumeBindingMode: Immediate

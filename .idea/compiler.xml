@@ -10,8 +10,8 @@
         <module name="inventory-service" />
         <module name="payment-service" />
         <module name="config-service" />
-        <module name="customer-service" />
         <module name="api-gateway-service" />
+        <module name="customer-service" />
         <module name="eureka-registry-service" />
         <module name="order-service" />
         <module name="billing-service" />
@@ -24,16 +24,16 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="api-gateway-service" options="-parameters" />
-      <module name="base-domaine-service" options="-parameters" />
-      <module name="billing-service" options="-parameters" />
-      <module name="config-service" options="-parameters" />
-      <module name="customer-service" options="-parameters" />
-      <module name="eureka-registry-service" options="-parameters" />
-      <module name="inventory-service" options="-parameters" />
+      <module name="api-gateway-service" options="" />
+      <module name="base-domaine-service" options="" />
+      <module name="billing-service" options="" />
+      <module name="config-service" options="" />
+      <module name="customer-service" options="" />
+      <module name="eureka-registry-service" options="" />
+      <module name="inventory-service" options="" />
       <module name="inventory-service (1)" options="-parameters" />
-      <module name="order-service" options="-parameters" />
-      <module name="payment-service" options="-parameters" />
+      <module name="order-service" options="" />
+      <module name="payment-service" options="" />
     </option>
   </component>
 </project>

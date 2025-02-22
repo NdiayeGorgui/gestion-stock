@@ -4,6 +4,8 @@ import com.gogo.billing_service.exception.BillNotFoundException;
 import com.gogo.billing_service.model.Bill;
 import com.gogo.billing_service.service.BillExcelExporter;
 import com.gogo.billing_service.service.BillingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,12 @@ public class BillController {
     @Autowired
     BillingService billingService;
 
+    @Operation(
+            summary = "get Bill REST API",
+            description = "get Bill by id REST API from Bill object")
+    @ApiResponse(responseCode = "200",
+            description = "Http status 200 ")
+
     @GetMapping("/bills/{id}")
     public Bill getBill(@PathVariable("id") Long id) throws BillNotFoundException {
         Optional<Bill> bill = Optional.ofNullable(billingService.getBill(id));
@@ -30,6 +38,12 @@ public class BillController {
             throw new BillNotFoundException("Bill not available with id: " + id );
     }
 
+    @Operation(
+            summary = "get Bills REST API",
+            description = "get Bills by customerIdEvent and status REST API from Bill object")
+    @ApiResponse(responseCode = "200",
+            description = "Http status 200 ")
+
     @GetMapping("/bills/{customerIdEvent}/{status}")
     public List<Bill> getCustomerBillsStatus(@PathVariable("customerIdEvent") String customerIdEvent,@PathVariable("status") String status) throws BillNotFoundException {
         List<Bill> bills=billingService.getBills(customerIdEvent);
@@ -38,6 +52,11 @@ public class BillController {
         }
         return billingService.billList(customerIdEvent,status);
     }
+    @Operation(
+            summary = "get and print Bill REST API",
+            description = "get and print excel file Bill by customerIdEvent and status REST API from Bill object")
+    @ApiResponse(responseCode = "200",
+            description = "Http status 200 ")
 
     @GetMapping("/bills/export/{customerIdEvent}/{status}")
     public void exportToExcel(HttpServletResponse response,@PathVariable("customerIdEvent") String customerIdEvent,@PathVariable("status") String status) throws IOException {
@@ -59,13 +78,25 @@ public class BillController {
         }
     }
 
+    @Operation(
+            summary = "get Bills REST API",
+            description = "get Bills REST API from Bill object")
+    @ApiResponse(responseCode = "200",
+            description = "Http status 200 ")
+
     @GetMapping("/bills")
     public List<Bill> getAllBills(){
         return billingService.getBills();
     }
 
+    @Operation(
+            summary = "get Bills REST API",
+            description = "get Bills by orderIdEvent REST API from Bill object")
+    @ApiResponse(responseCode = "200",
+            description = "Http status 200 ")
+
     @GetMapping("/bills/bill/{orderIdEvent}")
-    public Bill getBill(@PathVariable String orderIdEvent){
+    public Bill getBill(@PathVariable ("orderIdEvent") String orderIdEvent){
         return billingService.findByOrderIdEvent(orderIdEvent);
     }
 }

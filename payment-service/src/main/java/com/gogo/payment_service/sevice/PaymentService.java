@@ -1,11 +1,10 @@
 package com.gogo.payment_service.sevice;
 
 
-import com.gogo.base_domaine_service.dto.Payment;
+import com.gogo.base_domaine_service.dto.*;
 
-import com.gogo.base_domaine_service.event.CustomerEventDto;
-import com.gogo.base_domaine_service.event.EventStatus;
-import com.gogo.base_domaine_service.event.OrderEventDto;
+import com.gogo.base_domaine_service.event.*;
+
 import com.gogo.payment_service.kafka.PaymentProducer;
 import com.gogo.payment_service.mapper.PaymentMapper;
 import com.gogo.payment_service.model.Bill;
