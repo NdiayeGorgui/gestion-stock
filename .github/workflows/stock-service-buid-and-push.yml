@@ -57,7 +57,7 @@ jobs:
         run: |
           DOCKER_HUB_USERNAME=gorgui
           
-          SERVICES=("gestion-commerce" "base-domaine-service" "eureka-registry-service" "config-service" "api-gateway-service" "customer-service" "inventory-service" "order-service" "billing-service" "payment-service")
+          SERVICES=("gestion-stock" "base-domaine-service" "eureka-registry-service" "config-service" "api-gateway-service" "customer-service" "inventory-service" "order-service" "billing-service" "payment-service")
 
           for SERVICE in "${SERVICES[@]}"; do
             IMAGE_NAME="$DOCKER_HUB_USERNAME/$SERVICE:latest"
