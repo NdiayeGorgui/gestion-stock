@@ -42,13 +42,8 @@ jobs:
 
       # 3️⃣ Compiler chaque microservice avec Maven
       - name: Build microservices with Maven
-        run: |
-          SERVICES=("gestion-commerce" "base-domaine-service" "eureka-registry-service" "config-service" "api-gateway-service" "customer-service" "inventory-service" "order-service" "billing-service" "payment-service")
-          
-          for SERVICE in "${SERVICES[@]}"; do
-            echo "🔹 Compilation de $SERVICE"
-            mvn -f $SERVICE/pom.xml clean install -DskipTests
-          done
+        run: mvn clean install
+
 
       # 4️⃣ Se connecter à Docker Hub
       - name: Log in to Docker Hub
