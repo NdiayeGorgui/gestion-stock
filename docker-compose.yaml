@@ -238,6 +238,15 @@ services:
     networks:
       - my_network
 
+# Angular Project (se trouve dans un autre repertoire)
+  stock-web-app:
+    build: C:/Users/gorgu/OneDrive/Documents/AngularProject/stock-web-app
+    container_name: stock-web-app
+    ports:
+      - '4200:80'
+    expose:
+      - '4200'
+
 volumes:
   customer_db:
 
