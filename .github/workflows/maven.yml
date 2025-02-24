@@ -27,7 +27,7 @@ jobs:
       # 3️⃣ Compiler chaque microservice avec Maven
       - name: Build microservices with Maven
         run: |
-          SERVICES=("eureka-registry-service" "config-service" "api-gateway-service" "customer-service" "inventory-service" "order-service" "billing-service" "payment-service")
+          SERVICES=("base-domaine-service" "eureka-registry-service" "config-service" "api-gateway-service" "customer-service" "inventory-service" "order-service" "billing-service" "payment-service")
           
           for SERVICE in "${SERVICES[@]}"; do
             echo "🔹 Compilation de $SERVICE"
