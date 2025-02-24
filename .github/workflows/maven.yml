@@ -31,7 +31,7 @@ jobs:
           
           for SERVICE in "${SERVICES[@]}"; do
             echo "🔹 Compilation de $SERVICE"
-            mvn -f $SERVICE/pom.xml clean install -DskipTests
+            mvn -f $SERVICE/pom.xml clean install -DskipTests -U
           done
 
       # 4️⃣ Se connecter à Docker Hub
