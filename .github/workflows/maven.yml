@@ -44,7 +44,7 @@ jobs:
       # 5️⃣ Builder et Pousser les images Docker sur Docker Hub
       - name: Build and Push Docker Images
         run: |
-          DOCKER_HUB_USERNAME=ton-dockerhub
+          DOCKER_HUB_USERNAME=gorgui
           
           SERVICES=("eureka-registry-service" "config-service" "api-gateway-service" "customer-service" "inventory-service" "order-service" "billing-service" "payment-service" "stock-web-app")
 
