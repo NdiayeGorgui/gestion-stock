@@ -24,37 +24,22 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # 3️⃣ Compiler chaque microservice avec Maven
+      # 3️⃣ Ajouter le cache Maven pour les dépendances
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # 4️⃣ Installer base-domaine-service (pour que les autres services puissent en dépendre)
+      - name: Install base-domaine-service
+        run: |
+          echo "🔹 Installation de base-domaine-service"
+          mvn -f base-domaine-service/pom.xml clean install -DskipTests
+
+      # 5️⃣ Compiler chaque microservice avec Maven
       - name: Build microservices with Maven
         run: |
-          SERVICES=("base-domaine-service" "eureka-registry-service" "config-service" "api-gateway-service" "customer-service" "inventory-service" "order-service" "billing-service" "payment-service")
-
-          for SERVICE in "${SERVICES[@]}"; do
-            echo "🔹 Compilation de $SERVICE"
-            mvn -f $SERVICE/pom.xml clean install -DskipTests -U
-          done
-      
-
-      # 4️⃣ Se connecter à Docker Hub
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # 5️⃣ Builder et Pousser les images Docker sur Docker Hub
-      - name: Build and Push Docker Images
-        run: |
-          DOCKER_HUB_USERNAME=gorgui
-          
-          SERVICES=("eureka-registry-service" "config-service" "api-gateway-service" "customer-service" "inventory-service" "order-service" "billing-service" "payment-service" "stock-web-app")
-
-          for SERVICE in "${SERVICES[@]}"; do
-            IMAGE_NAME="$DOCKER_HUB_USERNAME/$SERVICE:latest"
-          
-            echo "🔹 Build de l'image $IMAGE_NAME"
-            docker build -t $IMAGE_NAME ./$SERVICE
-
-            echo "📤 Push de l'image $IMAGE_NAME"
-            docker push $IMAGE_NAME
-          done
+          SERVICES=("base-domaine-service" "eureka-registry-service" "config-service" "api-ga
