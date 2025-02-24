@@ -24,36 +24,44 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # 3️⃣ Compiler le projet parent et les microservices avec Maven
-      - name: Build parent project and microservices with Maven
+      # 3️⃣ Compiler les modules parents d'abord
+      - name: Build parent modules (gestion-commerce & base-domaine-service)
         run: |
           echo "🔹 Compilation du projet parent gestion-commerce"
           mvn -f gestion-commerce/pom.xml clean install -DskipTests
-          
-          SERVICES=("api-gateway-service" "base-domaine-service" "billing-service" "config-service" "customer-service" "eureka-registry-service" "inventory-service" "order-service" "payment-service")
+
+          echo "🔹 Compilation du module base-domaine-service"
+          mvn -f base-domaine-service/pom.xml clean install -DskipTests
+
+      # 4️⃣ Compiler les microservices avec Maven
+      - name: Build microservices with Maven
+        run: |
+          SERVICES=("eureka-registry-service" "config-service" "api-gateway-service" "customer-service" "inventory-service" "order-service" "billing-service" "payment-service")
           
           for SERVICE in "${SERVICES[@]}"; do
             echo "🔹 Compilation de $SERVICE"
-            mvn -f gestion-commerce/$SERVICE/pom.xml clean install -DskipTests
+            mvn -f $SERVICE/pom.xml clean install -DskipTests
           done
 
-      # 4️⃣ Se connecter à Docker Hub
+      # 5️⃣ Se connecter à Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 5️⃣ Builder et Pousser les images Docker sur Docker Hub
+      # 6️⃣ Builder et Pousser les images Docker sur Docker Hub
       - name: Build and Push Docker Images
         run: |
           DOCKER_HUB_USERNAME=gorgui
           
+          SERVICES=("eureka-registry-service" "config-service" "api-gateway-service" "customer-service" "inventory-service" "order-service" "billing-service" "payment-service")
+
           for SERVICE in "${SERVICES[@]}"; do
             IMAGE_NAME="$DOCKER_HUB_USERNAME/$SERVICE:latest"
           
             echo "🔹 Build de l'image $IMAGE_NAME"
-            docker build -t $IMAGE_NAME ./gestion-commerce/$SERVICE
+            docker build -t $IMAGE_NAME ./$SERVICE
 
             echo "📤 Push de l'image $IMAGE_NAME"
             docker push $IMAGE_NAME
