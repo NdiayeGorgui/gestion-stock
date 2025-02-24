@@ -33,11 +33,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 4️⃣ Installer base-domaine-service (pour que les autres services puissent en dépendre)
-      - name: Install base-domaine-service
+      # 4️⃣ Installer gestion-commerce pour que les autres services puissent en dépendre
+      - name: Install gestion-commerce
         run: |
-          echo "🔹 Installation de base-domaine-service"
-          mvn -f base-domaine-service/pom.xml clean install -DskipTests
+          echo "🔹 Installation de gestion-commerce"
+          mvn -f gestion-commerce/pom.xml clean install -DskipTests
 
       # 5️⃣ Compiler chaque microservice avec Maven
       - name: Build microservices with Maven
