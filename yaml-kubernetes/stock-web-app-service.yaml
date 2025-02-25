@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert -f docker-compose.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: stock-web-app
+  name: stock-web-app
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 4200
+      targetPort: 4200
+  selector:
+    io.kompose.service: stock-web-app

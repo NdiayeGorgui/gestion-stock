@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert -f docker-compose.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: payment-service
+  name: payment-service
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8085
+      targetPort: 8085
+  selector:
+    io.kompose.service: payment-service
