@@ -64,12 +64,14 @@ public class CustomerController {
             description = "Http status 200 ")
 
     @PutMapping("/customers/{customerIdEvent}")
-    public String updateAndSendCustomer(@RequestBody Customer customer, @PathVariable ("customerIdEvent") String customerIdEvent) throws CustomerNotFoundException {
+    public ResponseEntity<Map<String, String>> updateAndSendCustomer(@RequestBody Customer customer, @PathVariable ("customerIdEvent") String customerIdEvent) throws CustomerNotFoundException {
         CustomerModel customerModel = customerService.findCustomerById(customerIdEvent);
 
         if (customerModel != null) {
             customerService.sendCustomerToUpdate(customerIdEvent, customer);
-            return "Customer sent successfully ...";
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Customer sent successfully");
+            return ResponseEntity.ok(response);
         }
         throw new CustomerNotFoundException("Customer not available with id: " + customerIdEvent);
 

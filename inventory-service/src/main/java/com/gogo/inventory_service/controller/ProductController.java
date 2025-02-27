@@ -81,11 +81,13 @@ public class ProductController {
             description = "Http status 200 ")
 
     @PutMapping("/products/{productIdEvent}")
-    public String updateAndSendProduct(@RequestBody Product product,@PathVariable("productIdEvent") String productIdEvent) throws ProductNotFoundException {
+    public ResponseEntity<Map<String, String>> updateAndSendProduct(@RequestBody Product product,@PathVariable("productIdEvent") String productIdEvent) throws ProductNotFoundException {
         ProductModel productModel=productService.findProductById(productIdEvent);
         if(productModel!=null){
             productService.sendProductToUpdate(productIdEvent,product);
-            return "Product sent successfully ...";
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Product sent successfully");
+            return ResponseEntity.ok(response);
         }
         throw new ProductNotFoundException("Product not available with id: " + productIdEvent);
     }
