@@ -84,11 +84,13 @@ public class CustomerController {
             description = "Http status 200 ")
 
     @DeleteMapping("/customers/{customerIdEvent}")
-    public String sendCustomer(@PathVariable ("customerIdEvent") String customerIdEvent) throws CustomerNotFoundException {
+    public ResponseEntity<Map<String, String>> sendCustomer(@PathVariable ("customerIdEvent") String customerIdEvent) throws CustomerNotFoundException {
         CustomerModel customerModel = customerService.findCustomerById(customerIdEvent);
         if (customerModel != null) {
             customerService.sendCustomerToDelete(customerIdEvent);
-            return "Customer sent successfully ...";
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Customer sent successfully");
+            return ResponseEntity.ok(response);
         }
         throw new CustomerNotFoundException("Customer not available with id: " + customerIdEvent);
     }

@@ -65,11 +65,13 @@ public class ProductController {
 
 
     @DeleteMapping("/products/{productIdEvent}")
-    public String sendCustomer(@PathVariable ("productIdEvent") String productIdEvent) throws ProductNotFoundException {
+    public ResponseEntity<Map<String, String>>  sendCustomer(@PathVariable ("productIdEvent") String productIdEvent) throws ProductNotFoundException {
         ProductModel productModel=productService.findProductById(productIdEvent);
         if(productModel!=null){
             productService.sendProductToDelete(productIdEvent);
-            return "Product sent successfully ...";
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Product sent successfully");
+            return ResponseEntity.ok(response);
         }
         throw new ProductNotFoundException("Product not available with id: " + productIdEvent);
     }
