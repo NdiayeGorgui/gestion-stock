@@ -1,6 +1,57 @@
 version: '3.8'
 
 services:
+  # Prometheus
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - my_network
+
+  #Tempo
+  tempo:
+    image: grafana/tempo
+    container_name: tempo
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./docker/tempo/tempo.yml:/etc/tempo.yaml:ro
+      - ./docker/tempo/tempo-data:/tmp/tempo
+    ports:
+      - "3200:3200" # Tempo
+      - "9411:9411" # zipkin
+    networks:
+      - my_network
+
+  # Loki
+  loki:
+    image: grafana/loki:main
+    container_name: loki
+    command: [ "-config.file=/etc/loki/local-config.yaml" ]
+    ports:
+      - "3100:3100"
+    networks:
+      - my_network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./docker/grafana:/etc/grafana/provisioning/datasources:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+    networks:
+      - my_network
+
   # Zookeeper
   zookeeper:
     image: bitnami/zookeeper:latest
@@ -69,7 +120,7 @@ services:
 
   # Eureka Service Registry
   eureka-registry-service:
-    image: gorgui/eureka-registry-service:latest
+    build: ./eureka-registry-service
     container_name: eureka-registry-service
     ports:
       - '8761:8761'
@@ -85,7 +136,7 @@ services:
 
   # Config Service
   config-service:
-    image: gorgui/config-service:latest
+    build: ./config-service
     container_name: config-service
     ports:
       - '9191:9191'
@@ -105,7 +156,7 @@ services:
 
   # API Gateway Service
   api-gateway-service:
-    image: gorgui/api-gateway-service:latest
+    build: ./api-gateway-service
     container_name: api-gateway-service
     ports:
       - '8888:8888'
@@ -121,7 +172,7 @@ services:
 
   # Customer Service (utilise Kafka et se connecte à la BD)
   customer-service:
-    image: gorgui/customer-service:latest
+    build: ./customer-service
     container_name: customer-service
     ports:
       - "8082:8082"
@@ -147,12 +198,16 @@ services:
         condition: service_started
       kafka-1:
         condition: service_started
+      tempo:
+        condition: service_started
+      loki:
+        condition: service_started
     networks:
       - my_network
 
   # Inventory Service (utilise Kafka et se connecte à la BD)
   inventory-service:
-    image: gorgui/inventory-service:latest
+    build: ./inventory-service
     container_name: inventory-service
     ports:
       - "8084:8084"
@@ -174,7 +229,7 @@ services:
 
   # Order Service (utilise Kafka et se connecte à la BD)
   order-service:
-    image: gorgui/order-service:latest
+    build: ./order-service
     container_name: order-service
     ports:
       - "8081:8081"
@@ -196,7 +251,7 @@ services:
 
   # Billing Service (utilise Kafka et se connecte à la BD)
   billing-service:
-    image: gorgui/billing-service:latest
+    build: ./billing-service
     container_name: billing-service
     ports:
       - "8083:8083"
@@ -218,7 +273,7 @@ services:
 
   # Payment Service (utilise Kafka et se connecte à la BD)
   payment-service:
-    image: gorgui/payment-service:latest
+    build: ./payment-service
     container_name: payment-service
     ports:
       - "8085:8085"
@@ -226,6 +281,91 @@ services:
       - "8085"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/payment_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:9092,kafka-2:9093
+      - eureka.client.service-url.defaultZone=http://eureka-registry-service:8761/eureka/
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:9191/
+    depends_on:
+      customer-service:
+        condition: service_healthy
+
+    networks:
+      - my_network
+
+  # Shipping Service (utilise Kafka et se connecte à la BD)
+  shipping-service:
+    build: ./shipping-service
+    container_name: shipping-service
+    ports:
+      - "8086:8086"
+    expose:
+      - "8086"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/shipping_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:9092,kafka-2:9093
+      - eureka.client.service-url.defaultZone=http://eureka-registry-service:8761/eureka/
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:9191/
+    depends_on:
+      customer-service:
+        condition: service_healthy
+
+    networks:
+      - my_network
+
+  # Notification Service (utilise Kafka)
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "8087:8087"
+    expose:
+      - "8087"
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:9092,kafka-2:9093
+      - eureka.client.service-url.defaultZone=http://eureka-registry-service:8761/eureka/
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:9191/
+    depends_on:
+      customer-service:
+        condition: service_healthy
+
+    networks:
+      - my_network
+
+  # Delivered command Service (utilise Kafka et se connecte à la BD)
+  delivered-command-service:
+    build: ./delivered-command-service
+    container_name: delivered-command-service
+    ports:
+      - "8088:8088"
+    expose:
+      - "8088"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/delivered_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:9092,kafka-2:9093
+      - eureka.client.service-url.defaultZone=http://eureka-registry-service:8761/eureka/
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:9191/
+    depends_on:
+      customer-service:
+        condition: service_healthy
+
+    networks:
+      - my_network
+
+  # Delivered query Service (utilise Kafka et se connecte à la BD)
+  delivered-query-service:
+    build: ./delivered-query-service
+    container_name: delivered-query-service
+    ports:
+      - "8089:8089"
+    expose:
+      - "8089"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/delivered_db
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=rootpassword
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:9092,kafka-2:9093

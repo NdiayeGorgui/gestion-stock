@@ -17,7 +17,7 @@ import java.util.List;
 @Service
 public class CustomerService {
     @Autowired
-   private CustomerRepository customerRepository;
+    private CustomerRepository customerRepository;
 
     private final CustomerProducer customerProducer;
 

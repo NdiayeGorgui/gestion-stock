@@ -25,7 +25,7 @@ public class OrderProducer {
     }
 
     public void sendMessage(OrderEventDto event){
-        LOGGER.info(String.format("Order event => %s", event.toString()));
+        LOGGER.info("Order event => {}", event.toString());
 
         // create Message
         Message<OrderEventDto> message = MessageBuilder

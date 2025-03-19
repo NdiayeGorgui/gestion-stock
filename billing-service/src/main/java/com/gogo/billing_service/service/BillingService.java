@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class BillingService {
 
     @Autowired
-    BillRepository billRepository;
+    private BillRepository billRepository;
     public Bill getBill(Long id){
         return billRepository.findById(id).orElse(null);
     }

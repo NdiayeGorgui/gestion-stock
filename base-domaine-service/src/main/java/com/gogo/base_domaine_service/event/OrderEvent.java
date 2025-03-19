@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class OrderEvent {
     private String orderIdEvent;
     private String message;
-    private OrderStatus status;
+    private String status;
     private Customer customer;
     private Product product;
     private ProductItem productItem;

@@ -17,7 +17,7 @@ public class OrderListener {
     @Autowired
     private ProductService productService;
     @Autowired
-    OrderProducer orderProducer;
+    private OrderProducer orderProducer;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderListener.class);
 

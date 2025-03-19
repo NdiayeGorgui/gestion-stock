@@ -14,10 +14,14 @@
         <module>billing-service</module>
         <module>config-service</module>
         <module>customer-service</module>
+        <module>delivered-command-service</module>
+        <module>delivered-query-service</module>
         <module>eureka-registry-service</module>
         <module>inventory-service</module>
+        <module>notification-service</module>
         <module>order-service</module>
         <module>payment-service</module>
+        <module>shipping-service</module>
     </modules>
 
     <dependencyManagement>

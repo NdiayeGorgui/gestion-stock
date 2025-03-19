@@ -12,6 +12,7 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order,Long> {
 
     List<Order> findByCustomerIdEvent(String id);
+    
     @Modifying
     @Transactional
     @Query("UPDATE Order o SET o.orderStatus= :orderStatus WHERE o.orderIdEvent= :orderIdEvent")

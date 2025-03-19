@@ -14,5 +14,12 @@ public enum EventStatus {
     DELETING,
     DELETED,
     AVAILABLE,
-    UNAVAILABLE
+    UNAVAILABLE,
+    CONFIRMED,
+    SHIPPED,
+    SHIPPING,
+    DELIVERING,
+    DELIVERED,
+    CLOSED,
+    REMOVED
 }

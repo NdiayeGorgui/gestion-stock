@@ -21,7 +21,7 @@ import java.util.Optional;
 @RequestMapping("/api/v1")
 public class BillController {
     @Autowired
-    BillingService billingService;
+    private BillingService billingService;
 
     @Operation(
             summary = "get Bill REST API",

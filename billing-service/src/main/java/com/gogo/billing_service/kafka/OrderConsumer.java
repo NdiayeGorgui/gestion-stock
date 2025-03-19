@@ -1,5 +1,6 @@
 package com.gogo.billing_service.kafka;
 
+import com.gogo.base_domaine_service.event.CustomerEventDto;
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
 import com.gogo.base_domaine_service.event.ProductEventDto;
@@ -17,12 +18,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrderConsumer {
     @Autowired
-   private BillRepository billRepository;
+    private BillRepository billRepository;
     @Autowired
     private BillProducer billProducer;
-
-    @Autowired
-    private PaymentProducer paymentProducer;
 
     @Autowired
     private BillingService billingService;
@@ -57,11 +55,15 @@ public class OrderConsumer {
             Bill bill1=billingService.findByOrderRef(event.getId());
 
             ProductEventDto productEventDto=new ProductEventDto();
+            CustomerEventDto customerEventDto=new CustomerEventDto();
             if(bill1!=null && bill1.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())){
                 productEventDto.setQty(bill1.getQuantity());
                 productEventDto.setProductIdEvent(bill1.getProductIdEvent());
+                customerEventDto.setName(bill1.getCustomerName());
+                customerEventDto.setEmail(bill1.getCustomerMail());
 
                 event.setProductEventDto(productEventDto);
+                event.setCustomerEventDto(customerEventDto);
                 event.setStatus(EventStatus.CANCELED.name());
 
             billingService.updateTheBillStatus(event.getId(), event.getStatus());

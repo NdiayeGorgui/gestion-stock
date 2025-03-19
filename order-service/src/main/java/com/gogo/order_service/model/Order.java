@@ -16,6 +16,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
     private String orderIdEvent;
+    private String orderId;
     private LocalDateTime date;
     private String customerIdEvent;
     @Transient

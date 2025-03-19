@@ -25,6 +25,7 @@ public interface BillRepository extends JpaRepository <Bill,Long>{
     void updateAllBillCustomerStatus(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status);
 
     List<Bill> findByCustomerIdEvent(String customerIdEvent);
+    List<Bill> findByOrderIdAndStatus(String orderId, String status);
 
     boolean existsByOrderRefAndStatus(String orderId, String status);
 }
