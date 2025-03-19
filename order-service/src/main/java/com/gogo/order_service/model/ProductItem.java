@@ -21,6 +21,7 @@ public class ProductItem {
     private  double price;
     private double discount;
     private String orderIdEvent;
+    private String orderItemId;
     @ManyToOne
     private Order order;
 

@@ -1,7 +1,6 @@
 package com.gogo.payment_service.kafka;
 
 import com.gogo.base_domaine_service.event.OrderEventDto;
-import com.gogo.base_domaine_service.event.PaymentEvent;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +28,14 @@ public class PaymentService {
     private BillRepository billRepository;
     @Autowired
     private PaymentProducer paymentProducer;
+
+    public Bill getBill(String customerId, String status) {
+        return billRepository.findByCustomerIdEventAndStatus(customerId, status)
+                             .stream()
+                             .findFirst()
+                             .orElse(null);
+    }
+
 
     public void savePayment(PaymentModel paymentModel){
         paymentRepository.save(paymentModel);
@@ -46,18 +55,56 @@ public class PaymentService {
 
         PaymentModel savedPayment= PaymentMapper.mapToPaymentModel(payment,ttc,discount);
 
+        Bill billCreated = this.getBill(payment.getCustomerIdEvent(), EventStatus.CREATED.name());
+        String customerNameCreated= billCreated.getCustomerName();
+        String customerMailCreated=billCreated.getCustomerMail();
+        savedPayment.setCustomerName(customerNameCreated);
+        savedPayment.setCustomerMail(customerMailCreated);
+        savedPayment.setOrderId(billCreated.getOrderId());
+
         this.savePayment(savedPayment);
 
-        billRepository.updateAllBillCustomerStatus(savedPayment.getCustomerIdEvent(),savedPayment.getPaymentStatus());
+        billRepository.updateAllBillCustomerStatus(savedPayment.getCustomerIdEvent(),EventStatus.COMPLETED.name());
 
+  
         CustomerEventDto customerEventDto=new CustomerEventDto();
         customerEventDto.setCustomerIdEvent(payment.getCustomerIdEvent());
+        customerEventDto.setName(customerNameCreated);
+        customerEventDto.setEmail(customerMailCreated);
 
         orderEventDto.setCustomerEventDto(customerEventDto);
         orderEventDto.setStatus(savedPayment.getPaymentStatus());
+
+        orderEventDto.setPaymentId(billCreated.getOrderId());
+
         paymentProducer.sendMessage(orderEventDto);
 
     }
+
+    public void cancelAndSendOrder(Payment payment){
+
+        OrderEventDto orderEventDto=new OrderEventDto();
+        // find all orders concerned
+
+        billRepository.updateAllBillCustomerStatus(payment.getCustomerIdEvent(),payment.getPaymentStatus());
+
+
+
+        Bill bill = this.getBill(payment.getCustomerIdEvent(), EventStatus.CREATED.name());
+        String customerName= bill.getCustomerName();
+        String customerMail=bill.getCustomerMail();
+        CustomerEventDto customerEventDto=new CustomerEventDto();
+        customerEventDto.setCustomerIdEvent(payment.getCustomerIdEvent());
+        customerEventDto.setName(customerName);
+        customerEventDto.setEmail(customerMail);
+
+        orderEventDto.setCustomerEventDto(customerEventDto);
+        orderEventDto.setStatus(EventStatus.REMOVED.name());
+        orderEventDto.setPaymentId(orderEventDto.getPaymentId());//todo
+        paymentProducer.sendMessage(orderEventDto);
+
+    }
+
     public List<Bill> getBillsByCustomer(String customerIdEvent,String status){
         return billRepository.findByCustomerIdEventAndStatus(customerIdEvent,status);
     }
@@ -70,7 +117,6 @@ public class PaymentService {
                 .map(bill -> (bill.getPrice()*bill.getQuantity()))
                 .mapToDouble(i->i).sum();
     }
-
 
     public  double getDiscount(String customerIdEvent,String status){
         List<Bill> customerBills=this.getBillsByCustomer(customerIdEvent,status);

@@ -14,6 +14,10 @@
         <option value="$PROJECT_DIR$/api-gateway-service/pom.xml" />
         <option value="$PROJECT_DIR$/config-service/pom.xml" />
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/shipping-service/pom.xml" />
+        <option value="$PROJECT_DIR$/notification-service/pom.xml" />
+        <option value="$PROJECT_DIR$/delivered-command-service/pom.xml" />
+        <option value="$PROJECT_DIR$/delivered-query-service/pom.xml" />
       </list>
     </option>
   </component>

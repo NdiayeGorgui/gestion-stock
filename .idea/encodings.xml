@@ -6,12 +6,16 @@
     <file url="file://$PROJECT_DIR$/billing-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/config-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/customer-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/delivered-command-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/delivered-query-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/eureka-registry-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/inventory-query-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/inventory-query-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/inventory-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/notification-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/order-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/order-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/payment-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shipping-service/src/main/java" charset="UTF-8" />
   </component>
 </project>

@@ -11,8 +11,11 @@ import lombok.NoArgsConstructor;
 public class Payment {
     private String paymentIdEvent;
     private String orderIdEvent;
+    private String orderId;
     @NotBlank
     private String customerIdEvent;
+    private String customerName;
+    private String customerMail;
     @NotBlank
     private String paymentMode;
     private double amount;

@@ -1,0 +1,84 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  - job_name: 'customer_service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['customer-service:8082']
+        labels:
+          application: 'Customer Service Application'
+
+  - job_name: 'billing_service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'billing-service:8083' ]
+        labels:
+          application: 'Billing Service Application'
+
+  - job_name: 'inventory_service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'inventory-service:8084' ]
+        labels:
+          application: 'Inventory Service Application'
+
+  - job_name: 'delivered_command-service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'delivered-command-service:8088' ]
+        labels:
+          application: 'Delivered command Service Application'
+
+  - job_name: 'delivered_query_service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'delivered-query-service:8089' ]
+        labels:
+          application: 'Delivered query Service Application'
+
+  - job_name: 'notification_service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'notification-service:8087' ]
+        labels:
+          application: 'Notification Service Application'
+
+  - job_name: 'order_service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'order-service:8081' ]
+        labels:
+          application: 'Order Service Application'
+
+  - job_name: 'payment_service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'payment-service:8085' ]
+        labels:
+          application: 'Payment Service Application'
+
+  - job_name: 'shipping_service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'shipping-service:8086' ]
+        labels:
+          application: 'Shipping Service Application'
+
+  - job_name: 'api_gateway_service'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'api-gateway-service:8888' ]
+        labels:
+          application: 'Api Gateway Service Application'

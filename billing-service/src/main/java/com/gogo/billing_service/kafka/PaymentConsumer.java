@@ -16,9 +16,9 @@ import java.util.List;
 @Service
 public class PaymentConsumer {
     @Autowired
-    BillProducer billProducer;
+    private BillProducer billProducer;
     @Autowired
-    BillingService billingService;
+    private BillingService billingService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentConsumer.class);
 

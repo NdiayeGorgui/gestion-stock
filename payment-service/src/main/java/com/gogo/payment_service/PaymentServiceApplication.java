@@ -25,7 +25,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 				url="https://github.com/NdiayeGorgui/gestion-stock-config-server/blob/main/payment-service.properties"
 		)
 )
-
 @SpringBootApplication
 public class PaymentServiceApplication {
 

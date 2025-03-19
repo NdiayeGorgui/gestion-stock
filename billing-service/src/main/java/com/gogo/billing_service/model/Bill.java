@@ -23,7 +23,9 @@ public class Bill {
     private String customerIdEvent;
     private String customerName;
     private String customerPhone;
+    private String customerMail;
     private String orderRef;
+    private String orderId;
     private String productIdEvent;
     private String productName;
     private int quantity;

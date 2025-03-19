@@ -19,8 +19,10 @@ public class PaymentModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String paymentIdEvent;
-   // private String orderIdEvent;
     private String customerIdEvent;
+    private String orderId;
+    private String customerName;
+    private String customerMail;
     private String paymentMode;
     private double amount;
     private LocalDateTime timeStamp;

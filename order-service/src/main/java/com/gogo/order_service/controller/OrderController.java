@@ -3,6 +3,7 @@ package com.gogo.order_service.controller;
 import com.gogo.base_domaine_service.event.OrderEvent;
 import com.gogo.base_domaine_service.event.OrderEventDto;
 import com.gogo.order_service.dto.AmountDto;
+import com.gogo.order_service.dto.ProductStatDTO;
 import com.gogo.order_service.kafka.OrderProducer;
 
 import com.gogo.order_service.model.*;
@@ -82,6 +83,7 @@ public class OrderController {
 
         // Récupérer et envoyer l'ID de la commande
         orderEvent.setOrderIdEvent(savedOrder.getOrderIdEvent());
+        orderEventDto.setPaymentId(savedOrder.getOrderId());
         orderEventDto.setId(orderEvent.getOrderIdEvent());
 
         logger.info("Order created successfully with ID: {}", savedOrder.getOrderIdEvent());
@@ -104,6 +106,18 @@ public class OrderController {
     public List<ProductItem> getOrders() {
         orderService.getCustomerAndProduct();
         return orderService.getOrders();
+        }
+    
+    @Operation(
+            summary = "get Order REST API",
+            description = "get Order Events REST API ")
+    @ApiResponse(responseCode = "200",
+            description = "Http status 200 ")
+
+    @GetMapping("/orders/events/all")
+    public List<OrderEventSourcing> getOrderEvents() {
+       
+        return orderService.getOrderEvents();
         }
 
     @Operation(
@@ -129,7 +143,22 @@ public class OrderController {
         orderService.sendOrderToCancel(orderIdEvent);
 
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Order for update sent successfully");
+        response.put("message", "Order for cancel sent successfully");
+        return ResponseEntity.ok(response);
+    }
+    @Operation(
+            summary = "get Order REST API",
+            description = "send orderIdEvent for order confirmation")
+    @ApiResponse(responseCode = "200",
+            description = "Http status 200 ")
+    
+    @GetMapping("/orders/confirm/{orderIdEvent}")
+    public  ResponseEntity<Map<String, String>> sendOrderToConfirm( @PathVariable("orderIdEvent") String orderIdEvent){
+
+        orderService.sendOrderToConfirm(orderIdEvent);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Order for confirmation sent successfully");
         return ResponseEntity.ok(response);
     }
 
@@ -174,7 +203,7 @@ public class OrderController {
     @ApiResponse(responseCode = "200",
             description = "Http status 200 ")
 
-    @GetMapping("/orders/{id}")
+    @GetMapping("/orders/byId/{id}")
     public ProductItem  findOrderById(@PathVariable("id") Long id){
         orderService.getCustomerAndProduct();
         return orderService.getOrderById(id);
@@ -224,6 +253,12 @@ public class OrderController {
     @GetMapping("/orders/customers/{customerIdEvent}")
     public Customer   findCustomerById(@PathVariable ("customerIdEvent") String customerIdEvent){
         return  orderService.findCustomerById(customerIdEvent);
+    }
+    
+    
+    @GetMapping("/orders/most-ordered-products")
+    public List<ProductStatDTO> getProduitsLesPlusCommandes() {
+        return orderService.getMostOrderedProducts();
     }
 }
 //http://localhost:8081/swagger-ui/index.html

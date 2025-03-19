@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @Data
 public class AmountDto {
     @Schema(description = "Amount")
-    double amount;
+    private double amount;
     @Schema(description = "Total amount")
-    double totalAmount;
+    private double totalAmount;
     @Schema(description = "Tax")
-    double tax;
+    private double tax;
     @Schema(description = "Discount")
-    double discount;
+    private double discount;
 }

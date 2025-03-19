@@ -22,7 +22,7 @@ import java.util.Map;
 @RequestMapping("/api/v1")
 public class PaymentController {
     @Autowired
-    PaymentService paymentService;
+    private PaymentService paymentService;
 
     @Operation(
             summary = "Save and Send payment REST API",
