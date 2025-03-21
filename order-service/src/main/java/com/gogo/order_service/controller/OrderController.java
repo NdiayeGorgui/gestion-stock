@@ -3,6 +3,7 @@ package com.gogo.order_service.controller;
 import com.gogo.base_domaine_service.event.OrderEvent;
 import com.gogo.base_domaine_service.event.OrderEventDto;
 import com.gogo.order_service.dto.AmountDto;
+import com.gogo.order_service.dto.CustomerDto;
 import com.gogo.order_service.dto.ProductStatDTO;
 import com.gogo.order_service.kafka.OrderProducer;
 
@@ -259,6 +260,11 @@ public class OrderController {
     @GetMapping("/orders/most-ordered-products")
     public List<ProductStatDTO> getProduitsLesPlusCommandes() {
         return orderService.getMostOrderedProducts();
+    }
+    
+    @GetMapping("/orders/top10")
+    public ResponseEntity<List<CustomerDto>> getTopCustomers() {
+        return ResponseEntity.ok(orderService.getTop10Customers());
     }
 }
 //http://localhost:8081/swagger-ui/index.html

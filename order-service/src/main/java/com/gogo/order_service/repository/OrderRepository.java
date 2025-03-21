@@ -26,4 +26,13 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     @Transactional
     @Query("UPDATE Order o SET o.orderStatus= :orderStatus WHERE o.customerIdEvent= :customerIdEvent")
     void updateAllOrderStatus(@Param("customerIdEvent") String customerIdEvent, @Param("orderStatus") String orderStatus);
+    
+    
+    @Query("SELECT o.customerIdEvent, COUNT(o.id) as orderCount " +
+    	       "FROM Order o " +
+    	       "GROUP BY o.customerIdEvent " +
+    	       "ORDER BY orderCount DESC " +
+    	       "LIMIT 10")
+    	List<Object[]> findTop10CustomersByOrderCount();
+
 }
