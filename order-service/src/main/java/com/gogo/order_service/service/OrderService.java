@@ -3,6 +3,7 @@ package com.gogo.order_service.service;
 import com.gogo.base_domaine_service.constante.Constante;
 import com.gogo.base_domaine_service.event.*;
 import com.gogo.order_service.dto.AmountDto;
+import com.gogo.order_service.dto.CustomerDto;
 import com.gogo.order_service.dto.ProductStatDTO;
 import com.gogo.order_service.kafka.OrderProducer;
 import com.gogo.order_service.mapper.OrderMapper;
@@ -313,5 +314,27 @@ public class OrderService {
             return new ProductStatDTO(productIdEvent, name, totalQuantite);
         }).collect(Collectors.toList());
     }
+	
+	public List<CustomerDto> getTop10Customers() {
+        List<Object[]> results = orderRepository.findTop10CustomersByOrderCount();
+        
+        return results.stream()
+            .map(result -> {
+                String customerIdEvent = (String) result[0];
+                Long totalOrder = ((Number) result[1]).longValue();
+
+                // Récupérer les infos du client
+                Customer customer = customerRepository.findCustomerByCustomerIdEvent(customerIdEvent);
+
+                // Vérifier si le client existe avant de retourner le DTO
+                if (customer != null) {
+                    return new CustomerDto(customer.getCustomerIdEvent(), customer.getName(), totalOrder);
+                } else {
+                    return new CustomerDto(customerIdEvent, "Inconnu", totalOrder);
+                }
+            })
+            .collect(Collectors.toList());
+    }
+
 }
 
