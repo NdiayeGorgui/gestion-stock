@@ -120,7 +120,7 @@ services:
 
   # Eureka Service Registry
   eureka-registry-service:
-    build: ./eureka-registry-service
+    image: gorgui/eureka-registry-service:latest
     container_name: eureka-registry-service
     ports:
       - '8761:8761'
@@ -136,7 +136,7 @@ services:
 
   # Config Service
   config-service:
-    build: ./config-service
+    image: gorgui/config-service:latest
     container_name: config-service
     ports:
       - '9191:9191'
@@ -156,7 +156,7 @@ services:
 
   # API Gateway Service
   api-gateway-service:
-    build: ./api-gateway-service
+    image: gorgui/api-gateway-service:latest
     container_name: api-gateway-service
     ports:
       - '8888:8888'
@@ -172,7 +172,7 @@ services:
 
   # Customer Service (utilise Kafka et se connecte à la BD)
   customer-service:
-    build: ./customer-service
+    image: gorgui/customer-service:latest
     container_name: customer-service
     ports:
       - "8082:8082"
@@ -207,7 +207,7 @@ services:
 
   # Inventory Service (utilise Kafka et se connecte à la BD)
   inventory-service:
-    build: ./inventory-service
+    image: gorgui/inventory-service:latest
     container_name: inventory-service
     ports:
       - "8084:8084"
@@ -229,7 +229,7 @@ services:
 
   # Order Service (utilise Kafka et se connecte à la BD)
   order-service:
-    build: ./order-service
+    image: gorgui/order-service:latest
     container_name: order-service
     ports:
       - "8081:8081"
@@ -251,7 +251,7 @@ services:
 
   # Billing Service (utilise Kafka et se connecte à la BD)
   billing-service:
-    build: ./billing-service
+    image: gorgui/billing-service:latest
     container_name: billing-service
     ports:
       - "8083:8083"
@@ -273,7 +273,7 @@ services:
 
   # Payment Service (utilise Kafka et se connecte à la BD)
   payment-service:
-    build: ./payment-service
+    image: gorgui/payment-service:latest
     container_name: payment-service
     ports:
       - "8085:8085"
@@ -295,7 +295,7 @@ services:
 
   # Shipping Service (utilise Kafka et se connecte à la BD)
   shipping-service:
-    build: ./shipping-service
+    image: gorgui/shipping-service:latest
     container_name: shipping-service
     ports:
       - "8086:8086"
@@ -317,7 +317,7 @@ services:
 
   # Notification Service (utilise Kafka)
   notification-service:
-    build: ./notification-service
+    image: gorgui/notification-service:latest
     container_name: notification-service
     ports:
       - "8087:8087"
@@ -336,7 +336,7 @@ services:
 
   # Delivered command Service (utilise Kafka et se connecte à la BD)
   delivered-command-service:
-    build: ./delivered-command-service
+    image: gorgui/delivered-command-service:latest
     container_name: delivered-command-service
     ports:
       - "8088:8088"
@@ -358,7 +358,7 @@ services:
 
   # Delivered query Service (utilise Kafka et se connecte à la BD)
   delivered-query-service:
-    build: ./delivered-query-service
+    image: gorgui/delivered-query-service:latest
     container_name: delivered-query-service
     ports:
       - "8089:8089"

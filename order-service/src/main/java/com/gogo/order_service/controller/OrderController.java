@@ -256,11 +256,22 @@ public class OrderController {
         return  orderService.findCustomerById(customerIdEvent);
     }
     
+    @Operation(
+            summary = "get customer  REST API",
+            description = "get most ordered product REST API ")
+    @ApiResponse(responseCode = "200",
+            description = "Http status 200 ")
     
     @GetMapping("/orders/most-ordered-products")
     public List<ProductStatDTO> getProduitsLesPlusCommandes() {
         return orderService.getMostOrderedProducts();
     }
+    
+    @Operation(
+            summary = "get customer  REST API",
+            description = "get top 10 customers REST API ")
+    @ApiResponse(responseCode = "200",
+            description = "Http status 200 ")
     
     @GetMapping("/orders/top10")
     public ResponseEntity<List<CustomerDto>> getTopCustomers() {
