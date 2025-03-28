@@ -225,7 +225,7 @@ public class OrderService {
         return productItemRepository.findByOrderCustomerIdEvent(id);
     }
 
-    List<ProductItem> findByOrderCustomerIdEventAndStatus(String id,String status){
+    public List<ProductItem> findByOrderCustomerIdEventAndStatus(String id,String status){
         return productItemRepository.findByOrderCustomerIdEventAndOrderOrderStatus( id, status);
     }
 
