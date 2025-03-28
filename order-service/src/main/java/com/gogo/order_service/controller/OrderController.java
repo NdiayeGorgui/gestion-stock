@@ -186,6 +186,12 @@ public class OrderController {
         return orderService.getAmount(customerIdEvent,status);
     }
 
+
+    @GetMapping("/orders/customer/{customerIdEvent}/{status}")
+    public List<ProductItem>  findOrdersByCustomerId(@PathVariable("customerIdEvent") String customerIdEvent,@PathVariable("status") String status){
+        orderService.getCustomerAndProduct();
+        return orderService.findByOrderCustomerIdEventAndStatus(customerIdEvent,status);
+    }
     @Operation(
             summary = "get Order by orderIdEvent REST API",
             description = "get order by orderIdEvent  REST API from ProductItem object")
