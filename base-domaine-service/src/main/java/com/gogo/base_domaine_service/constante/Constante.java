@@ -5,7 +5,7 @@ public class Constante {
     public static final String QUANTITE = "Quantité";
     public static final String PRIX_UNITAIRE = "Prix Unitaire";
     public static final String MONTANT_HT = "Montant HT";
-    public static final String NOM_COMPAGNIE = "Gorgui Solution Inc";
+    public static final String NOM_COMPAGNIE = "Trocady Store Inc";
     public static final String NOM_CLIENT = "Nom Client:";
     public static final String NUMERO_TELEPHONE = "N° Telephone:";
     public static final String FACTURE = "FACTURE";
