@@ -29,7 +29,7 @@ public class PaymentConsumer {
         if(event.getStatus().equalsIgnoreCase(EventStatus.COMPLETED.name())){
             MimeMessagePreparator messagePreparator=mimeMessage -> {
                 MimeMessageHelper messageHelper=new MimeMessageHelper(mimeMessage);
-                messageHelper.setFrom("noreply@gorgui.com");
+                messageHelper.setFrom("noreply@trocady.com");
                 messageHelper.setTo(event.getCustomerEventDto().getEmail());
                 messageHelper.setSubject(String.format("Order Payment Notification with number %s",event.getPaymentId()));
                 messageHelper.setText(String.format("""
@@ -38,10 +38,10 @@ public class PaymentConsumer {
                      ==========================================================
                      
                      Hi %s,
-                     your order with order number %s has been completed and shipped successfully !.
+                     your order with order number %s has been completed successfully !.
                      Best regards !
                      
-                     Gorgui Solution Inc Team.
+                     Trocady Solution Inc Team.
                        \s""",
                         event.getCustomerEventDto().getName() ,event.getPaymentId()));
             };

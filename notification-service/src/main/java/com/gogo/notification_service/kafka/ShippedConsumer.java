@@ -13,32 +13,32 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DeliveredConsumer {
+public class ShippedConsumer {
 
     @Autowired
     private JavaMailSender javaMailSender;
 
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeliveredConsumer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShippedConsumer.class);
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.delivered.name}"
+            topics = "${spring.kafka.topic.shipping.name}"
             ,groupId = "${spring.kafka.consumer.group-id}"
     )
     public void deliverConsumer(OrderEventDto event){
-        if(event.getStatus().equalsIgnoreCase(EventStatus.DELIVERED.name())){
+        if(event.getStatus().equalsIgnoreCase(EventStatus.SHIPPED.name())){
             MimeMessagePreparator messagePreparator=mimeMessage -> {
                 MimeMessageHelper messageHelper=new MimeMessageHelper(mimeMessage);
                 messageHelper.setFrom("noreply@trocady.com");
                 messageHelper.setTo(event.getCustomerEventDto().getEmail());
-                messageHelper.setSubject(String.format("Order delivered Notification with number %s",event.getId()));
+                messageHelper.setSubject(String.format("Order shipped Notification with number %s",event.getId()));
                 messageHelper.setText(String.format("""
                      ==========================================================
-                     Order Delivered notification
+                     Order Shipped notification
                      ==========================================================
                      
                      Hi %s,
-                     your order with order number %s has been delivered successfully !.
+                     your order with order number %s has been shipped successfully !.
                      Best regards !
                      
                      Trocady Solution Inc Team.
