@@ -11,6 +11,8 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
     command: [ "start-dev" ]
+    volumes:
+      - keycloak_data:/opt/keycloak/data  # Volume pour persister les données de Keycloak
 
   # Prometheus
   prometheus:
@@ -402,6 +404,7 @@ services:
 
 volumes:
   customer_db:
+  keycloak_data:  # Volume persistant pour Keycloak
 
 networks:
   my_network:
