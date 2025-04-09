@@ -58,7 +58,7 @@ public class BillConsumer {
                             
                             Best regards!
                             
-                            Gorgui Solution Inc Team.
+                            Trocady Solution Inc Team.
                             """, customerName, orderId)
             );
 
@@ -76,7 +76,7 @@ public class BillConsumer {
                             
                             Best regards!
                             
-                            Gorgui Solution Inc Team.
+                            Trocady Solution Inc Team.
                             """, customerName, orderId)
             );
 
@@ -89,7 +89,7 @@ public class BillConsumer {
     private void sendEmailNotification(String to, String orderId, String subject, String body) {
         MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
-            messageHelper.setFrom("noreply@gorgui.com");
+            messageHelper.setFrom("noreply@trocady.com");
             messageHelper.setTo(to);
             messageHelper.setSubject(String.format("%s - Order # %s", subject, orderId));
             messageHelper.setText(body);
