@@ -38,7 +38,7 @@ public class PaymentConsumer {
                      ==========================================================
                      
                      Hi %s,
-                     your order with order number %s has been completed successfully !.
+                     your order with payment number %s has been completed successfully !.
                      Best regards !
                      
                      Trocady Solution Inc Team.
