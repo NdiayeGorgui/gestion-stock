@@ -25,7 +25,7 @@ public class ShippedConsumer {
             topics = "${spring.kafka.topic.shipping.name}"
             ,groupId = "${spring.kafka.consumer.group-id}"
     )
-    public void deliverConsumer(OrderEventDto event){
+    public void shippingConsumer(OrderEventDto event){
         if(event.getStatus().equalsIgnoreCase(EventStatus.SHIPPED.name())){
             MimeMessagePreparator messagePreparator=mimeMessage -> {
                 MimeMessageHelper messageHelper=new MimeMessageHelper(mimeMessage);
