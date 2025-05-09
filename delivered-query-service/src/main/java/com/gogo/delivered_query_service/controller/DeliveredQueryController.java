@@ -14,10 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:4300"})
 @RestController
 @RequestMapping("/api/v1")
-public class DeliveredCommandController {
+public class DeliveredQueryController {
 
     @Autowired
     private DeliveredQueryService deliveredQueryService;
