@@ -151,6 +151,18 @@ public class ProductService {
                 productRepository.updateProductQtyStatus(productModel.getProductIdEvent(),productModel.getQtyStatus());
                 productProducer.sendMessage(productEvent);
             }
+
+            if(productModel.getQty()>0 && productModel.getQtyStatus().equalsIgnoreCase(EventStatus.UNAVAILABLE.name())
+                    ||productModel.getQty()>10 && productModel.getQtyStatus().equalsIgnoreCase("LOW")){
+                productModel.setQtyStatus(EventStatus.AVAILABLE.name());
+                product.setQtyStatus(productModel.getQtyStatus());
+                product.setProductIdEvent(productModel.getProductIdEvent());
+                productEvent.setStatus(EventStatus.AVAILABLE.name());
+                productEvent.setProduct(product);
+
+                productRepository.updateProductQtyStatus(productModel.getProductIdEvent(),productModel.getQtyStatus());
+                productProducer.sendMessage(productEvent);
+            }
             log.info("ProductId : {} , Quantity : {}, Quantity Status : {}",productModel.getProductIdEvent(),productModel.getQty(),productModel.getQtyStatus());
         });
     }
