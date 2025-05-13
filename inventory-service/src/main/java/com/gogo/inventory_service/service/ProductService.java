@@ -134,38 +134,46 @@ public class ProductService {
     }
 
     @Scheduled(fixedRate = 15000)
-    public void productAvailable(){
-        List<ProductModel> productModelList=productRepository.findAll();
-        Product product=new Product();
-        ProductEvent productEvent=new ProductEvent();
+    @Scheduled(fixedRate = 60000)
+    public void productAvailable() {
+        List<ProductModel> productModelList = productRepository.findAll();
 
-        productModelList.forEach(productModel -> {
-            if(productModel.getQty()==0 && productModel.getQtyStatus().equalsIgnoreCase(EventStatus.AVAILABLE.name())
-            ||productModel.getQty()==0 && productModel.getQtyStatus().equalsIgnoreCase("LOW")){
-                productModel.setQtyStatus(EventStatus.UNAVAILABLE.name());
-                product.setQtyStatus(productModel.getQtyStatus());
+        for (ProductModel productModel : productModelList) {
+            int qty = productModel.getQty();
+            String currentStatus = productModel.getQtyStatus();
+            String newStatus = currentStatus;
+
+            // Déterminer le nouveau statut en fonction de la quantité
+            if (qty == 0 && (currentStatus.equalsIgnoreCase(EventStatus.AVAILABLE.name())
+                    || currentStatus.equalsIgnoreCase(EventStatus.LOW.name()))) {
+                newStatus = EventStatus.UNAVAILABLE.name();
+            } else if (qty > 0 && currentStatus.equalsIgnoreCase(EventStatus.UNAVAILABLE.name())) {
+                newStatus = EventStatus.AVAILABLE.name();
+            } else if (qty < 10 && !currentStatus.equalsIgnoreCase(EventStatus.LOW.name())) {
+                newStatus = EventStatus.LOW.name();
+            }
+
+            // Appliquer la mise à jour si le statut change
+            if (!newStatus.equals(currentStatus)) {
+                productModel.setQtyStatus(newStatus);
+                productRepository.updateProductQtyStatus(productModel.getProductIdEvent(), newStatus);
+
+                Product product = new Product();
                 product.setProductIdEvent(productModel.getProductIdEvent());
-                productEvent.setStatus(EventStatus.UNAVAILABLE.name());
+                product.setQtyStatus(newStatus);
+
+                ProductEvent productEvent = new ProductEvent();
+                productEvent.setStatus(newStatus);
                 productEvent.setProduct(product);
 
-                productRepository.updateProductQtyStatus(productModel.getProductIdEvent(),productModel.getQtyStatus());
                 productProducer.sendMessage(productEvent);
             }
 
-            if(productModel.getQty()>0 && productModel.getQtyStatus().equalsIgnoreCase(EventStatus.UNAVAILABLE.name())
-                    ||productModel.getQty()>10 && productModel.getQtyStatus().equalsIgnoreCase("LOW")){
-                productModel.setQtyStatus(EventStatus.AVAILABLE.name());
-                product.setQtyStatus(productModel.getQtyStatus());
-                product.setProductIdEvent(productModel.getProductIdEvent());
-                productEvent.setStatus(EventStatus.AVAILABLE.name());
-                productEvent.setProduct(product);
-
-                productRepository.updateProductQtyStatus(productModel.getProductIdEvent(),productModel.getQtyStatus());
-                productProducer.sendMessage(productEvent);
-            }
-            log.info("ProductId : {} , Quantity : {}, Quantity Status : {}",productModel.getProductIdEvent(),productModel.getQty(),productModel.getQtyStatus());
-        });
+            log.info("ProductId : {} , Quantity : {}, Quantity Status : {}",
+                    productModel.getProductIdEvent(), qty, productModel.getQtyStatus());
+        }
     }
+
 
     public List<ProductModel> getAllProducts() {
         return productRepository.findAll();
