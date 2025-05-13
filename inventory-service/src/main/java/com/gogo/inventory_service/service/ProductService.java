@@ -133,14 +133,15 @@ public class ProductService {
       return   productRepository.findProductByProductIdEvent(id);
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 15000)
     public void productAvailable(){
         List<ProductModel> productModelList=productRepository.findAll();
         Product product=new Product();
         ProductEvent productEvent=new ProductEvent();
 
         productModelList.forEach(productModel -> {
-            if(productModel.getQty()==0 && productModel.getQtyStatus().equalsIgnoreCase(EventStatus.AVAILABLE.name())){
+            if(productModel.getQty()==0 && productModel.getQtyStatus().equalsIgnoreCase(EventStatus.AVAILABLE.name())
+            ||productModel.getQty()==0 && productModel.getQtyStatus().equalsIgnoreCase("LOW")){
                 productModel.setQtyStatus(EventStatus.UNAVAILABLE.name());
                 product.setQtyStatus(productModel.getQtyStatus());
                 product.setProductIdEvent(productModel.getProductIdEvent());
