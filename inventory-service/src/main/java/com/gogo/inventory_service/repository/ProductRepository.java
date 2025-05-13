@@ -12,12 +12,12 @@ public interface ProductRepository extends JpaRepository<ProductModel,Long> {
     ProductModel findProductByProductIdEvent(String productIdEvent);
     @Modifying
     @Query("UPDATE ProductModel p SET p.status= :status WHERE p.productIdEvent= :productIdEvent")
-    int updateProductStatus(@Param("productIdEvent") String productIdEvent, @Param("status") String status);
+    void updateProductStatus(@Param("productIdEvent") String productIdEvent, @Param("status") String status);
 
     @Transactional
     @Modifying
     @Query("UPDATE ProductModel p SET p.qtyStatus= :qtyStatus WHERE p.productIdEvent= :productIdEvent")
-    int updateProductQtyStatus(@Param("productIdEvent") String productIdEvent, @Param("qtyStatus") String qtyStatus);
+    void updateProductQtyStatus(@Param("productIdEvent") String productIdEvent, @Param("qtyStatus") String qtyStatus);
 
     @Modifying
     @Transactional
@@ -27,11 +27,11 @@ public interface ProductRepository extends JpaRepository<ProductModel,Long> {
     @Modifying
     @Transactional
     @Query("UPDATE ProductModel p SET p.status= :status,  p.name= :name, p.category= :category,   p.qty= :qty,  p.price= :price,p.qtyStatus= :qtyStatus WHERE p.productIdEvent= :productIdEvent")
-    int updateProduct(@Param("productIdEvent") String productIdEvent, @Param("status") String status, @Param("name") String name, @Param("category") String category, @Param("qty") int qty, @Param("price") double price,@Param("qtyStatus") String qtyStatus);
+    void updateProduct(@Param("productIdEvent") String productIdEvent, @Param("status") String status, @Param("name") String name, @Param("category") String category, @Param("qty") int qty, @Param("price") double price,@Param("qtyStatus") String qtyStatus);
 
     @Modifying
     @Transactional
     @Query("UPDATE ProductModel p SET p.qty= :qty WHERE p.productIdEvent= :productIdEvent")
-    int updateQuantity(@Param("productIdEvent") String productIdEvent, @Param("qty") int qty);
+    void updateQuantity(@Param("productIdEvent") String productIdEvent, @Param("qty") int qty);
 
 }
