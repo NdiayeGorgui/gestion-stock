@@ -142,17 +142,16 @@ public class ProductService {
             String currentStatus = productModel.getQtyStatus();
             String newStatus = currentStatus;
 
-            // Déterminer le nouveau statut en fonction de la quantité
-            if (qty == 0 && (currentStatus.equalsIgnoreCase(EventStatus.AVAILABLE.name())
-                    || currentStatus.equalsIgnoreCase(EventStatus.LOW.name()))) {
+            // Déterminer le nouveau statut basé uniquement sur la quantité
+            if (qty == 0) {
                 newStatus = EventStatus.UNAVAILABLE.name();
-            } else if (qty > 0 && currentStatus.equalsIgnoreCase(EventStatus.UNAVAILABLE.name())) {
-                newStatus = EventStatus.AVAILABLE.name();
-            } else if (qty < 10 && !currentStatus.equalsIgnoreCase(EventStatus.LOW.name())) {
+            } else if (qty < 10) {
                 newStatus = EventStatus.LOW.name();
+            } else {
+                newStatus = EventStatus.AVAILABLE.name();
             }
 
-            // Appliquer la mise à jour si le statut change
+            // Mettre à jour uniquement si le statut a changé
             if (!newStatus.equals(currentStatus)) {
                 productModel.setQtyStatus(newStatus);
                 productRepository.updateProductQtyStatus(productModel.getProductIdEvent(), newStatus);
@@ -169,7 +168,7 @@ public class ProductService {
             }
 
             log.info("ProductId : {} , Quantity : {}, Quantity Status : {}",
-                    productModel.getProductIdEvent(), qty, productModel.getQtyStatus());
+                    productModel.getProductIdEvent(), qty, newStatus);
         }
     }
 
