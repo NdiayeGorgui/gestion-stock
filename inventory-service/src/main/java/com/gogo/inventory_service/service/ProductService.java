@@ -134,7 +134,6 @@ public class ProductService {
     }
 
     @Scheduled(fixedRate = 15000)
-    @Scheduled(fixedRate = 60000)
     public void productAvailable() {
         List<ProductModel> productModelList = productRepository.findAll();
 
