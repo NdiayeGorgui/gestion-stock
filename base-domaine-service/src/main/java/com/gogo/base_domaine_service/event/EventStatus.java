@@ -15,6 +15,7 @@ public enum EventStatus {
     DELETED,
     AVAILABLE,
     UNAVAILABLE,
+    LOW,
     CONFIRMED,
     SHIPPED,
     SHIPPING,
