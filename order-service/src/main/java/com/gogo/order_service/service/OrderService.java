@@ -96,13 +96,16 @@ public class OrderService {
 
     public void createProductItem(OrderEvent orderEvent, Order savedOrder, ProductItem savedProductItem) {
         Product product=productRepository.findProductByProductIdEvent(orderEvent.getProduct().getProductIdEvent());
+        AmountDto dto=this.getAmount(savedOrder.getCustomerIdEvent(), "CREATED");
+
+       double discount= dto.getDiscount();
 
         savedProductItem.setProductIdEvent(orderEvent.getProduct().getProductIdEvent());
         savedProductItem.setPrice(product.getPrice());
         savedProductItem.setQuantity(orderEvent.getProductItem().getProductQty());
         savedProductItem.setOrderIdEvent(savedOrder.getOrderIdEvent());
         savedProductItem.setOrderItemId(savedOrder.getOrderId()); //todo
-        savedProductItem.setDiscount(this.getAmount(savedProductItem.getQuantity(), savedProductItem.getPrice())); //todo
+        savedProductItem.setDiscount(discount); //todo
         Order order = orderRepository.findById(savedOrder.getId()).orElse(null);
         savedProductItem.setOrder(order);
     }
@@ -126,6 +129,8 @@ public class OrderService {
         orderEvent.getProduct().setCategory(product.getCategory());
         orderEvent.getProduct().setPrice(product.getPrice());
         orderEvent.getProduct().setQty(product.getQty());
+
+
 
         CustomerEventDto customerEventDto = OrderMapper.mapToCustomerEventDto(orderEvent);
         ProductEventDto productEventDto = OrderMapper.mapToProductEventDto(orderEvent);
