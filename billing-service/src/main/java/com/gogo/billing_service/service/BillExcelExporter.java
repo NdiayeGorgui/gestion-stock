@@ -1,7 +1,6 @@
 package com.gogo.billing_service.service;
 
 import com.gogo.base_domaine_service.constante.Constante;
-import com.gogo.billing_service.dto.AmountDto;
 import com.gogo.billing_service.model.Bill;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
@@ -163,23 +162,10 @@ public class BillExcelExporter {
             createCell(row, columnCount++, bill.getPrice()*bill.getQuantity(), style);
         }
     }
-    public AmountDto getDisc(String customerIdEvent, String status) {
-        List<Bill> customerBills= billingService.billList(customerIdEvent, status);
-        AmountDto amountDto = new AmountDto();
 
-        double discount = customerBills.stream()
-                .map(Bill::getDiscount)
-                .mapToDouble(i -> i).sum();
-        amountDto.setDiscount(discount);
-
-
-        return amountDto;
-    }
     private void writeTaxLine(String customerIdEvent, String status) {
         double amount = this.getAmount(customerIdEvent, status);
-        AmountDto dto=this.getDisc(customerIdEvent, status);
-        double discount = dto.getDiscount();
-
+        double discount = this.getDiscount(customerIdEvent, status);
         rowCount = rowCount + 1;
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
