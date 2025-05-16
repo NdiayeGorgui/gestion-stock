@@ -105,7 +105,7 @@ public class OrderService {
         savedProductItem.setQuantity(orderEvent.getProductItem().getProductQty());
         savedProductItem.setOrderIdEvent(savedOrder.getOrderIdEvent());
         savedProductItem.setOrderItemId(savedOrder.getOrderId()); //todo
-        savedProductItem.setDiscount(discount); //todo
+        savedProductItem.setDiscount(this.getAmount(savedProductItem.getQuantity(), savedProductItem.getPrice())); //todo
         Order order = orderRepository.findById(savedOrder.getId()).orElse(null);
         savedProductItem.setOrder(order);
     }
