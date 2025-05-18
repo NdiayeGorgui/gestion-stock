@@ -27,5 +27,5 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     @Transactional
     @Modifying
     @Query("UPDATE Product p SET p.qtyStatus= :qtyStatus WHERE p.productIdEvent= :productIdEvent")
-    void updateProductQtyStatus(String productIdEvent, String qtyStatus);
+    void updateProductQtyStatus(@Param("productIdEvent") String productIdEvent, @Param("qtyStatus") String qtyStatus);
 }
