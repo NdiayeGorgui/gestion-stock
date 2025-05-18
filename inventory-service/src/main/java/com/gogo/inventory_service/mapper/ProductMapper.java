@@ -11,19 +11,19 @@ public class ProductMapper {
 
 
 
-        public static ProductModel mapToProductModel(Product product){
+    public static ProductModel mapToProductModel(Product product) {
+        return new ProductModel(
+                null,
+                UUID.randomUUID().toString(),
+                product.getName(),
+                product.getCategory(),
+                product.getQty(),
+                product.getPrice(),
+                EventStatus.PENDING.name(),
+                product.getQty() >= 10 ? EventStatus.AVAILABLE.name() : EventStatus.LOW.name()
+        );
+    }
 
-            return new ProductModel(
-                    null,
-                    UUID.randomUUID().toString(),
-                    product.getName(),
-                    product.getCategory(),
-                    product.getQty(),
-                    product.getPrice(),
-                    EventStatus.PENDING.name(),
-                    EventStatus.AVAILABLE.name()
-            );
-        }
 
     public static Product mapToProduct(ProductModel productModel){
 
