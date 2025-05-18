@@ -50,6 +50,7 @@ public class ProductService {
         this.saveProduct(savedProduct);
 
         product.setProductIdEvent(savedProduct.getProductIdEvent());
+        product.setQtyStatus(savedProduct.getQtyStatus());
         ProductEvent productEvent = new ProductEvent();
 
         productEvent.setStatus(EventStatus.PENDING.name());
@@ -94,6 +95,13 @@ public class ProductService {
         ProductModel productModel=productRepository.findProductByProductIdEvent(productIdEvent);
 
         product.setProductIdEvent(productModel.getProductIdEvent());
+        if(product.getQty()>=10){
+            product.setQtyStatus(EventStatus.AVAILABLE.name());
+        }else if(product.getQty()==0){
+            product.setQtyStatus(EventStatus.UNAVAILABLE.name());
+        }else {
+            product.setQtyStatus(EventStatus.LOW.name());
+        }
 
         ProductEvent productEvent=new ProductEvent();
 
@@ -133,7 +141,7 @@ public class ProductService {
       return   productRepository.findProductByProductIdEvent(id);
     }
 
-    @Scheduled(fixedRate = 60000)
+ /*   @Scheduled(fixedRate = 60000)
     public void productAvailable() {
         List<ProductModel> productModelList = productRepository.findAll();
 
@@ -170,7 +178,7 @@ public class ProductService {
             log.info("ProductId : {} , Quantity : {}, Quantity Status : {}",
                     productModel.getProductIdEvent(), qty, newStatus);
         }
-    }
+    }*/
 
 
     public List<ProductModel> getAllProducts() {
