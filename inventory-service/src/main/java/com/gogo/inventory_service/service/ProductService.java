@@ -148,7 +148,7 @@ public class ProductService {
         for (ProductModel productModel : productModelList) {
             int qty = productModel.getQty();
             String currentStatus = productModel.getQtyStatus();
-            String newStatus = currentStatus;
+            String newStatus ="";
 
             // Déterminer le nouveau statut basé uniquement sur la quantité
             if (qty == 0) {
@@ -160,7 +160,7 @@ public class ProductService {
             }
 
             // Mettre à jour uniquement si le statut a changé
-            if (!newStatus.equals(currentStatus)) {
+           // if (!newStatus.equals(currentStatus)) {
                 productModel.setQtyStatus(newStatus);
                 productRepository.updateProductQtyStatus(productModel.getProductIdEvent(), newStatus);
 
@@ -173,7 +173,7 @@ public class ProductService {
                 productEvent.setProduct(product);
 
                 productProducer.sendMessage(productEvent);
-            }
+           // }
 
             log.info("ProductId : {} , Quantity : {}, Quantity Status : {}",
                     productModel.getProductIdEvent(), qty, newStatus);
