@@ -133,7 +133,7 @@ public class ProductService {
       return   productRepository.findProductByProductIdEvent(id);
     }
 
-    @Scheduled(fixedRate = 15000)
+    @Scheduled(fixedRate = 60000)
     public void productAvailable() {
         List<ProductModel> productModelList = productRepository.findAll();
 
