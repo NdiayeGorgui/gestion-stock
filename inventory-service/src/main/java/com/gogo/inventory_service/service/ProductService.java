@@ -141,7 +141,7 @@ public class ProductService {
       return   productRepository.findProductByProductIdEvent(id);
     }
 
- /*   @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 15000)
     public void productAvailable() {
         List<ProductModel> productModelList = productRepository.findAll();
 
@@ -178,7 +178,7 @@ public class ProductService {
             log.info("ProductId : {} , Quantity : {}, Quantity Status : {}",
                     productModel.getProductIdEvent(), qty, newStatus);
         }
-    }*/
+    }
 
 
     public List<ProductModel> getAllProducts() {
