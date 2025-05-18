@@ -64,7 +64,7 @@ public class BillConsumer {
             //String qtyStatus=event.getProductEventDto().getQtyStatus();
             int qtyUsed = event.getProductItemEventDto().getQty();
             int qr = orderService.qtyRestante(product.getQty(), qtyUsed, event.getStatus());
-            if (qr > 0) {
+            if (qr >= 0) {
                 orderService.updateQuantity(event.getProductEventDto().getProductIdEvent(), qr);
                 orderService.updateOrderStatus(event.getId(), EventStatus.CREATED.name());
 
