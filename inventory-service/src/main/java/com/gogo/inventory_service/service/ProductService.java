@@ -160,23 +160,12 @@ public class ProductService {
             }
 
             // Mettre à jour uniquement si le statut a changé
-           // if (!newStatus.equals(currentStatus)) {
+            if (!newStatus.equals(currentStatus)) {
                 productModel.setQtyStatus(newStatus);
                 productRepository.updateProductQtyStatus(productModel.getProductIdEvent(), newStatus);
 
-                Product product = new Product();
-                product.setProductIdEvent(productModel.getProductIdEvent());
-                product.setQtyStatus(newStatus);
+            }
 
-                ProductEvent productEvent = new ProductEvent();
-                productEvent.setStatus(newStatus);
-                productEvent.setProduct(product);
-
-                productProducer.sendMessage(productEvent);
-           // }
-
-            log.info("ProductId : {} , Quantity : {}, Quantity Status : {}",
-                    productModel.getProductIdEvent(), qty, newStatus);
         }
     }
 
