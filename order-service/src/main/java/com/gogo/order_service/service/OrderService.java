@@ -129,14 +129,17 @@ public class OrderService {
 
         if(product.getQty()>=10){
             product.setQtyStatus(EventStatus.AVAILABLE.name());
+            productRepository.save(product);
         }else if(product.getQty()==0){
             product.setQtyStatus(EventStatus.UNAVAILABLE.name());
+            productRepository.save(product);
         }else {
             product.setQtyStatus(EventStatus.LOW.name());
+            productRepository.save(product);
         }
 
         orderEvent.getProduct().setQtyStatus(product.getQtyStatus());
-        productRepository.save(product);
+
 
 
         CustomerEventDto customerEventDto = OrderMapper.mapToCustomerEventDto(orderEvent);
