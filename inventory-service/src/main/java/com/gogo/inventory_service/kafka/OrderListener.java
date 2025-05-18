@@ -33,7 +33,7 @@ public class OrderListener {
             productService.saveProduct(product);
             int qtyUsed= event.getProductItemEventDto().getQty();
             int qr=productService.qtyRestante(product.getQty(),qtyUsed,event.getStatus());
-            if(qr>0){
+            if(qr>=0){
                 productService.updateProductQty(event.getProductEventDto().getProductIdEvent(),qr);
 
                 LOGGER.info("Product Update event with updated quantity status sent to order service => {}", event);
