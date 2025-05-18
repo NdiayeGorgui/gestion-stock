@@ -11,6 +11,8 @@ import com.gogo.order_service.model.*;
 import com.gogo.order_service.repository.*;
 import lombok.AllArgsConstructor;
 
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@EnableScheduling
 public class OrderService {
 
     private CustomerRepository customerRepository;
@@ -127,20 +130,7 @@ public class OrderService {
         orderEvent.getProduct().setPrice(product.getPrice());
         orderEvent.getProduct().setQty(product.getQty());
 
-        if(product.getQty()>=10){
-            product.setQtyStatus(EventStatus.AVAILABLE.name());
-            productRepository.save(product);
-        }else if(product.getQty()==0){
-            product.setQtyStatus(EventStatus.UNAVAILABLE.name());
-            productRepository.save(product);
-        }else {
-            product.setQtyStatus(EventStatus.LOW.name());
-            productRepository.save(product);
-        }
-
         orderEvent.getProduct().setQtyStatus(product.getQtyStatus());
-
-
 
         CustomerEventDto customerEventDto = OrderMapper.mapToCustomerEventDto(orderEvent);
         ProductEventDto productEventDto = OrderMapper.mapToProductEventDto(orderEvent);
@@ -159,6 +149,33 @@ public class OrderService {
         orderEventDto.setProductEventDto(productEventDto);
         orderEventDto.setCustomerEventDto(customerEventDto);
         orderEventDto.setProductItemEventDto(productItemEventDto);
+    }
+
+    @Scheduled(fixedRate = 15000)
+    public void productAvailable() {
+        List<Product> producList = productRepository.findAll();
+
+        for (Product productModel : producList) {
+            int qty = productModel.getQty();
+            String currentStatus = productModel.getQtyStatus();
+            String newStatus ="";
+
+            // Déterminer le nouveau statut basé uniquement sur la quantité
+            if (qty == 0) {
+                newStatus = EventStatus.UNAVAILABLE.name();
+            } else if (qty < 10) {
+                newStatus = EventStatus.LOW.name();
+            } else {
+                newStatus = EventStatus.AVAILABLE.name();
+            }
+
+            // Mettre à jour uniquement si le statut a changé
+            if (!newStatus.equals(currentStatus)) {
+                productModel.setQtyStatus(newStatus);
+                productRepository.updateProductQtyStatus(productModel.getProductIdEvent(), newStatus);
+            }
+
+        }
     }
 
     public void sendOrderToCancel(String orderIdEvent){
