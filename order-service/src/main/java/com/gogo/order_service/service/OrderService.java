@@ -134,9 +134,9 @@ public class OrderService {
         }else {
             product.setQtyStatus(EventStatus.LOW.name());
         }
-        productRepository.save(product);
-        orderEvent.getProduct().setQtyStatus(product.getQtyStatus());
 
+        orderEvent.getProduct().setQtyStatus(product.getQtyStatus());
+        productRepository.save(product);
 
 
         CustomerEventDto customerEventDto = OrderMapper.mapToCustomerEventDto(orderEvent);
