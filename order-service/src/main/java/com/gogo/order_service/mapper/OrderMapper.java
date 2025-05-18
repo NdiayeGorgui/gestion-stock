@@ -27,7 +27,7 @@ public class OrderMapper {
                 productEvent.getProduct().getQty(),
                 productEvent.getProduct().getPrice(),
                 EventStatus.CREATED.name(),
-                EventStatus.AVAILABLE.name()
+                productEvent.getProduct().getQtyStatus()
         );
     }
 
