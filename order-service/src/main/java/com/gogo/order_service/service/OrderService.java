@@ -96,9 +96,6 @@ public class OrderService {
 
     public void createProductItem(OrderEvent orderEvent, Order savedOrder, ProductItem savedProductItem) {
         Product product=productRepository.findProductByProductIdEvent(orderEvent.getProduct().getProductIdEvent());
-        AmountDto dto=this.getAmount(savedOrder.getCustomerIdEvent(), "CREATED");
-
-       double discount= dto.getDiscount();
 
         savedProductItem.setProductIdEvent(orderEvent.getProduct().getProductIdEvent());
         savedProductItem.setPrice(product.getPrice());
@@ -129,6 +126,16 @@ public class OrderService {
         orderEvent.getProduct().setCategory(product.getCategory());
         orderEvent.getProduct().setPrice(product.getPrice());
         orderEvent.getProduct().setQty(product.getQty());
+
+        if(product.getQty()>=10){
+            product.setQtyStatus(EventStatus.AVAILABLE.name());
+        }else if(product.getQty()==0){
+            product.setQtyStatus(EventStatus.UNAVAILABLE.name());
+        }else {
+            product.setQtyStatus(EventStatus.LOW.name());
+        }
+        productRepository.save(product);
+        orderEvent.getProduct().setQtyStatus(product.getQtyStatus());
 
 
 

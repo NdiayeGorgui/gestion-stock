@@ -84,12 +84,12 @@ public class ProductConsumer {
                 productProducer.sendMessage(orderEventDto);
             }
         }
-        if(event.getStatus().equalsIgnoreCase(EventStatus.UNAVAILABLE.name())){
+       /* if(event.getStatus().equalsIgnoreCase(EventStatus.UNAVAILABLE.name())){
             Product product=orderService.findProductById(event.getProduct().getProductIdEvent());
             if(product.getQty()==0){
                 product.setQtyStatus(EventStatus.UNAVAILABLE.name());
                 productRepository.updateProductQtyStatus(product.getProductIdEvent(),product.getQtyStatus());
             }
-        }
+        }*/
     }
 }
