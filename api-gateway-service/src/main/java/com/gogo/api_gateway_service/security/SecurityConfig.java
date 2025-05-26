@@ -44,7 +44,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
                 "http://stock-web-app:4200",         // Angular container
-                "http://stock-web-app-react:3000"    // React container
+                "http://stock-web-app-react:4300"    // React container
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
