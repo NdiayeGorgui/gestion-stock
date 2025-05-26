@@ -40,19 +40,22 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Order(-1) // très important
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4300")); // pas "*"
+        config.setAllowedOrigins(List.of(
+                "http://stock-web-app:4200",         // Angular container
+                "http://stock-web-app-react:3000"    // React container
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true); // crucial si tu utilises auth ou cookies
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
         return new CorsWebFilter(source);
     }
+
 
 
 }
