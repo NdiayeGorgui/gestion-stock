@@ -7,6 +7,8 @@ spring:
             allowedOrigins:
               - "http://stock-web-app:4200"         # Pour Angular dans le conteneur
               - "http://stock-web-app-react:4300"   # Pour React dans le conteneur
+              - "http://localhost:4200"
+              - "http://localhost:4300"
             allowedHeaders: "*"
             allowedMethods:
               - GET
