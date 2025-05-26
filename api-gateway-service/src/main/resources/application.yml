@@ -5,8 +5,8 @@ spring:
         corsConfigurations:
           '[/**]':
             allowedOrigins:
-              - "http://localhost:4300"
-              - "http://localhost:4200"
+              - "http://stock-web-app:4200"         # Pour Angular dans le conteneur
+              - "http://stock-web-app-react:4300"   # Pour React dans le conteneur
             allowedHeaders: "*"
             allowedMethods:
               - GET
