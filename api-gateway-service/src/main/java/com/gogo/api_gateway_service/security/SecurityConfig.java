@@ -30,6 +30,8 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.OPTIONS).permitAll() // pour CORS preflight
                         .pathMatchers("/eureka-registry-service/**")
                         .permitAll()
+                        .pathMatchers("/actuator/**").permitAll()
+                        .pathMatchers("/public/**").permitAll()
                         .anyExchange()
                         .authenticated()
                 )

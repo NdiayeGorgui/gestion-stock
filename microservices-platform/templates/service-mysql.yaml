@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-db
+spec:
+  type: {{ .Values.service.mysql.type }}
+  ports:
+    - port: {{ .Values.service.mysql.port }}
+      targetPort: 3306
+      protocol: TCP
+      name: mysql
+  selector:
+    app: mysql-db

@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Keycloak
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
+    image: quay.io/keycloak/keycloak:21.1.1
     container_name: keycloak
     ports:
       - "8080:8080"
@@ -13,6 +13,8 @@ services:
     command: [ "start-dev" ]
     volumes:
       - keycloak_data:/opt/keycloak/data  # Volume pour persister les données de Keycloak
+    networks:
+      - backend
 
   # Prometheus
   prometheus:
@@ -179,11 +181,15 @@ services:
       - '8888'
     environment:
       - eureka.client.service-url.defaultZone=http://eureka-registry-service:8761/eureka/
+      - KEYCLOAK_URL=http://keycloak:8080
     depends_on:
       eureka-registry-service:
         condition: service_healthy
+      keycloak:
+        condition: service_started
     networks:
       - my_network
+      - backend
 
   # Customer Service (utilise Kafka et se connecte à la BD)
   customer-service:
@@ -401,6 +407,19 @@ services:
       - '4200:80'
     expose:
       - '4200'
+    networks:
+      - my_network
+
+  # React Project (Pour exploiter les services du backend)
+  stock-web-app-react:
+    image: gorgui/stock-web-app-react:latest
+    container_name: stock-web-app-react
+    ports:
+      - '4300:80'
+    expose:
+      - '4300'
+    networks:
+      - my_network
 
 volumes:
   customer_db:
@@ -408,3 +427,4 @@ volumes:
 
 networks:
   my_network:
+  backend:
