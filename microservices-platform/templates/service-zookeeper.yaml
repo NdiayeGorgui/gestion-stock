@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+spec:
+  type: {{ .Values.service.zookeeper.type }}
+  ports:
+    - port: {{ .Values.service.zookeeper.port }}
+      targetPort: 2181
+      protocol: TCP
+      name: client
+  selector:
+    app: zookeeper

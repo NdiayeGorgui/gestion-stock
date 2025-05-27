@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-service
+spec:
+  type: {{ .Values.service.configService.type }}
+  ports:
+    - port: {{ .Values.service.configService.port }}
+      targetPort: 9191
+      protocol: TCP
+      name: http
+  selector:
+    app: config-service

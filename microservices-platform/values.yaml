@@ -1,0 +1,128 @@
+replicaCount: 1
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  eurekaRegistry:
+    repository: gorgui/eureka-registry-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  configService:
+    repository: gorgui/config-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  mysql:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent
+  zookeeper:
+    repository: bitnami/zookeeper
+    tag: latest
+    pullPolicy: IfNotPresent
+  kafka:
+    repository: bitnami/kafka
+    tag: latest
+    pullPolicy: IfNotPresent
+  customerService:
+    repository: gorgui/customer-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  inventoryService:
+    repository: gorgui/inventory-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  orderService:
+    repository: gorgui/order-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  billingService:
+    repository: gorgui/billing-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  paymentService:
+    repository: gorgui/payment-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  shippingService:
+    repository: gorgui/shipping-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  notificationService:
+    repository: gorgui/notification-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  deliveredCommandService:
+    repository: gorgui/delivered-command-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  deliveredQueryService:
+    repository: gorgui/delivered-query-service
+    tag: latest
+    pullPolicy: IfNotPresent
+
+service:
+  eurekaRegistry:
+    type: ClusterIP
+    port: 8761
+  configService:
+    type: ClusterIP
+    port: 9191
+  mysql:
+    type: ClusterIP
+    port: 3306
+  zookeeper:
+    type: ClusterIP
+    port: 2181
+  kafka1:
+    type: ClusterIP
+    port: 9092
+  kafka2:
+    type: ClusterIP
+    port: 9093
+  customerService:
+    type: ClusterIP
+    port: 8082
+  inventoryService:
+    type: ClusterIP
+    port: 8084
+  orderService:
+    type: ClusterIP
+    port: 8081
+  billingService:
+    type: ClusterIP
+    port: 8083
+  paymentService:
+    type: ClusterIP
+    port: 8085
+  shippingService:
+    type: ClusterIP
+    port: 8086
+  notificationService:
+    type: ClusterIP
+    port: 8087
+  deliveredCommandService:
+    type: ClusterIP
+    port: 8088
+  deliveredQueryService:
+    type: ClusterIP
+    port: 8089
+
+
+mysql:
+  rootPassword: rootpassword
+  database: customer_db
+  user: user
+  password: userpassword
+  persistence:
+    enabled: true
+    size: 10Gi
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

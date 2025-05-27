@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-service
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: config-service
+  template:
+    metadata:
+      labels:
+        app: config-service
+    spec:
+      containers:
+        - name: config-service
+          image: "{{ .Values.image.configService.repository }}:{{ .Values.image.configService.tag }}"
+          imagePullPolicy: {{ .Values.image.configService.pullPolicy }}
+          ports:
+            - containerPort: 9191
+          env:
+            - name: eureka.client.service-url.defaultZone
+              value: "http://eureka-registry-service:8761/eureka/"
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 9191
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 5
+      # Dépend de Eureka
+      initContainers:
+        - name: wait-for-eureka
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z eureka-registry-service 8761; do echo waiting for eureka; sleep 5; done
