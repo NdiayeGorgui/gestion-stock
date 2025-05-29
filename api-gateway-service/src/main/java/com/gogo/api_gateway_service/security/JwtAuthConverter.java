@@ -1,5 +1,4 @@
-package com.gogo.api_gateway_service.security;/*
-
+/*
 package com.gogo.api_gateway_service.security;
 
 import org.springframework.core.convert.converter.Converter;
@@ -41,5 +40,6 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
                 .collect(Collectors.toSet());
     }
 }
+
 
 */

@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
@@ -28,17 +29,27 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers(HttpMethod.OPTIONS).permitAll() // pour CORS preflight
-                        .pathMatchers("/eureka-registry-service/**")
-                        .permitAll()
-                        .pathMatchers("/actuator/**").permitAll()
-                        .pathMatchers("/public/**").permitAll()
+                        .pathMatchers("/eureka-registry-service/**", "/actuator/**", "/public/**").permitAll()
+                        // ❌ ADMIN ONLY
+                        .pathMatchers(HttpMethod.POST, "/inventory-service/api/v1/products/**").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.PUT, "/inventory-service/api/v1/products/**").hasRole("ADMIN")
+                        .pathMatchers(HttpMethod.DELETE, "/inventory-service/api/v1/products/**").hasRole("ADMIN")
+                        // ✅ AUTHENTICATED for all others
                         .anyExchange()
                         .authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(Customizer.withDefaults()));
+                        .jwt(jwt -> jwt
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
         return serverHttpSecurity.build();
+    }
+
+    @Bean
+    public ReactiveJwtAuthenticationConverter jwtAuthenticationConverter() {
+        ReactiveJwtAuthenticationConverter converter = new ReactiveJwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(new ReactiveKeycloakRealmRoleConverter());
+        return converter;
     }
 
     @Bean
