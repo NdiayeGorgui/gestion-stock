@@ -92,4 +92,8 @@ public class CustomerService {
     public List<CustomerModel> getAllCustomers() {
         return customerRepository.findAll();
     }
+
+    public boolean existsByEmail(String email) {
+        return customerRepository.existsByEmail(email);
+    }
 }
