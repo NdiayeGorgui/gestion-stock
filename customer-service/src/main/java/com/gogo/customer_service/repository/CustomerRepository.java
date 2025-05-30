@@ -24,4 +24,6 @@ public interface CustomerRepository extends JpaRepository<CustomerModel,Long> {
     @Transactional
     @Query("DELETE FROM CustomerModel c  where c.customerIdEvent =:customerIdEvent")
     void deleteCustomer(@Param("customerIdEvent") String customerIdEvent, @Param("customerIdEvent") String status);
+
+    boolean existsByEmail(String email);
 }

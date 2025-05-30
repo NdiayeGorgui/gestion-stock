@@ -2,6 +2,7 @@ package com.gogo.customer_service.controller;
 
 import com.gogo.base_domaine_service.dto.Customer;
 
+import com.gogo.customer_service.dto.CustomerExistsResponse;
 import com.gogo.customer_service.exception.CustomerNotFoundException;
 import com.gogo.customer_service.kafka.CustomerProducer;
 import com.gogo.customer_service.model.CustomerModel;
@@ -104,5 +105,14 @@ public class CustomerController {
     @GetMapping("/customers/{customerIdEvent}")
     public CustomerModel getCustomer( @PathVariable ("customerIdEvent") String customerIdEvent){
         return customerService.findCustomerById(customerIdEvent);
+    }
+
+    @GetMapping("/customers/exists-by-email/{email}")
+    public ResponseEntity<CustomerExistsResponse> checkIfCustomerExistsByEmail(@PathVariable ("email") String email) {
+        boolean exists = customerRepository.existsByEmail(email);
+        String message = exists ? "The customer with this email already exists." : "Email is available.";
+
+        CustomerExistsResponse response = new CustomerExistsResponse(exists, message);
+        return ResponseEntity.ok(response);
     }
 }
