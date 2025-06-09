@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class OrderEventDto {
     private String id;
     private String status;
+    private String userName;
     private String paymentId;
     private CustomerEventDto customerEventDto;
     private ProductEventDto productEventDto;
