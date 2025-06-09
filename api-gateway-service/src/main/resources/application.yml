@@ -17,3 +17,8 @@ spring:
               - PUT
               - OPTIONS
             allowCredentials: true
+      routes:
+        - id: notification-service-custom
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/notification-service/api/v1/notifications/**
