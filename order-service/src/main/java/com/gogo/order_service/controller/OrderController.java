@@ -47,7 +47,7 @@ public class OrderController {
             description = "Http status 200")
 
     @PostMapping("/orders")
-    public ResponseEntity<Map<String, String>> placeOrder(@RequestBody OrderEvent orderEvent) {
+    public ResponseEntity<Map<String, String>> placeOrder(@RequestBody OrderEvent orderEvent,@RequestHeader("X-Username") String username) {
         // Vérifier si le produit existe
         Product product = orderService.findProductById(orderEvent.getProduct().getProductIdEvent());
 
@@ -80,6 +80,7 @@ public class OrderController {
 
         // Préparer et envoyer l'événement à la file d'attente
         OrderEventDto orderEventDto = new OrderEventDto();
+        orderEventDto.setUserName(username);
         orderService.sendEvent(orderEvent, orderEventDto);
 
         // Récupérer et envoyer l'ID de la commande
