@@ -25,26 +25,29 @@ public class OrderConsumer {
     )
     public void orderConsumer(OrderEventDto event) {
 
-        if(event.getStatus().equalsIgnoreCase(EventStatus.PENDING.name())&& (event.getProductEventDto().getQty()<10) ){
-            Notification notification=new Notification();
-            notification.setMessage("Product stock "+event.getProductEventDto().getName()+ " is low!");
-            notification.setReadValue(false);
-            notification.setUsername(event.getUserName());
-            notification.setArchived(false);
-            notificationRepository.save(notification);
+        int remainingQty = event.getProductEventDto().getQty();
 
+        if (event.getStatus().equalsIgnoreCase(EventStatus.PENDING.name())) {
+
+            if (remainingQty == 0) {
+                Notification notification = new Notification();
+                notification.setMessage("❌ Product '" + event.getProductEventDto().getName() + "' is OUT OF STOCK!");
+                notification.setReadValue(false);
+                notification.setUsername(event.getUserName());
+                notification.setArchived(false);
+                notificationRepository.save(notification);
+            }
+
+            else if (remainingQty < 10) {
+                Notification notification = new Notification();
+                notification.setMessage("⚠️ Product '" + event.getProductEventDto().getName() + "' stock is LOW (" + remainingQty + ")");
+                notification.setReadValue(false);
+                notification.setUsername(event.getUserName());
+                notification.setArchived(false);
+                notificationRepository.save(notification);
+            }
         }
 
-        if(event.getStatus().equalsIgnoreCase(EventStatus.PENDING.name())&& (event.getProductEventDto().getQty()==event.getProductItemEventDto().getQty()) ){
-            Notification notification=new Notification();
-            notification.setMessage("Product stock "+event.getProductEventDto().getName()+ " is out of stock!");
-            notification.setReadValue(false);
-            notification.setUsername(event.getUserName());
-            notification.setArchived(false);
-            notificationRepository.save(notification);
-
-
-        }
         LOGGER.info("Order event received in Notification service => {}", event);
     }
 }
