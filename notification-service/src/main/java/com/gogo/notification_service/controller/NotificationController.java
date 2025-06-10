@@ -35,7 +35,7 @@ public class NotificationController {
         return notificationService.getUserNotifications(username);
     }
 
-    @PutMapping("/notifications/{id}/read")
+    @PutMapping("/notifications/{id}")
     public void markNotificationAsRead( @RequestHeader("X-Username") String username, @PathVariable("id") Long id) {
         notificationService.markAsRead(id, username);
     }
