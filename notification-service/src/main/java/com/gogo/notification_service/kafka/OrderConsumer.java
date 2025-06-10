@@ -20,20 +20,22 @@ public class OrderConsumer {
     }
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.order.name}"
-            ,groupId = "${spring.kafka.consumer.group-id}"
+            topics = "${spring.kafka.topic.order.name}",
+            groupId = "${spring.kafka.consumer.group-id}"
     )
     public void orderConsumer(OrderEventDto event) {
 
-        int remainingQty = event.getProductEventDto().getQty();
+        int initialQty = event.getProductEventDto().getQty(); // stock avant la commande
+        int orderedQty = event.getProductItemEventDto().getQty(); // quantité commandée
+        int remainingQty = initialQty - orderedQty;
 
         if (event.getStatus().equalsIgnoreCase(EventStatus.PENDING.name())) {
 
-            if (remainingQty == event.getProductItemEventDto().getQty()) {
+            if (remainingQty == 0) {
                 Notification notification = new Notification();
                 notification.setMessage("❌ Product '" + event.getProductEventDto().getName() + "' is OUT OF STOCK!");
                 notification.setReadValue(false);
-                notification.setUsername(event.getUserName());
+                notification.setUsername(event.getUserName()); // tous les utilisateurs
                 notification.setArchived(false);
                 notificationRepository.save(notification);
             }
@@ -42,7 +44,7 @@ public class OrderConsumer {
                 Notification notification = new Notification();
                 notification.setMessage("⚠️ Product '" + event.getProductEventDto().getName() + "' stock is LOW (" + remainingQty + ")");
                 notification.setReadValue(false);
-                notification.setUsername(event.getUserName());
+                notification.setUsername(event.getUserName()); // tous les utilisateurs
                 notification.setArchived(false);
                 notificationRepository.save(notification);
             }
@@ -50,4 +52,5 @@ public class OrderConsumer {
 
         LOGGER.info("Order event received in Notification service => {}", event);
     }
+
 }
