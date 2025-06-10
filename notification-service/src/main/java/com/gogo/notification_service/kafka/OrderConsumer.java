@@ -29,7 +29,7 @@ public class OrderConsumer {
 
         if (event.getStatus().equalsIgnoreCase(EventStatus.PENDING.name())) {
 
-            if (remainingQty == 0) {
+            if (remainingQty == event.getProductItemEventDto().getQty()) {
                 Notification notification = new Notification();
                 notification.setMessage("❌ Product '" + event.getProductEventDto().getName() + "' is OUT OF STOCK!");
                 notification.setReadValue(false);
