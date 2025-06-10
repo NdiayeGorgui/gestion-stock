@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 public class NotificationDto {
     private Long id;
     private String message;
-    private boolean read;
-
-    // Getters / setters
+    private boolean readValue;
 }
 
