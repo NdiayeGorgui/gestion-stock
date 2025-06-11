@@ -4,6 +4,7 @@ import com.gogo.base_domaine_service.dto.Customer;
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.customer_service.model.CustomerModel;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 
@@ -18,7 +19,8 @@ public class CustomerMapper {
                 customer.getAddress(),
                 customer.getPhone(),
                 customer.getEmail(),
-                EventStatus.PENDING.name()
+                EventStatus.PENDING.name(),
+                LocalDateTime.now()
         );
     }
 

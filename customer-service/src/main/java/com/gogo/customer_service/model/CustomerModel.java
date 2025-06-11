@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -20,6 +23,8 @@ public class CustomerModel {
     private String phone;
     private String email;
     private String status;
+    @CreationTimestamp
+    private LocalDateTime createdDate;
 
     public CustomerModel(String name, String address, String phone, String email) {
         this.name = name;
