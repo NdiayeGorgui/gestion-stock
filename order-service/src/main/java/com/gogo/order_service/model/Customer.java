@@ -2,6 +2,9 @@ package com.gogo.order_service.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -20,4 +23,7 @@ public class Customer {
     private String phone;
     private String email;
     private String status;
+    @CreationTimestamp
+    private LocalDateTime createdDate;
+
 }

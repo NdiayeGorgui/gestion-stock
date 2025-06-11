@@ -2,6 +2,9 @@ package com.gogo.order_service.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -24,6 +27,9 @@ public class ProductItem {
     private String orderItemId;
     @ManyToOne
     private Order order;
+    @CreationTimestamp
+    private LocalDateTime createdDate;
+
 
     public double getAmount(){
         return ((price*quantity)-discount);

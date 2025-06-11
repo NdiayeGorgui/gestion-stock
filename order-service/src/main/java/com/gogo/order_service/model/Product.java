@@ -3,7 +3,9 @@ package com.gogo.order_service.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -24,4 +26,7 @@ public class Product {
     private  double price;
     private String status;
     private String qtyStatus;
+    @CreationTimestamp
+    private LocalDateTime createdDate;
+
 }
