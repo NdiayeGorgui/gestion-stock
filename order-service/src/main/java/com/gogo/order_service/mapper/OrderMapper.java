@@ -4,6 +4,8 @@ import com.gogo.base_domaine_service.event.*;
 import com.gogo.order_service.model.Customer;
 import com.gogo.order_service.model.Product;
 
+import java.time.LocalDateTime;
+
 public class OrderMapper {
 
     public static com.gogo.order_service.model.Customer mapToCustomerModel(CustomerEvent customerEvent){
@@ -14,7 +16,8 @@ public class OrderMapper {
                 customerEvent.getCustomer().getAddress(),
                 customerEvent.getCustomer().getPhone(),
                 customerEvent.getCustomer().getEmail(),
-                EventStatus.CREATED.name()
+                EventStatus.CREATED.name(),
+                LocalDateTime.now()
         );
     }
 
@@ -27,7 +30,8 @@ public class OrderMapper {
                 productEvent.getProduct().getQty(),
                 productEvent.getProduct().getPrice(),
                 EventStatus.CREATED.name(),
-                productEvent.getProduct().getQtyStatus()
+                productEvent.getProduct().getQtyStatus(),
+                LocalDateTime.now()
         );
     }
 
