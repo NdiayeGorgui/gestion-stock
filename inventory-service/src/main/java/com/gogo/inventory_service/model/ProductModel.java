@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -21,5 +24,7 @@ public class ProductModel {
     private  double price;
     private String status;
     private String qtyStatus;
+    @CreationTimestamp
+    private LocalDateTime createdDate;
 
 }

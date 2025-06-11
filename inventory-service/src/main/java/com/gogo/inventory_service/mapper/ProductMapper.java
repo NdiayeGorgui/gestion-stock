@@ -5,6 +5,7 @@ import com.gogo.base_domaine_service.dto.Product;
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.inventory_service.model.ProductModel;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class ProductMapper {
@@ -20,7 +21,8 @@ public class ProductMapper {
                 product.getQty(),
                 product.getPrice(),
                 EventStatus.PENDING.name(),
-                product.getQty() >= 10 ? EventStatus.AVAILABLE.name() : EventStatus.LOW.name()
+                product.getQty() >= 10 ? EventStatus.AVAILABLE.name() : EventStatus.LOW.name(),
+                LocalDateTime.now()
         );
     }
 
