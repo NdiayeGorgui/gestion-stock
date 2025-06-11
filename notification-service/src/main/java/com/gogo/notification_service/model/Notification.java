@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -21,6 +24,9 @@ public class Notification {
     private boolean readValue;
     @Column(nullable = false)
     private boolean archived = false;
+    @CreationTimestamp
+    private LocalDateTime createdDate;
+
 }
 
 
