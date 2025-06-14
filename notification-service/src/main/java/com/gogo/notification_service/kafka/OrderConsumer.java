@@ -33,7 +33,7 @@ public class OrderConsumer {
 
             if (remainingQty == 0) {
                 Notification notification = new Notification();
-                notification.setMessage("Product '" + event.getProductEventDto().getName() + "' is OUT OF STOCK!");
+                notification.setMessage("Product '" + event.getProductEventDto().getName() + "' is out of stock!");
                 notification.setReadValue(false);
                 notification.setUsername(event.getUserName()); // tous les utilisateurs
                 notification.setArchived(false);
@@ -42,7 +42,7 @@ public class OrderConsumer {
 
             else if (remainingQty < 10) {
                 Notification notification = new Notification();
-                notification.setMessage("Product '" + event.getProductEventDto().getName() + "' stock is LOW (" + remainingQty + ")");
+                notification.setMessage("Product '" + event.getProductEventDto().getName() + "' stock is low (" + remainingQty + ")");
                 notification.setReadValue(false);
                 notification.setUsername(event.getUserName()); // tous les utilisateurs
                 notification.setArchived(false);
