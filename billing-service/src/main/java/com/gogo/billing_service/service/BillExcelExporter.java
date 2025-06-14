@@ -57,7 +57,7 @@ public class BillExcelExporter {
                 .orElse(null);
     }
 
-    private CellStyle createStyledCell(boolean isHeader, boolean isTitle, short bgColor) {
+    private CellStyle createStyledCell(boolean isHeader, boolean isTitle, short bgColor, boolean center) {
         CellStyle style = workbook.createCellStyle();
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderBottom(BorderStyle.THIN);
@@ -78,7 +78,11 @@ public class BillExcelExporter {
         if (isHeader || isTitle) {
             style.setFillForegroundColor(bgColor);
             style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        }
+
+        if (center) {
             style.setAlignment(HorizontalAlignment.CENTER);
+            style.setVerticalAlignment(VerticalAlignment.CENTER);
         }
 
         return style;
@@ -103,7 +107,7 @@ public class BillExcelExporter {
         sheet = workbook.createSheet("Bills");
         Row headerRow = sheet.createRow(10);
 
-        CellStyle headerStyle = createStyledCell(true, false, IndexedColors.DARK_BLUE.getIndex());
+        CellStyle headerStyle = createStyledCell(true, false, IndexedColors.DARK_BLUE.getIndex(), true);
 
         createCell(headerRow, 0, Constante.DESCRIPTION, headerStyle);
         createCell(headerRow, 1, Constante.QUANTITE, headerStyle);
@@ -117,8 +121,8 @@ public class BillExcelExporter {
         String phone = customerBill != null ? customerBill.getCustomerPhone() : "N/A";
 
         rowCount = 0;
-        CellStyle titleStyle = createStyledCell(false, true, IndexedColors.WHITE.getIndex());
-        CellStyle infoStyle = createStyledCell(false, false, IndexedColors.WHITE.getIndex());
+        CellStyle titleStyle = createStyledCell(false, true, IndexedColors.WHITE.getIndex(), false);
+        CellStyle infoStyle = createStyledCell(false, false, IndexedColors.WHITE.getIndex(), false);
 
         Row row0 = sheet.createRow(rowCount++);
         createCell(row0, 0, Constante.NOM_COMPAGNIE, titleStyle);
@@ -147,7 +151,7 @@ public class BillExcelExporter {
         createCell(row5, 1, customerIdEvent, infoStyle);
 
         rowCount = 11;
-        CellStyle rowStyle = createStyledCell(false, false, IndexedColors.WHITE.getIndex());
+        CellStyle rowStyle = createStyledCell(false, false, IndexedColors.WHITE.getIndex(), true);
 
         for (Bill bill : billList) {
             if (!bill.getCustomerIdEvent().equalsIgnoreCase(customerIdEvent) ||
@@ -168,7 +172,7 @@ public class BillExcelExporter {
         double tax = amount * Constante.TAX;
         double totalTTC = amount - discount + tax;
 
-        CellStyle style = createStyledCell(false, true, IndexedColors.LIGHT_YELLOW.getIndex());
+        CellStyle style = createStyledCell(false, true, IndexedColors.LIGHT_YELLOW.getIndex(), true);
 
         int col = 2;
 
