@@ -6,8 +6,8 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,188 +17,185 @@ import java.util.List;
 
 @Service
 public class BillExcelExporter {
-    static int comp=100;
+
+    static int comp = 100;
 
     @Autowired
     private BillingService billingService;
 
-    private XSSFWorkbook workbook;
+    private final XSSFWorkbook workbook;
     private XSSFSheet sheet;
-    private List<Bill> billList;
+    private final List<Bill> billList;
+    private int rowCount;
 
     public BillExcelExporter(List<Bill> billList) {
         this.billList = billList;
         workbook = new XSSFWorkbook();
     }
 
-    public  double getAmount(String customerIdEvent,String status){
-        List<Bill> customerBills=this.billList;
-        return customerBills.stream()
+    public double getAmount(String customerIdEvent, String status) {
+        return billList.stream()
                 .filter(bill -> bill.getCustomerIdEvent().equalsIgnoreCase(customerIdEvent))
                 .filter(bill -> bill.getStatus().equalsIgnoreCase(status))
-                .map(bill -> (bill.getPrice()*bill.getQuantity()))
-                .mapToDouble(i->i).sum();
+                .mapToDouble(bill -> bill.getPrice() * bill.getQuantity())
+                .sum();
     }
 
-    public Bill getBill(String customerIdEvent,String status){
-        List<Bill> customerBills=this.billList;
-        return customerBills.stream()
+    public double getDiscount(String customerIdEvent, String status) {
+        return billList.stream()
                 .filter(bill -> bill.getCustomerIdEvent().equalsIgnoreCase(customerIdEvent))
                 .filter(bill -> bill.getStatus().equalsIgnoreCase(status))
-                .findAny().orElse(null);
+                .mapToDouble(Bill::getDiscount)
+                .sum();
     }
 
-    public  double getDiscount(String customerIdEvent,String status){
-        List<Bill> customerBills=this.billList;
-        return customerBills.stream()
+    public Bill getBill(String customerIdEvent, String status) {
+        return billList.stream()
                 .filter(bill -> bill.getCustomerIdEvent().equalsIgnoreCase(customerIdEvent))
                 .filter(bill -> bill.getStatus().equalsIgnoreCase(status))
-                .map(Bill::getDiscount)
-                .mapToDouble(i->i).sum();
+                .findFirst()
+                .orElse(null);
     }
 
-    private void writeHeaderLine() {
-        sheet = workbook.createSheet("Bills");
-
-        Row row = sheet.createRow(10);
-
+    private CellStyle createStyledCell(boolean isHeader, boolean isTitle, short bgColor) {
         CellStyle style = workbook.createCellStyle();
-        XSSFFont font = workbook.createFont();
-        font.setBold(true);
-        font.setFontHeight(16);
-        style.setFont(font);
-        //style.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.index);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setWrapText(true);
 
-        //sheet.addMergedRegion(new CellRangeAddress(1,1,1,4)); //fusionnera de B2 à E2
-        createCell(row, 0, Constante.DESCRIPTION, style);
-        createCell(row, 1, Constante.QUANTITE, style);
-        createCell(row, 2, Constante.PRIX_UNITAIRE, style);
-        createCell(row, 3, Constante.MONTANT_HT, style);
+        XSSFFont font = workbook.createFont();
+        if (isTitle) {
+            font.setFontHeight(16);
+            font.setBold(true);
+        } else if (isHeader) {
+            font.setBold(true);
+            font.setColor(IndexedColors.WHITE.getIndex());
+        }
+        style.setFont(font);
+
+        if (isHeader || isTitle) {
+            style.setFillForegroundColor(bgColor);
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            style.setAlignment(HorizontalAlignment.CENTER);
+        }
+
+        return style;
     }
 
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
         sheet.autoSizeColumn(columnCount);
         Cell cell = row.createCell(columnCount);
+
         if (value instanceof Double) {
             cell.setCellValue((Double) value);
-        }
-        else if (value instanceof Integer) {
+        } else if (value instanceof Integer) {
             cell.setCellValue((Integer) value);
+        } else {
+            cell.setCellValue(String.valueOf(value));
         }
-        else  if (value instanceof String){
-            cell.setCellValue((String) value);
-        }
-        style.setBorderTop(BorderStyle.valueOf((short) 1)); // single line border
-        style.setBorderBottom(BorderStyle.valueOf((short) 1)); // single line border
-        style.setBorderLeft(BorderStyle.valueOf((short) 1)); // single line border
-        style.setBorderRight(BorderStyle.valueOf((short) 1)); // single line border
 
         cell.setCellStyle(style);
     }
 
-    int rowCount = 0;
+    private void writeHeaderLine() {
+        sheet = workbook.createSheet("Bills");
+        Row headerRow = sheet.createRow(10);
 
-    private void writeDataLines(String customerIdEvent,String status) {
+        CellStyle headerStyle = createStyledCell(true, false, IndexedColors.DARK_BLUE.getIndex());
 
-        Bill customerBill=this.getBill(customerIdEvent,status);
-        String name=null;
-        String telephone=null;
-        if(customerBill!=null){
-             name=customerBill.getCustomerName();
-             telephone=customerBill.getCustomerPhone();
-        }
+        createCell(headerRow, 0, Constante.DESCRIPTION, headerStyle);
+        createCell(headerRow, 1, Constante.QUANTITE, headerStyle);
+        createCell(headerRow, 2, Constante.PRIX_UNITAIRE, headerStyle);
+        createCell(headerRow, 3, Constante.MONTANT_HT, headerStyle);
+    }
+
+    private void writeDataLines(String customerIdEvent, String status) {
+        Bill customerBill = getBill(customerIdEvent, status);
+        String name = customerBill != null ? customerBill.getCustomerName() : "N/A";
+        String phone = customerBill != null ? customerBill.getCustomerPhone() : "N/A";
 
         rowCount = 0;
-        int columnCount00 = 0;
-
-        Row row00 = sheet.createRow(rowCount++);
-        CellStyle style = workbook.createCellStyle();
-        XSSFFont font = workbook.createFont();
-        font.setFontHeight(14);
-        style.setFont(font);
-
-        /*CellStyle cellStyle = workbook.createCellStyle();
-        cellStyle.setBorderTop(BorderStyle.valueOf((short) 1)); // single line border
-        cellStyle.setBorderBottom(BorderStyle.valueOf((short) 1)); // single line border
-        //add many others here
-        cell1.setCellStyle(cellStyle); //apply that style to the cell*/
-
-        createCell(row00, columnCount00, Constante.NOM_COMPAGNIE, style);
-        createCell(row00, columnCount00+2, Constante.NOM_CLIENT, style);
-        createCell(row00, columnCount00+3, name, style);
-        rowCount=1;
-        Row row01 = sheet.createRow(rowCount++);
-        createCell(row01, 2, Constante.NUMERO_TELEPHONE, style);
-        createCell(row01, 3, telephone, style);
-        rowCount = 3;
-        int columnCount1 = 1;
+        CellStyle titleStyle = createStyledCell(false, true, IndexedColors.WHITE.getIndex());
+        CellStyle infoStyle = createStyledCell(false, false, IndexedColors.WHITE.getIndex());
 
         Row row0 = sheet.createRow(rowCount++);
-        createCell(row0, columnCount1++, Constante.FACTURE, style);
+        createCell(row0, 0, Constante.NOM_COMPAGNIE, titleStyle);
+        createCell(row0, 2, Constante.NOM_CLIENT, titleStyle);
+        createCell(row0, 3, name, infoStyle);
 
+        Row row1 = sheet.createRow(rowCount++);
+        createCell(row1, 2, Constante.NUMERO_TELEPHONE, titleStyle);
+        createCell(row1, 3, phone, infoStyle);
 
-        int columnCount2 = 0;
-        Row row11 = sheet.createRow(rowCount++);
+        rowCount++; // espace
 
-        createCell(row11, columnCount2++, Constante.NUMERO_FACTURE, style);
-        createCell(row11, columnCount2++, Constante.PREFIXE+comp++, style);
+        Row row2 = sheet.createRow(rowCount++);
+        createCell(row2, 1, Constante.FACTURE, titleStyle);
 
-        Row row12 = sheet.createRow(rowCount++);
-        createCell(row12, columnCount2-2, Constante.DATE_FACTURE, style);
-        createCell(row12, columnCount2-1, LocalDateTime.now().toString(), style);
+        Row row3 = sheet.createRow(rowCount++);
+        createCell(row3, 0, Constante.NUMERO_FACTURE, infoStyle);
+        createCell(row3, 1, Constante.PREFIXE + comp++, infoStyle);
 
-        Row row13 = sheet.createRow(rowCount++);
-        createCell(row13, columnCount2-2, Constante.NUMERO_CLIENT, style);
-        createCell(row13, columnCount2-1, customerIdEvent, style);
+        Row row4 = sheet.createRow(rowCount++);
+        createCell(row4, 0, Constante.DATE_FACTURE, infoStyle);
+        createCell(row4, 1, LocalDateTime.now().toString(), infoStyle);
+
+        Row row5 = sheet.createRow(rowCount++);
+        createCell(row5, 0, Constante.NUMERO_CLIENT, infoStyle);
+        createCell(row5, 1, customerIdEvent, infoStyle);
 
         rowCount = 11;
-        for (Bill bill : billList) {
-            Row row = sheet.createRow(rowCount++);
-            int columnCount = 0;
+        CellStyle rowStyle = createStyledCell(false, false, IndexedColors.WHITE.getIndex());
 
-            createCell(row, columnCount++, bill.getProductName(), style);
-            createCell(row, columnCount++, bill.getQuantity(), style);
-            createCell(row, columnCount++, bill.getPrice(), style);
-            createCell(row, columnCount++, bill.getPrice()*bill.getQuantity(), style);
+        for (Bill bill : billList) {
+            if (!bill.getCustomerIdEvent().equalsIgnoreCase(customerIdEvent) ||
+                    !bill.getStatus().equalsIgnoreCase(status)) continue;
+
+            Row row = sheet.createRow(rowCount++);
+            int col = 0;
+            createCell(row, col++, bill.getProductName(), rowStyle);
+            createCell(row, col++, bill.getQuantity(), rowStyle);
+            createCell(row, col++, bill.getPrice(), rowStyle);
+            createCell(row, col++, bill.getPrice() * bill.getQuantity(), rowStyle);
         }
     }
 
     private void writeTaxLine(String customerIdEvent, String status) {
-        double amount = this.getAmount(customerIdEvent, status);
-        double discount = this.getDiscount(customerIdEvent, status);
-        rowCount = rowCount + 1;
-        CellStyle style = workbook.createCellStyle();
-        XSSFFont font = workbook.createFont();
-        font.setFontHeight(14);
-        style.setFont(font);
+        double amount = getAmount(customerIdEvent, status);
+        double discount = getDiscount(customerIdEvent, status);
+        double tax = amount * Constante.TAX;
+        double totalTTC = amount - discount + tax;
 
-        int columnCount = 2;
-        Row row = sheet.createRow(rowCount++);
+        CellStyle style = createStyledCell(false, true, IndexedColors.LIGHT_YELLOW.getIndex());
 
-        createCell(row, columnCount++, Constante.TOTAL_HT, style);
-        createCell(row, columnCount++, amount, style);
+        int col = 2;
 
         Row row1 = sheet.createRow(rowCount++);
-        createCell(row1, columnCount - 2, Constante.REMISE, style);
-        createCell(row1, columnCount - 1, discount, style);
+        createCell(row1, col, Constante.TOTAL_HT, style);
+        createCell(row1, col + 1, amount, style);
 
         Row row2 = sheet.createRow(rowCount++);
-        createCell(row2, columnCount - 2, Constante.TVA, style);
-        createCell(row2, columnCount - 1, amount * Constante.TAX, style);
+        createCell(row2, col, Constante.REMISE, style);
+        createCell(row2, col + 1, discount, style);
 
         Row row3 = sheet.createRow(rowCount++);
-        createCell(row3, columnCount - 2, Constante.TOTAL_TTC, style);
-        createCell(row3, columnCount - 1, (Constante.TAX * amount + (amount - discount)), style);
+        createCell(row3, col, Constante.TVA, style);
+        createCell(row3, col + 1, tax, style);
+
+        Row row4 = sheet.createRow(rowCount++);
+        createCell(row4, col, Constante.TOTAL_TTC, style);
+        createCell(row4, col + 1, totalTTC, style);
     }
 
-    public void export(HttpServletResponse response,String customerIdEvent,String status) throws IOException {
+    public void export(HttpServletResponse response, String customerIdEvent, String status) throws IOException {
         writeHeaderLine();
-        writeDataLines(customerIdEvent,status);
-        writeTaxLine(customerIdEvent,status);
+        writeDataLines(customerIdEvent, status);
+        writeTaxLine(customerIdEvent, status);
 
         ServletOutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);
-
         workbook.close();
         outputStream.close();
     }
