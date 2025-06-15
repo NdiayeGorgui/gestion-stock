@@ -178,12 +178,13 @@ public class OrderService {
         }
     }
 
-    public void sendOrderToCancel(String orderIdEvent){
+    public void sendOrderToCancel(String orderIdEvent,String username){
        // Order order=orderRepository.findByOrderIdEvent(orderIdEvent);
 
         OrderEventDto orderEventDto=new OrderEventDto();
         orderEventDto.setId(orderIdEvent);
         orderEventDto.setStatus(EventStatus.CANCELLING.name());
+        orderEventDto.setUserName(username);
         orderProducer.sendMessage(orderEventDto);
     }
 
