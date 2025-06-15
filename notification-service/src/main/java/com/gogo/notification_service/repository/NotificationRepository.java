@@ -8,5 +8,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     // Récupérer les notifications par utilisateur
     List<Notification> findByUsernameOrderByIdDesc(String username);
+    //Ce query method va permettre de vérifier rapidement si une notification globale identique existe déjà (non lue et non archivée).
+    boolean existsByMessageAndUsernameAndReadValueIsFalseAndArchivedIsFalse(String message, String username);
+
+
 }
 

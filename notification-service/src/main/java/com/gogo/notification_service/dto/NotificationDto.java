@@ -11,5 +11,7 @@ public class NotificationDto {
     private Long id;
     private String message;
     private boolean readValue;
+    private String type; // e.g., "global" ou "user"
+
 }
 

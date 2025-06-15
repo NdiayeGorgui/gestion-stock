@@ -10,6 +10,8 @@ public class NotificationMapper {
         dto.setId(notification.getId());
         dto.setMessage(notification.getMessage());
         dto.setReadValue(notification.isReadValue()); // ✅ ici le mapping est bon
+        dto.setType(notification.getUsername().equals("allusers") ? "global" : "user");
+
         return dto;
     }
 

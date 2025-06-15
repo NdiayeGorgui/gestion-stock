@@ -22,6 +22,7 @@ public class Notification {
     private String username; // le destinataire
     private String message;
     private boolean readValue;
+    private String type; // e.g., "global" ou "user"
     @Column(nullable = false)
     private boolean archived = false;
     @CreationTimestamp

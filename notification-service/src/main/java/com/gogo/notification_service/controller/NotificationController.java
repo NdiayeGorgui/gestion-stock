@@ -25,16 +25,13 @@ public class NotificationController {
         return "User : " + username;
     }
 
-
-
     @GetMapping("/notifications")
-    public List<NotificationDto> getNotifications(@RequestHeader("X-Username") String username) {
+    public List<NotificationDto> getUserAndGlobal(@RequestHeader("X-Username") String username) {
         if (username == null || username.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing username");
         }
-        return notificationService.getUserNotifications(username);
+        return notificationService.getUserAndGlobalNotifications(username);
     }
-
 
     @PutMapping("/notifications/{id}")
     public void markNotificationAsRead( @RequestHeader("X-Username") String username, @PathVariable("id") Long id) {
