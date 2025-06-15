@@ -140,9 +140,9 @@ public class OrderController {
             description = "Http status 200 ")
 
     @GetMapping("/orders/update/{orderIdEvent}")
-    public  ResponseEntity<Map<String, String>> sendOrderToCancel( @PathVariable("orderIdEvent") String orderIdEvent){
+    public  ResponseEntity<Map<String, String>> sendOrderToCancel( @PathVariable("orderIdEvent") String orderIdEvent, @RequestHeader("X-Username") String username){
 
-        orderService.sendOrderToCancel(orderIdEvent);
+        orderService.sendOrderToCancel(orderIdEvent,username);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Order for cancel sent successfully");
