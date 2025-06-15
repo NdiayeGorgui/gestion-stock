@@ -14,7 +14,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     boolean existsByMessageAndUsernameAndReadValueIsFalseAndArchivedIsFalse(String message, String username);
 
 
-    List<Notification> findAllByUsernameAndArchivedFalseAndCreatedDateBefore(String username, LocalDateTime dateTime);
+    List<Notification> findAllByUsernameAndArchivedFalseAndCreatedDateBefore(String username, LocalDateTime date);
+
+    List<Notification> findAllByUsernameNotAndArchivedFalseAndCreatedDateBefore(String username, LocalDateTime date);
+
 
 }
 
