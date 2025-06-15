@@ -59,6 +59,7 @@ public class OrderConsumer {
             if(bill1!=null && bill1.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())){
                 productEventDto.setQty(bill1.getQuantity());
                 productEventDto.setProductIdEvent(bill1.getProductIdEvent());
+                productEventDto.setName(bill1.getProductName());
                 customerEventDto.setName(bill1.getCustomerName());
                 customerEventDto.setEmail(bill1.getCustomerMail());
 
