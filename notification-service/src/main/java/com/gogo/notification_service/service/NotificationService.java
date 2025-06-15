@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -73,28 +71,22 @@ public class NotificationService {
         notificationRepository.save(notif);
     }
 
-    @Scheduled(cron = "0 0 0 * * ?", zone = "America/Toronto") // Tous les jours à minuit (GMT-4)
+    @Scheduled(cron = "0 0 0 * * ?") // Tous les jous a minuit
     public void archiveOldGlobalNotification() {
         LocalDateTime threshold = LocalDateTime.now().minusDays(7);
 
-        // Archiver les notifications globales
-        List<Notification> globalNotifications = notificationRepository
+        LOGGER.info("Début de l’archivage des notifications globales créées avant {}", threshold);
+
+        List<Notification> oldNotifications = notificationRepository
                 .findAllByUsernameAndArchivedFalseAndCreatedDateBefore("allusers", threshold);
 
-        // Archiver les notifications utilisateur
-        List<Notification> userNotifications = notificationRepository
-                .findAllByUsernameNotAndArchivedFalseAndCreatedDateBefore("allusers", threshold);
-
-        globalNotifications.forEach(n -> n.setArchived(true));
-        userNotifications.forEach(n -> n.setArchived(true));
-
-        List<Notification> allToArchive = new ArrayList<>();
-        allToArchive.addAll(globalNotifications);
-        allToArchive.addAll(userNotifications);
-
-        notificationRepository.saveAll(allToArchive);
-
-        System.out.println("🔔 Archivage terminé pour " + allToArchive.size() + " notifications.");
+        if (oldNotifications.isEmpty()) {
+            LOGGER.info("Aucune notification globale à archiver.");
+        } else {
+            oldNotifications.forEach(notif -> notif.setArchived(true));
+            notificationRepository.saveAll(oldNotifications);
+            LOGGER.info("{} notifications globales archivées avec succès à {}", oldNotifications.size(), LocalDateTime.now());
+        }
     }
 
 
