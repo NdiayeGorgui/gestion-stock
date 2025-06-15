@@ -70,7 +70,7 @@ public class OrderConsumer {
         }
 
         // === ANNULATION DE COMMANDE — NOTIF SPÉCIFIQUE À L'UTILISATEUR ===
-        else if (event.getStatus().equalsIgnoreCase(EventStatus.CANCELLING.name())) {
+        else if (event.getStatus().equalsIgnoreCase(EventStatus.CANCELED.name())) {
             String msg = "Your order for '" + productName + "' has been cancelled.";
 
             Notification userNotif = new Notification();
