@@ -25,8 +25,8 @@ public class OrderConsumer {
     )
     public void orderConsumer(OrderEventDto event) {
 
-        int initialQty = event.getProductEventDto().getQty(); // stock avant la commande
-        int orderedQty = event.getProductItemEventDto().getQty(); // quantité commandée
+        int initialQty = event.getProductEventDto().getQty(); // Stock initial
+        int orderedQty = event.getProductItemEventDto().getQty(); // Quantité commandée
         int remainingQty = initialQty - orderedQty;
 
         String productName = event.getProductEventDto().getName();
@@ -34,63 +34,51 @@ public class OrderConsumer {
 
         if (event.getStatus().equalsIgnoreCase(EventStatus.PENDING.name())) {
 
-            // ======= RUPTURE DE STOCK ========
+            // === RUPTURE DE STOCK ===
             if (remainingQty == 0) {
-                String outOfStockMsg = "Product '" + productName + "' is out of stock!";
+                String msg = "Product '" + productName + "' is out of stock!";
 
-                // 🔔 Notification utilisateur
-                Notification userNotification = new Notification();
-                userNotification.setMessage(outOfStockMsg);
-                userNotification.setReadValue(false);
-                userNotification.setUsername(username);
-                userNotification.setArchived(false);
-                notificationRepository.save(userNotification);
+                boolean alreadyExists = notificationRepository
+                        .existsByMessageAndUsernameAndReadValueIsFalseAndArchivedIsFalse(msg, "allusers");
 
-                // 🔔 Notification globale (si pas déjà existante)
-                if (!notificationRepository.existsByMessageAndUsernameAndReadValueIsFalseAndArchivedIsFalse(outOfStockMsg, "allusers")) {
-                    Notification globalNotification = new Notification();
-                    globalNotification.setMessage(outOfStockMsg);
-                    globalNotification.setReadValue(false);
-                    globalNotification.setUsername("allusers");
-                    globalNotification.setArchived(false);
-                    notificationRepository.save(globalNotification);
+                if (!alreadyExists) {
+                    Notification globalNotif = new Notification();
+                    globalNotif.setMessage(msg);
+                    globalNotif.setReadValue(false);
+                    globalNotif.setUsername("allusers"); // notif globale
+                    globalNotif.setArchived(false);
+                    notificationRepository.save(globalNotif);
                 }
             }
 
-            // ======= STOCK FAIBLE ========
+            // === STOCK FAIBLE ===
             else if (remainingQty < 10) {
-                String lowStockMsg = "Product '" + productName + "' stock is low (" + remainingQty + ")";
+                String msg = "Product '" + productName + "' stock is low (" + remainingQty + ")";
 
-                // 🔔 Notification utilisateur
-                Notification userNotification = new Notification();
-                userNotification.setMessage(lowStockMsg);
-                userNotification.setReadValue(false);
-                userNotification.setUsername(username);
-                userNotification.setArchived(false);
-                notificationRepository.save(userNotification);
+                boolean alreadyExists = notificationRepository
+                        .existsByMessageAndUsernameAndReadValueIsFalseAndArchivedIsFalse(msg, "allusers");
 
-                // 🔔 Notification globale (si pas déjà existante)
-                if (!notificationRepository.existsByMessageAndUsernameAndReadValueIsFalseAndArchivedIsFalse(lowStockMsg, "allusers")) {
-                    Notification globalNotification = new Notification();
-                    globalNotification.setMessage(lowStockMsg);
-                    globalNotification.setReadValue(false);
-                    globalNotification.setUsername("allusers");
-                    globalNotification.setArchived(false);
-                    notificationRepository.save(globalNotification);
+                if (!alreadyExists) {
+                    Notification globalNotif = new Notification();
+                    globalNotif.setMessage(msg);
+                    globalNotif.setReadValue(false);
+                    globalNotif.setUsername("allusers"); // notif globale
+                    globalNotif.setArchived(false);
+                    notificationRepository.save(globalNotif);
                 }
             }
         }
 
-        // ======= COMMANDE ANNULÉE ========
+        // === ANNULATION DE COMMANDE — NOTIF SPÉCIFIQUE À L'UTILISATEUR ===
         else if (event.getStatus().equalsIgnoreCase(EventStatus.CANCELLING.name())) {
-            String cancelMsg = "Your order for '" + productName + "' has been cancelled.";
+            String msg = "Your order for '" + productName + "' has been cancelled.";
 
-            Notification cancelNotification = new Notification();
-            cancelNotification.setMessage(cancelMsg);
-            cancelNotification.setReadValue(false);
-            cancelNotification.setUsername(username);
-            cancelNotification.setArchived(false);
-            notificationRepository.save(cancelNotification);
+            Notification userNotif = new Notification();
+            userNotif.setMessage(msg);
+            userNotif.setReadValue(false);
+            userNotif.setUsername(username);
+            userNotif.setArchived(false);
+            notificationRepository.save(userNotif);
         }
 
         LOGGER.info("Order event received in Notification service => {}", event);
