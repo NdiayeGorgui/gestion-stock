@@ -64,6 +64,7 @@ public class OrderConsumer {
                     globalNotif.setReadValue(false);
                     globalNotif.setUsername("allusers"); // notif globale
                     globalNotif.setArchived(false);
+                    globalNotif.setType("global");
                     notificationRepository.save(globalNotif);
                 }
             }

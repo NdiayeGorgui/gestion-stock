@@ -36,6 +36,7 @@ public class OrderConsumerCancel {
             userNotif.setReadValue(false);
             userNotif.setUsername(username);
             userNotif.setArchived(false);
+            userNotif.setType("user");
             notificationRepository.save(userNotif);
         }
 
