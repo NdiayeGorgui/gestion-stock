@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -71,9 +73,11 @@ public class NotificationService {
         notificationRepository.save(notif);
     }
 
-    @Scheduled(cron = "0 */1 * * * ?", zone = "America/Toronto") // GMT-4 si EDT
+    @Scheduled(cron = "0 */5 * * * ?", zone = "America/Toronto") // GMT-4 si EDT
     public void archiveOldGlobalNotification() {
-        LocalDateTime threshold = LocalDateTime.now().minusDays(7);
+        ZoneId zoneId = ZoneId.of("America/Toronto");
+        LocalDateTime threshold = ZonedDateTime.now(zoneId).minusMinutes(5).toLocalDateTime();
+
 
         LOGGER.info("Début de l’archivage des notifications globales créées avant {}", threshold);
 
