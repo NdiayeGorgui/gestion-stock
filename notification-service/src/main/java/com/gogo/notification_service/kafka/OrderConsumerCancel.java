@@ -19,8 +19,8 @@ public class OrderConsumerCancel {
     }
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.order.name}",
-            groupId = "${spring.kafka.consumer.group-id}"
+            topics = "${spring.kafka.topic.billing.name}"
+            ,groupId = "${spring.kafka.consumer.group-id}"
     )
     public void orderConsumer(OrderEventDto event) {
 
@@ -28,7 +28,7 @@ public class OrderConsumerCancel {
         String username = event.getUserName();
 
         // === ANNULATION DE COMMANDE — NOTIF SPÉCIFIQUE À L'UTILISATEUR ===
-         if(event.getStatus().equalsIgnoreCase(EventStatus.CANCELLING.name())){
+         if(event.getStatus().equalsIgnoreCase(EventStatus.CANCELED.name())){
             String msg = "Your order for '" + productName + "' has been cancelled.";
 
             Notification userNotif = new Notification();
