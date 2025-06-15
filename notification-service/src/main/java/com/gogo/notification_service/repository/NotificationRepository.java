@@ -2,6 +2,8 @@ package com.gogo.notification_service.repository;
 
 import com.gogo.notification_service.model.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
@@ -11,6 +13,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     //Ce query method va permettre de vérifier rapidement si une notification globale identique existe déjà (non lue et non archivée).
     boolean existsByMessageAndUsernameAndReadValueIsFalseAndArchivedIsFalse(String message, String username);
 
+
+    List<Notification> findAllByUsernameAndArchivedFalseAndCreatedDateBefore(String username, LocalDateTime dateTime);
 
 }
 
