@@ -27,13 +27,17 @@ public class NotificationService {
         Notification notif = notificationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Notification not found with id : " + id));
 
-        if (!notif.getUsername().equals(username) && !notif.getUsername().equals("ALL_USERS")) {
+        // Autorisé si :
+        // - la notif appartient à ce user
+        // - ou si c'est une notif globale ("allusers") = tout le monde peut la marquer comme lue
+        if (!notif.getUsername().equals(username) && !notif.getUsername().equals("allusers")) {
             throw new RuntimeException("User not authorized to modify this notification");
         }
 
         notif.setReadValue(true);
         notificationRepository.save(notif);
     }
+
 
 
     public void archiveNotification(Long id, String username) {
