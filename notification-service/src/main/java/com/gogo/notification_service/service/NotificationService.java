@@ -71,7 +71,7 @@ public class NotificationService {
         notificationRepository.save(notif);
     }
 
-    @Scheduled(cron = "0 */5 * * * ?") // Toutes les 5 minutes
+    @Scheduled(cron = "0 */1 * * * ?", zone = "America/Toronto") // GMT-4 si EDT
     public void archiveOldGlobalNotification() {
         LocalDateTime threshold = LocalDateTime.now().minusDays(7);
 
