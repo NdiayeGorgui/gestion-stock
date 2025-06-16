@@ -1,4 +1,3 @@
-/*
 package com.gogo.notification_service.kafka;
 
 import com.gogo.base_domaine_service.event.EventStatus;
@@ -77,4 +76,3 @@ public class OrderConsumer {
 
 
 }
-*/
