@@ -11,13 +11,13 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BillConsumer {
+public class BillCustomerConsumer {
 
     private final JavaMailSender javaMailSender;
-    private static final Logger LOGGER = LoggerFactory.getLogger(BillConsumer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BillCustomerConsumer.class);
 
 
-    public BillConsumer(JavaMailSender javaMailSender) {
+    public BillCustomerConsumer(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
     @KafkaListener(

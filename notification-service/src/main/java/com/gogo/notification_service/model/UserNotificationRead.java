@@ -14,13 +14,9 @@ public class UserNotificationRead {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String username;
-
     @ManyToOne
     @JoinColumn(name = "notification_id")
     private Notification notification;
-
-
 }
 
