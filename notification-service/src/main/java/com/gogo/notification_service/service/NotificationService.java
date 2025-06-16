@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 @EnableScheduling
 @Service
 public class NotificationService {
@@ -32,7 +33,6 @@ public class NotificationService {
     public NotificationService(NotificationRepository notificationRepository) {
         this.notificationRepository = notificationRepository;
     }
-
 
     public void markAsRead(Long id, String username) {
         Notification notif = notificationRepository.findById(id)
@@ -57,8 +57,6 @@ public class NotificationService {
         }
     }
 
-
-
     public void archiveNotification(Long id, String username) {
         Notification notif = notificationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
@@ -71,10 +69,9 @@ public class NotificationService {
         notificationRepository.save(notif);
     }
 
-    @Scheduled(cron = "0 30 21 * * ?")  // Tous les jours à 21h30
-    @Scheduled(cron = "0 30 1 * * ?")   // Tous les jours à 01h30 // Tous les jours à minuit
+    @Scheduled(cron = "0 0 0 * * ?") // Tous les jours à minuit
     public void archiveOldGlobalNotification() {
-        LocalDateTime threshold = LocalDateTime.now().minusHours(2);;
+        LocalDateTime threshold = LocalDateTime.now().minusDays(7);  //vieille de 7 jours
 
         // Archiver les notifications globales
         List<Notification> globalNotifications = notificationRepository
@@ -96,12 +93,16 @@ public class NotificationService {
         System.out.println("🔔 Archivage terminé pour " + allToArchive.size() + " notifications.");
     }
 
-
-
     public List<NotificationDto> getUserAndGlobalNotifications(String username) {
-        List<Notification> userNotifs = notificationRepository.findByUsernameOrderByIdDesc(username);
-        List<Notification> globalNotifs = notificationRepository.findByUsernameOrderByIdDesc("allusers");
+        // Récupère uniquement les notifications non archivées de l'utilisateur
+        List<Notification> userNotifs = notificationRepository
+                .findByUsernameAndArchivedFalseOrderByIdDesc(username);
 
+        // Récupère uniquement les notifications globales non archivées
+        List<Notification> globalNotifs = notificationRepository
+                .findByUsernameAndArchivedFalse("allusers");
+
+        // Liste des notifications globales déjà lues par cet utilisateur
         List<UserNotificationRead> readGlobalNotifs = userNotificationReadRepository.findAll()
                 .stream()
                 .filter(r -> r.getUsername().equals(username))
@@ -111,11 +112,12 @@ public class NotificationService {
                 .map(r -> r.getNotification().getId())
                 .collect(Collectors.toSet());
 
-        // filtrer les notifs globales non lues
+        // On filtre les globales pour ne garder que celles que l'utilisateur n’a pas encore lues
         List<Notification> unreadGlobalNotifs = globalNotifs.stream()
                 .filter(n -> !readGlobalNotifIds.contains(n.getId()))
                 .toList();
 
+        // On fusionne les notifications utilisateur + globales non lues
         List<Notification> all = new ArrayList<>();
         all.addAll(userNotifs);
         all.addAll(unreadGlobalNotifs);
@@ -124,8 +126,5 @@ public class NotificationService {
                 .map(NotificationMapper::fromEntity)
                 .toList();
     }
-
-
-
 }
 

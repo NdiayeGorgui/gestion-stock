@@ -18,6 +18,12 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     List<Notification> findAllByUsernameNotAndArchivedFalseAndCreatedDateBefore(String username, LocalDateTime date);
 
+    // Pour les notifications de l'utilisateur
+    List<Notification> findByUsernameAndArchivedFalseOrderByIdDesc(String username);
+
+    // Pour les globales
+    List<Notification> findByUsernameAndArchivedFalse(String username);
+
 
 }
 
