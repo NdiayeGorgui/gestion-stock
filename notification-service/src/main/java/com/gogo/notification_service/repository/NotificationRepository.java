@@ -24,5 +24,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     // Pour les globales
     List<Notification> findByUsernameAndArchivedFalse(String username);
 
+    boolean existsByProductKeyAndTypeAndArchivedIsFalseAndReadValueIsFalse(String productKey, String type);
+
 }
 

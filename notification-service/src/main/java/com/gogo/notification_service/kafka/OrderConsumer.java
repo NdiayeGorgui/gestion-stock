@@ -34,20 +34,24 @@ public class OrderConsumer {
 
         if (event.getStatus().equalsIgnoreCase(EventStatus.PENDING.name())) {
 
+            String baseKey = productName.toLowerCase().trim(); // Clé produit
+
             // === RUPTURE DE STOCK ===
             if (remainingQty == 0) {
                 String msg = "Product '" + productName + "' is out of stock!";
+                String uniqueKey = baseKey + "_outofstock";
 
                 boolean alreadyExists = notificationRepository
-                        .existsByMessageAndUsernameAndReadValueIsFalseAndArchivedIsFalse(msg, "allusers");
+                        .existsByProductKeyAndTypeAndArchivedIsFalseAndReadValueIsFalse(uniqueKey, "outofstock");
 
                 if (!alreadyExists) {
                     Notification globalNotif = new Notification();
                     globalNotif.setMessage(msg);
                     globalNotif.setReadValue(false);
-                    globalNotif.setUsername("allusers"); // notif globale
+                    globalNotif.setUsername("allusers");
                     globalNotif.setArchived(false);
-                    globalNotif.setType("global");
+                    globalNotif.setType("outofstock");
+                    globalNotif.setProductKey(uniqueKey); // ⚠️ champ supplémentaire recommandé
                     notificationRepository.save(globalNotif);
                 }
             }
@@ -55,17 +59,19 @@ public class OrderConsumer {
             // === STOCK FAIBLE ===
             else if (remainingQty < 10) {
                 String msg = "Product '" + productName + "' stock is low (" + remainingQty + ")";
+                String uniqueKey = baseKey + "_lowstock";
 
                 boolean alreadyExists = notificationRepository
-                        .existsByMessageAndUsernameAndReadValueIsFalseAndArchivedIsFalse(msg, "allusers");
+                        .existsByProductKeyAndTypeAndArchivedIsFalseAndReadValueIsFalse(uniqueKey, "lowstock");
 
                 if (!alreadyExists) {
                     Notification globalNotif = new Notification();
                     globalNotif.setMessage(msg);
                     globalNotif.setReadValue(false);
-                    globalNotif.setUsername("allusers"); // notif globale
+                    globalNotif.setUsername("allusers");
                     globalNotif.setArchived(false);
-                    globalNotif.setType("global");
+                    globalNotif.setType("lowstock");
+                    globalNotif.setProductKey(uniqueKey); // ⚠️
                     notificationRepository.save(globalNotif);
                 }
             }
@@ -73,6 +79,7 @@ public class OrderConsumer {
 
         LOGGER.info("Order event received in Notification service => {}", event);
     }
+
 
 
 }

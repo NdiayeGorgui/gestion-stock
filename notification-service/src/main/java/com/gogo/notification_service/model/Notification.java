@@ -27,6 +27,7 @@ public class Notification {
     private boolean archived = false;
     @CreationTimestamp
     private LocalDateTime createdDate;
+    private String productKey;
 
 }
 
