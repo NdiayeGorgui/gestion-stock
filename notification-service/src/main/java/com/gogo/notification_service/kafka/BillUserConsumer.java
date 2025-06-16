@@ -1,4 +1,3 @@
-/*
 package com.gogo.notification_service.kafka;
 
 import com.gogo.base_domaine_service.event.EventStatus;
@@ -7,33 +6,33 @@ import com.gogo.notification_service.model.Notification;
 import com.gogo.notification_service.repository.NotificationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OrderConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrderConsumer.class);
+public class BillUserConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BillUserConsumer.class);
     private final NotificationRepository notificationRepository;
 
-    public OrderConsumer(NotificationRepository notificationRepository) {
+    public BillUserConsumer(NotificationRepository notificationRepository) {
         this.notificationRepository = notificationRepository;
     }
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.order.name}",
-            groupId = "${spring.kafka.consumer.group-id}"
+            topics = "${spring.kafka.topic.billing.name}"
+            ,groupId = "${spring.kafka.consumer.group-id}"
     )
     public void orderConsumer(OrderEventDto event) {
 
+        String productName = event.getProductEventDto().getName();
+        String username = event.getUserName();
         int initialQty = event.getProductEventDto().getQty(); // Stock initial
         int orderedQty = event.getProductItemEventDto().getQty(); // Quantité commandée
         int remainingQty = initialQty - orderedQty;
 
-        String productName = event.getProductEventDto().getName();
-        String username = event.getUserName();
 
-        if (event.getStatus().equalsIgnoreCase(EventStatus.PENDING.name())) {
+
+        if (event.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())) {
 
             // === RUPTURE DE STOCK ===
             if (remainingQty == 0) {
@@ -72,9 +71,20 @@ public class OrderConsumer {
             }
         }
 
+        // === ANNULATION DE COMMANDE — NOTIF SPÉCIFIQUE À L'UTILISATEUR ===
+       else  if(event.getStatus().equalsIgnoreCase(EventStatus.CANCELED.name())){
+            String msg = "Your order for '" + productName + "' has been cancelled.";
+
+            Notification userNotif = new Notification();
+            userNotif.setMessage(msg);
+            userNotif.setReadValue(false);
+            userNotif.setUsername(username);
+            userNotif.setArchived(false);
+            userNotif.setType("user");
+            notificationRepository.save(userNotif);
+        }
+
         LOGGER.info("Order event received in Notification service => {}", event);
     }
 
-
 }
-*/
