@@ -71,7 +71,7 @@ public class NotificationService {
         notificationRepository.save(notif);
     }
 
-    @Scheduled(cron = "0 0 0 * * ?", zone = "America/Toronto") // Tous les jours à minuit (GMT-4)
+    @Scheduled(cron = "0 30 0,20 * * ?") // Tous les jours à minuit (GMT-4)
     public void archiveOldGlobalNotification() {
         LocalDateTime threshold = LocalDateTime.now().minusDays(7);
 
