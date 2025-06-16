@@ -71,9 +71,10 @@ public class NotificationService {
         notificationRepository.save(notif);
     }
 
-    @Scheduled(cron = "0 30 0,20 * * ?") // Tous les jours à minuit (GMT-4)
+    @Scheduled(cron = "0 30 21 * * ?")  // Tous les jours à 21h30
+    @Scheduled(cron = "0 30 1 * * ?")   // Tous les jours à 01h30 // Tous les jours à minuit
     public void archiveOldGlobalNotification() {
-        LocalDateTime threshold = LocalDateTime.now().minusDays(7);
+        LocalDateTime threshold = LocalDateTime.now().minusHours(2);;
 
         // Archiver les notifications globales
         List<Notification> globalNotifications = notificationRepository
