@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface CustomerRepository extends JpaRepository<Customer,Long> {
     Customer findCustomerById(Long id);
 
@@ -20,7 +22,8 @@ public interface CustomerRepository extends JpaRepository<Customer,Long> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Customer c SET c.status= :status,  c.name= :name,  c.phone= :phone,  c.email= :email,  c.address= :address WHERE c.customerIdEvent= :customerIdEvent")
-    void updateCustomer(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status, @Param("name") String name, @Param("phone") String phone, @Param("email") String email, @Param("address") String address);
+    @Query("UPDATE Customer c SET c.status= :status,  c.name= :name,  c.phone= :phone,  c.email= :email,  c.address= :address,c.city= :city,c.postalCode= :postalCode WHERE c.customerIdEvent= :customerIdEvent")
+    void updateCustomer(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status, @Param("name") String name, @Param("phone") String phone, @Param("email") String email, @Param("address") String address, @Param("city") String city, @Param("postalCode") String postalCode);
 
+    Optional<Customer> findByCustomerIdEvent(String customerIdEvent);
 }

@@ -20,6 +20,8 @@ public class CustomerModel {
     private String customerIdEvent;
     private String name;
     private String address;
+    private String city;
+    private String postalCode;
     private String phone;
     private String email;
     private String status;

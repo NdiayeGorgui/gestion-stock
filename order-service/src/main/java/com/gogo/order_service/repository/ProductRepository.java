@@ -16,8 +16,8 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     void deleteProduct(@Param("productIdEvent") String productIdEvent);
     @Modifying
     @Transactional
-    @Query("UPDATE Product p SET p.status= :status,  p.name= :name, p.category= :category,  p.qty= :qty,  p.price= :price,p.qtyStatus= :qtyStatus WHERE p.productIdEvent= :productIdEvent")
-    void updateProduct(@Param("productIdEvent") String productIdEvent, @Param("status") String status, @Param("name") String name, @Param("category") String category, @Param("qty") int qty, @Param("price") double price,@Param("qtyStatus") String qtyStatus);
+    @Query("UPDATE Product p SET p.status= :status,  p.name= :name, p.category= :category, p.description= :description, p.location= :location,  p.qty= :qty,  p.price= :price,p.qtyStatus= :qtyStatus WHERE p.productIdEvent= :productIdEvent")
+    void updateProduct(@Param("productIdEvent") String productIdEvent, @Param("status") String status, @Param("name") String name, @Param("category") String category,@Param("description") String description,@Param("location") String location, @Param("qty") int qty, @Param("price") double price,@Param("qtyStatus") String qtyStatus);
 
     @Modifying
     @Transactional
@@ -26,6 +26,8 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE Product p SET p.qtyStatus= :qtyStatus WHERE p.productIdEvent= :productIdEvent")
-    void updateProductQtyStatus(@Param("productIdEvent") String productIdEvent, @Param("qtyStatus") String qtyStatus);
+    @Query("UPDATE Product p SET p.qtyStatus = :qtyStatus WHERE p.productIdEvent = :productIdEvent")
+    void updateProductQtyStatus(@Param("productIdEvent") String productIdEvent,
+                                @Param("qtyStatus") String qtyStatus);
+
 }

@@ -4,7 +4,6 @@ import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
 import com.gogo.order_service.model.Order;
 import com.gogo.order_service.model.OrderEventSourcing;
-import com.gogo.order_service.repository.OrderRepository;
 import com.gogo.order_service.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,49 +27,46 @@ public class PaymentConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentConsumer.class);
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.payment.name}"
-            , groupId = "${spring.kafka.consumer.payment.group-id}"
+            topics = "${spring.kafka.topic.payment.name}",
+            groupId = "${spring.kafka.consumer.payment.group-id}"
     )
-    public void consumeProductStatus(OrderEventDto event) {
+    public void paymentConsumer(OrderEventDto event) {
+        if (!EventStatus.COMPLETED.name().equalsIgnoreCase(event.getStatus())) return;
 
-        if (event.getStatus().equalsIgnoreCase(EventStatus.COMPLETED.name())) {
+        String customerId = event.getCustomerEventDto().getCustomerIdEvent();
+        List<Order> orders = orderService.findByCustomer(customerId);
 
-            List<Order> orders=orderService.findByCustomer(event.getCustomerEventDto().getCustomerIdEvent());
-            for (Order order:orders){
-                if(order.getOrderStatus().equalsIgnoreCase(EventStatus.CREATED.name())){
-                    order.setOrderStatus(EventStatus.COMPLETED.name());
-                    orderService.saveOrder(order);
-                    event.setPaymentId(order.getOrderId());
+        for (Order order : orders) {
+            if (EventStatus.CREATED.name().equalsIgnoreCase(order.getOrderStatus())) {
 
-                }
+                // 1. Mettre à jour l’état de la commande
+                order.setOrderStatus(EventStatus.COMPLETED.name());
+                orderService.saveOrder(order);
+
+                // 2. Enregistrer un événement CONFIRMED dans la table d’event sourcing
+                OrderEventSourcing eventSourcing = new OrderEventSourcing();
+                eventSourcing.setOrderId(order.getOrderIdEvent());
+                eventSourcing.setCustomerId(order.getCustomerIdEvent());
+                eventSourcing.setStatus(EventStatus.CONFIRMED.name());
+                eventSourcing.setEventTimeStamp(LocalDateTime.now());
+                eventSourcing.setDetails("Order confirmed after payment.");
+
+                orderService.saveOrderEventModel(eventSourcing);
+
+                // 3. Envoyer l’événement pour que d’autres services soient au courant
+                event.setId(order.getOrderIdEvent());
+                event.getCustomerEventDto().setName(order.getCustomer().getName());
+                event.setStatus(EventStatus.CONFIRMED.name());
+                LOGGER.info("✅ Order {} completed and event sent", event);
+                orderProducer.sendMessage(event);
+
+                LOGGER.info("✅ Order {} confirmed and event sourcing saved", order.getOrderIdEvent());
             }
-            //save the event sourcing table with confirmed status
-            List<OrderEventSourcing> orderList = orderService.orderEventSourcingList(EventStatus.CREATED.name(), event.getCustomerEventDto().getCustomerIdEvent());
 
-            if (orderList != null) {
-                for (OrderEventSourcing order : orderList) {
-                    // Vérifier si cette commande est déjà confirmée, annulée, expédiée ou délivrée
-                    boolean isAlreadyProcessed = orderService.isOrderAlreadyProcessed(order.getOrderId());
 
-                    if (!isAlreadyProcessed) {
-                        OrderEventSourcing orderEventSourcing = new OrderEventSourcing();
-                        orderEventSourcing.setOrderId(order.getOrderId());
-                        orderEventSourcing.setCustomerId(order.getCustomerId());
-                        orderEventSourcing.setStatus(EventStatus.CONFIRMED.name());
-                        orderEventSourcing.setEventTimeStamp(LocalDateTime.now());
-                        orderEventSourcing.setDetails("Order Confirmed");
-
-                        orderService.saveOrderEventModel(orderEventSourcing);
-
-                        event.setId(order.getOrderId());
-                        event.setStatus(EventStatus.CONFIRMED.name());
-                        //event.setPaymentId(order.getOrderId());
-                        orderProducer.sendMessage(event);
-                        LOGGER.info("Oder event sent with confirmed status => {}", event);
-                    }
-                }
-            }
         }
+
     }
+
 }
 

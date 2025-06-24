@@ -23,8 +23,6 @@ import java.util.*;
 public class CustomerController {
     @Autowired
     private CustomerService customerService;
-    @Autowired
-    private CustomerRepository customerRepository;
 
     private final CustomerProducer customerProducer;
 
@@ -109,7 +107,7 @@ public class CustomerController {
 
     @GetMapping("/customers/exists-by-email/{email}")
     public ResponseEntity<CustomerExistsResponse> checkIfCustomerExistsByEmail(@PathVariable ("email") String email) {
-        boolean exists = customerRepository.existsByEmail(email);
+        boolean exists = customerService.existsByEmail(email);
         String message = exists ? "The customer with this email already exists." : "Email is available.";
 
         CustomerExistsResponse response = new CustomerExistsResponse(exists, message);

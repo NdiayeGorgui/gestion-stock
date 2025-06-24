@@ -3,7 +3,6 @@ package com.gogo.notification_service.controller;
 import com.gogo.notification_service.dto.NotificationDto;
 import com.gogo.notification_service.service.NotificationService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 

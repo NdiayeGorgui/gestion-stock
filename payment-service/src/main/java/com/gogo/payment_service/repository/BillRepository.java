@@ -10,8 +10,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface BillRepository extends JpaRepository <Bill,Long>{
-    Bill  findByOrderRef(String orderRef);
-
+     Bill  findBillByOrderRef(String orderRef);
+    List<Bill>  findByOrderRef(String orderRef);
     @Modifying
     @Transactional
     @Query("UPDATE Bill b SET b.status= :status WHERE b.orderRef= :orderRef")
@@ -25,7 +25,16 @@ public interface BillRepository extends JpaRepository <Bill,Long>{
     void updateAllBillCustomerStatus(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status);
 
     List<Bill> findByCustomerIdEvent(String customerIdEvent);
-    List<Bill> findByOrderIdAndStatus(String orderId, String status);
+    List<Bill> findByOrderRefAndStatus(String orderRef, String status);
 
-    boolean existsByOrderRefAndStatus(String orderId, String status);
+    boolean existsByOrderRefAndStatus(String orderRef, String status);
+
+    Bill findByOrderRefAndProductIdEvent(String orderRef, String productIdEvent);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Bill b SET b.status = :status WHERE b.orderRef = :orderRef")
+    void updateAllBillOrderStatus(@Param("orderRef") String orderRef, @Param("status") String status);
+
+    //List<Bill> findByOrderId(String orderId);
 }

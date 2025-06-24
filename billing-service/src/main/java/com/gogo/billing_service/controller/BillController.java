@@ -1,5 +1,6 @@
 package com.gogo.billing_service.controller;
 
+import com.gogo.billing_service.dto.BillResponseDto;
 import com.gogo.billing_service.exception.BillNotFoundException;
 import com.gogo.billing_service.model.Bill;
 import com.gogo.billing_service.service.BillExcelExporter;
@@ -16,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-//@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:4300"})
+
 @RestController
 @RequestMapping("/api/v1")
 public class BillController {
@@ -28,15 +29,31 @@ public class BillController {
             description = "get Bill by id REST API from Bill object")
     @ApiResponse(responseCode = "200",
             description = "Http status 200 ")
+    @GetMapping("/bills/{orderRef}")
+    public BillResponseDto getOneBill(@PathVariable("orderRef") String orderRef) {
+        return billingService.findBillWithDetails(orderRef);
+    }
 
-    @GetMapping("/bills/{id}")
+
+   /* @GetMapping("/bills/{id}")
     public Bill getBill(@PathVariable("id") Long id) throws BillNotFoundException {
         Optional<Bill> bill = Optional.ofNullable(billingService.getBill(id));
         if (bill.isPresent()) {
             return bill.get();
         }
             throw new BillNotFoundException("Bill not available with id: " + id );
+    }*/
+
+    @Operation(
+            summary = "get Bills REST API",
+            description = "get Bill by id REST API from Bill object")
+    @ApiResponse(responseCode = "200",
+            description = "Http status 200 ")
+    @GetMapping("/bills")
+    public List<BillResponseDto> getBills() {
+        return billingService.getAllBillsWithProducts();
     }
+
 
     @Operation(
             summary = "get Bills REST API",
@@ -58,27 +75,30 @@ public class BillController {
     @ApiResponse(responseCode = "200",
             description = "Http status 200 ")
 
-    @GetMapping("/bills/export/{customerIdEvent}/{status}")
-    public void exportToExcel(HttpServletResponse response,@PathVariable("customerIdEvent") String customerIdEvent,@PathVariable("status") String status) throws IOException {
+    @GetMapping("/bills/export/{orderRef}/{status}")
+    public void exportToExcel(HttpServletResponse response,
+                              @PathVariable("orderRef") String orderRef,
+                              @PathVariable("status") String status) throws IOException {
         response.setContentType("application/octet-stream");
-        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-        String currentDateTime = dateFormatter.format(new Date(0));
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        String currentDateTime = dateFormatter.format(new Date());
 
         String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=bills" + currentDateTime + ".xlsx";
+        String headerValue = "attachment; filename=bill_" + orderRef + "_" + currentDateTime + ".xlsx";
         response.setHeader(headerKey, headerValue);
 
-        List<Bill> billList = billingService.billList(customerIdEvent,status);
-        if(billList!=null){
-            BillExcelExporter excelExporter = new BillExcelExporter(billList);
+        List<Bill> billList = billingService.getBillsByOrderRefAndStatus(orderRef, status); // méthode à créer
 
-            excelExporter.export(response,customerIdEvent,status);
-        }else {
-            throw new RuntimeException("Empty list");
+        if (!billList.isEmpty()) {
+            BillExcelExporter exporter = new BillExcelExporter(billList);
+            exporter.export(response, orderRef, status);
+        } else {
+            throw new RuntimeException("Aucune facture trouvée pour la commande : " + orderRef);
         }
     }
 
-    @Operation(
+
+   /* @Operation(
             summary = "get Bills REST API",
             description = "get Bills REST API from Bill object")
     @ApiResponse(responseCode = "200",
@@ -87,7 +107,7 @@ public class BillController {
     @GetMapping("/bills")
     public List<Bill> getAllBills(){
         return billingService.getBills();
-    }
+    }*/
 
     @Operation(
             summary = "get Bills REST API",
@@ -97,6 +117,6 @@ public class BillController {
 
     @GetMapping("/bills/bill/{orderIdEvent}")
     public Bill getBill(@PathVariable ("orderIdEvent") String orderIdEvent){
-        return billingService.findByOrderIdEvent(orderIdEvent);
+        return billingService.findFirstByOrderIdEvent(orderIdEvent);
     }
 }

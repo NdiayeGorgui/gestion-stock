@@ -2,7 +2,6 @@ package com.gogo.billing_service.kafka;
 
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
-import com.gogo.billing_service.Repository.BillRepository;
 import com.gogo.billing_service.model.Bill;
 import com.gogo.billing_service.service.BillingService;
 import org.slf4j.Logger;

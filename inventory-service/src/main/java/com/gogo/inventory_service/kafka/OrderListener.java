@@ -3,6 +3,7 @@ package com.gogo.inventory_service.kafka;
 
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
+import com.gogo.base_domaine_service.event.ProductItemEventDto;
 import com.gogo.inventory_service.model.ProductModel;
 import com.gogo.inventory_service.service.ProductService;
 import org.slf4j.Logger;
@@ -22,38 +23,55 @@ public class OrderListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderListener.class);
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.billing.name}"
-            ,groupId = "${spring.kafka.update.bill.consumer.group-id}"
+            topics = "${spring.kafka.topic.billing.name}",
+            groupId = "${spring.kafka.update.bill.consumer.group-id}"
     )
-    public void consumeProductStatus(OrderEventDto event){
+    public void consumeProductStatus(OrderEventDto event) {
+        LOGGER.info("📦 Order event received in Inventory service => {}", event);
 
-        if (event.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())) {
-            ProductModel product=productService.findProductById(event.getProductEventDto().getProductIdEvent());
+        // Création : on diminue les quantités
+        if (EventStatus.CREATED.name().equalsIgnoreCase(event.getStatus())) {
+            for (ProductItemEventDto item : event.getProductItemEventDtos()) {
+                ProductModel product = productService.findProductById(item.getProductIdEvent());
 
-            product.setQtyStatus(event.getProductEventDto().getQtyStatus());
+                if (product == null) {
+                    LOGGER.warn("🚫 Produit introuvable: {}", item.getProductIdEvent());
+                    continue;
+                }
 
-            productService.saveProduct(product);
-            int qtyUsed= event.getProductItemEventDto().getQty();
-            int qr=productService.qtyRestante(product.getQty(),qtyUsed,event.getStatus());
+                int qtyBefore = product.getQty();
+                int qtyUsed = item.getQty();
+                int qtyAfter = productService.qtyRestante(qtyBefore, qtyUsed, EventStatus.CREATED.name());
 
-            if(qr>=0){
-                productService.updateProductQty(event.getProductEventDto().getProductIdEvent(),qr);
-
-                LOGGER.info("Product Update event with updated quantity status sent to order service => {}", event);
-               // orderProducer.sendMessage(event);
-            }else {
-                throw new RuntimeException("Quantite insuffisante");
+                if (qtyAfter >= 0) {
+                    productService.updateProductQty(item.getProductIdEvent(), qtyAfter);
+                    LOGGER.info("✅ Stock décrémenté pour {}: {} -> {}", item.getProductIdEvent(), qtyBefore, qtyAfter);
+                } else {
+                    LOGGER.error("❌ Stock insuffisant pour le produit {} (dispo={}, demandé={})", item.getProductIdEvent(), qtyBefore, qtyUsed);
+                    throw new RuntimeException("Quantité insuffisante pour le produit : " + item.getProductIdEvent());
+                }
             }
         }
-        if (event.getStatus().equalsIgnoreCase(EventStatus.CANCELED.name())) {
-            ProductModel product=productService.findProductById(event.getProductEventDto().getProductIdEvent());
-            int qtyUsed=event.getProductEventDto().getQty();
-            int qr=productService.qtyRestante(product.getQty(),qtyUsed,event.getStatus());
 
-                productService.updateProductQty(event.getProductEventDto().getProductIdEvent(),qr);
+        // Annulation : on restaure les quantités
+        else if (EventStatus.CANCELED.name().equalsIgnoreCase(event.getStatus())) {
+            for (ProductItemEventDto item : event.getProductItemEventDtos()) {
+                ProductModel product = productService.findProductById(item.getProductIdEvent());
 
+                if (product == null) {
+                    LOGGER.warn("🚫 Produit introuvable: {}", item.getProductIdEvent());
+                    continue;
+                }
+
+                int qtyBefore = product.getQty();
+                int qtyRestored = item.getQty();
+                int qtyAfter = productService.qtyRestante(qtyBefore, qtyRestored, EventStatus.CANCELED.name());
+
+                productService.updateProductQty(item.getProductIdEvent(), qtyAfter);
+                LOGGER.info("🔄 Stock restauré pour {}: {} -> {}", item.getProductIdEvent(), qtyBefore, qtyAfter);
+            }
         }
-        LOGGER.info("Product Updated event received in Inventory service => {}", event);
     }
+
 }
 

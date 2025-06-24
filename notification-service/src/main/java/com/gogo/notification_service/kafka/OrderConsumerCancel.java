@@ -2,6 +2,7 @@ package com.gogo.notification_service.kafka;
 
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
+import com.gogo.base_domaine_service.event.ProductItemEventDto;
 import com.gogo.notification_service.model.Notification;
 import com.gogo.notification_service.repository.NotificationRepository;
 import org.slf4j.Logger;
@@ -19,29 +20,37 @@ public class OrderConsumerCancel {
     }
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.billing.name}"
-            ,groupId = "${spring.kafka.consumer.group-id}"
+            topics = "${spring.kafka.topic.billing.name}",
+            groupId = "${spring.kafka.consumer.group-id}"
     )
     public void orderConsumer(OrderEventDto event) {
-
-        String productName = event.getProductEventDto().getName();
         String username = event.getUserName();
-
+        String orderId = event.getId();
 
         // === ANNULATION DE COMMANDE — NOTIF SPÉCIFIQUE À L'UTILISATEUR ===
-         if(event.getStatus().equalsIgnoreCase(EventStatus.CANCELED.name())){
-            String msg = "Your order for '" + productName + "' has been cancelled.";
+        if (EventStatus.CANCELED.name().equalsIgnoreCase(event.getStatus())) {
 
-            Notification userNotif = new Notification();
-            userNotif.setMessage(msg);
-            userNotif.setReadValue(false);
-            userNotif.setUsername(username);
-            userNotif.setArchived(false);
-            userNotif.setType("user");
-            notificationRepository.save(userNotif);
+            if (event.getProductItemEventDtos() != null) {
+                for (ProductItemEventDto item : event.getProductItemEventDtos()) {
+                    String productName = item.getProductName();
+
+                    String msg = "Your order of product '" + productName + "' (Order ID: " + orderId + ") has been cancelled.";
+
+                    Notification userNotif = new Notification();
+                    userNotif.setMessage(msg);
+                    userNotif.setReadValue(false);
+                    userNotif.setUsername(username);
+                    userNotif.setArchived(false);
+                    userNotif.setType("user");
+                    userNotif.setProductKey(productName.toLowerCase().replaceAll(" ", "_") + "_canceled");
+
+                    notificationRepository.save(userNotif);
+                }
+            } else {
+                LOGGER.warn("⚠️ No product items found in canceled order: {}", orderId);
+            }
         }
 
-        LOGGER.info("Order event received in Notification service => {}", event);
+        LOGGER.info("📩 Order event received in Notification service => {}", event);
     }
-
 }

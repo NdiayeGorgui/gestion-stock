@@ -1,22 +1,20 @@
 package com.gogo.delivered_command_service.controller;
 
-import com.gogo.base_domaine_service.dto.Payment;
-import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.delivered_command_service.exception.DeliveredCommandNotFoundException;
-import com.gogo.delivered_command_service.model.Delivered;
 import com.gogo.delivered_command_service.service.DeliveredCommandService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-//@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:4300"})
+
 @RestController
 @RequestMapping("/api/v1")
 public class DeliveredCommandController {
@@ -31,16 +29,17 @@ public class DeliveredCommandController {
             description = "Http status 200")
 
     @PostMapping("/delivers")
-    public ResponseEntity<Map<String, String>> saveAndSendDeliveredCommand(@RequestBody  Delivered delivered) throws DeliveredCommandNotFoundException {
+    public ResponseEntity<Map<String, String>> saveAndSendDeliveredCommand(@RequestBody Map<String, String> req) throws DeliveredCommandNotFoundException {
+        String orderId = req.get("orderId");
 
-        List<Delivered> deliveredList=deliveredCommandService.findByPaymentAndStatus(delivered.getPaymentId(),EventStatus.DELIVERING.name());
-        if(deliveredList.isEmpty()){
-            throw new DeliveredCommandNotFoundException("Order not available with PaymentId: "+delivered.getPaymentId());
+        if (orderId == null || orderId.isBlank()) {
+            throw new IllegalArgumentException("orderId must not be null or empty");
         }
 
-        deliveredCommandService.saveAndSendDeliveredCommand(delivered);
+        deliveredCommandService.saveAndSendDeliveredCommand(orderId);
+
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Deliver sent successfully");
+        response.put("message", "Deliver sent successfully for order: " + orderId);
         return ResponseEntity.ok(response);
-        }
+    }
 }

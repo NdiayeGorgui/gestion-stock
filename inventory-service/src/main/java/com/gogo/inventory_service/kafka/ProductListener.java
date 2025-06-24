@@ -30,10 +30,10 @@ public class ProductListener {
                 productService.deleteProduct(orderEventDto.getProductEventDto().getProductIdEvent(), orderEventDto.getStatus());
             }
             if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.UPDATED.name())){
-                productService.updateProduct(orderEventDto.getProductEventDto().getProductIdEvent(),EventStatus.CREATED.name(), orderEventDto.getProductEventDto().getName(),orderEventDto.getProductEventDto().getCategory(), orderEventDto.getProductEventDto().getQty(), orderEventDto.getProductEventDto().getPrice(),orderEventDto.getProductEventDto().getQtyStatus());
+                productService.updateProduct(orderEventDto.getProductEventDto().getProductIdEvent(),EventStatus.CREATED.name(), orderEventDto.getProductEventDto().getName(),orderEventDto.getProductEventDto().getCategory(),orderEventDto.getProductEventDto().getDescription(),orderEventDto.getProductEventDto().getLocation(), orderEventDto.getProductEventDto().getQty(), orderEventDto.getProductEventDto().getPrice(),orderEventDto.getProductEventDto().getQtyStatus());
             }
             if(orderEventDto.getStatus().equalsIgnoreCase(EventStatus.FAILED.name())){
-                productService.updateProduct(orderEventDto.getProductEventDto().getProductIdEvent(),EventStatus.FAILED.name(), orderEventDto.getProductEventDto().getName(),orderEventDto.getProductEventDto().getCategory(), orderEventDto.getProductEventDto().getQty(), orderEventDto.getProductEventDto().getPrice(),orderEventDto.getProductEventDto().getQtyStatus());
+                productService.updateProduct(orderEventDto.getProductEventDto().getProductIdEvent(),EventStatus.FAILED.name(), orderEventDto.getProductEventDto().getName(),orderEventDto.getProductEventDto().getCategory(),orderEventDto.getProductEventDto().getDescription(),orderEventDto.getProductEventDto().getLocation(), orderEventDto.getProductEventDto().getQty(), orderEventDto.getProductEventDto().getPrice(),orderEventDto.getProductEventDto().getQtyStatus());
             }
         }
 

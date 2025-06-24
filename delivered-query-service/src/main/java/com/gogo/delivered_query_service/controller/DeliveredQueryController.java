@@ -1,20 +1,19 @@
 package com.gogo.delivered_query_service.controller;
 
 
-import com.gogo.delivered_query_service.model.Delivered;
+import com.gogo.delivered_query_service.dto.DeliveredResponseDto;
 import com.gogo.delivered_query_service.service.DeliveredQueryService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-//@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:4300"})
+
 @RestController
 @RequestMapping("/api/v1")
 public class DeliveredQueryController {
@@ -29,17 +28,29 @@ public class DeliveredQueryController {
             description = "Http status 200")
 
     @GetMapping("/delivers")
-    public List<Delivered> getAllDelivers()  {
-       return  deliveredQueryService.getAllDelivers();
-        }
-    
-    @Operation(
+    public List<DeliveredResponseDto> getAllShips(){
+        return deliveredQueryService.getAllShipsWithProducts();
+    }
+
+
+    /*@Operation(
             summary = "get Ship REST API",
             description = "get Delivered by orderId REST API ")
     @ApiResponse(responseCode = "200",
             description = "Http status 200 ")
     @GetMapping("/delivers/{orderId}")
-    public Delivered getDeliveredByOrder(@PathVariable("orderId") String orderId){
-        return deliveredQueryService.findByOrderId(orderId);
+    public DeliveredResponseDto getDeliveredByOrder(@PathVariable("orderId") String orderId) {
+        Delivered delivered = deliveredQueryService.findByOrderId(orderId);
+        return DeliveredMapper.toDto(delivered);
+    }*/
+
+    @Operation(
+            summary = "get Delivered REST API",
+            description = "get Delivered by orderId REST API from Delivered object")
+    @ApiResponse(responseCode = "200",
+            description = "Http status 200 ")
+    @GetMapping("/delivers/{orderId}")
+    public DeliveredResponseDto getDeliver(@PathVariable("orderId") String orderId){
+        return deliveredQueryService.findDeliverWithDetails(orderId);
     }
 }

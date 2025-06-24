@@ -11,32 +11,47 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class BillConsumer {
 
     @Autowired
     private PaymentService paymentService;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BillConsumer.class);
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.billing.name}"
-            ,groupId = "${spring.kafka.consumer.group-id}"
+            topics = "${spring.kafka.topic.billing.name}",
+            groupId = "${spring.kafka.consumer.group-id}"
     )
-    public void billConsumer(OrderEventDto event){
-        if(event.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())){
-            Bill bill= PaymentMapper.mapToBill(event);
-            paymentService.saveBill(bill);
-        }
-        if(event.getStatus().equalsIgnoreCase(EventStatus.CANCELED.name())){
+    public void billConsumer(OrderEventDto event) {
+        LOGGER.info("💰 Payment service received event => {}", event);
 
-            Bill bill = paymentService.findByOrderIdEvent(event.getId());
-            boolean billExist = paymentService.billExist(bill.getOrderRef(), EventStatus.CREATED.name());
-            if(billExist){
-                paymentService.updateTheBillStatus(event.getId(), event.getStatus());
+        // Création de la facture
+        if (EventStatus.CREATED.name().equalsIgnoreCase(event.getStatus())) {
+            List<Bill> bills = PaymentMapper.mapToBills(event);
+            for (Bill bill : bills) {
+                paymentService.saveBill(bill);
+                LOGGER.info("✅ Bill created for product {} in order {}", bill.getProductIdEvent(), event.getId());
             }
         }
-        LOGGER.info("Order event received in billing service => {}", event);
 
-
+        // Annulation de la facture
+        else if (EventStatus.CANCELED.name().equalsIgnoreCase(event.getStatus())) {
+            if (event.getProductItemEventDtos() != null) {
+                for (var item : event.getProductItemEventDtos()) {
+                    Bill bill = paymentService.findByOrderIdAndProductIdEvent(event.getId(), item.getProductIdEvent());
+                    if (bill != null && EventStatus.CREATED.name().equalsIgnoreCase(bill.getStatus())) {
+                        paymentService.updateTheBillStatus(bill.getOrderRef(), EventStatus.CANCELED.name());
+                        LOGGER.info("❌ Bill canceled for product {} in order {}", item.getProductIdEvent(), event.getId());
+                    } else {
+                        LOGGER.warn("⚠️ Bill not found or already canceled for product {} in order {}", item.getProductIdEvent(), event.getId());
+                    }
+                }
+            } else {
+                LOGGER.warn("⚠️ No product items found to cancel in event: {}", event.getId());
+            }
+        }
     }
 }

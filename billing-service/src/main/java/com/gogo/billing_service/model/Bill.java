@@ -19,13 +19,13 @@ public class Bill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDateTime billingDate;
-  //  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) //car id de customer apparait deja dans la facture(au niveau de customer)
+    //  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) //car id de customer apparait deja dans la facture(au niveau de customer)
     private String customerIdEvent;
     private String customerName;
     private String customerPhone;
     private String customerMail;
     private String orderRef;
-    private String orderId;
+    // private String orderId;
     private String productIdEvent;
     private String productName;
     private int quantity;

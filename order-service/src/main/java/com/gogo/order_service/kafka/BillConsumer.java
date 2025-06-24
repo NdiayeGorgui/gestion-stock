@@ -2,107 +2,98 @@ package com.gogo.order_service.kafka;
 
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
+import com.gogo.base_domaine_service.event.ProductItemEventDto;
 import com.gogo.order_service.model.Order;
 import com.gogo.order_service.model.OrderEventSourcing;
 import com.gogo.order_service.model.Product;
 import com.gogo.order_service.model.ProductItem;
-import com.gogo.order_service.repository.OrderEventRepository;
-import com.gogo.order_service.repository.OrderRepository;
 import com.gogo.order_service.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 @Service
 public class BillConsumer {
-    @Autowired
-    private OrderService orderService;
 
     @Autowired
-    private KafkaTemplate<String, OrderEventDto> updateKafkaTemplate;
+    private OrderService orderService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BillConsumer.class);
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.billing.name}"
-            , groupId = "${spring.kafka.consumer.bill.group-id}"
+            topics = "${spring.kafka.topic.billing.name}",
+            groupId = "${spring.kafka.consumer.bill.group-id}"
     )
     public void consumeBill(OrderEventDto event) {
+        LOGGER.info("📥 Event reçu dans OrderService => {}", event);
+        String orderIdEvent = event.getId();
 
-        if (event.getStatus().equalsIgnoreCase(EventStatus.CREATED.name())) {
-
-            LOGGER.info("Bill event received in Order service => {}", event);
-
-            Product product = orderService.findProductById(event.getProductEventDto().getProductIdEvent());
-
-            //boolean oderExist = orderRepository.existsByOrderIdEventAndOrderStatus(event.getId(), EventStatus.CREATED.name());
-            boolean oderExist = orderService.existsByOrderIdEventAndOrderStatus(event.getId(), EventStatus.PENDING.name());
-
-            if (oderExist) {
-
-                orderService.updateOrderStatus(event.getId(), EventStatus.CREATED.name());
-
-                Order order = orderService.findOrderByOrderRef(event.getId());
-
-                //save the event sourcing table with created status
-                OrderEventSourcing orderEventSourcing=new OrderEventSourcing();
-                orderEventSourcing.setOrderId(order.getOrderIdEvent());
-                orderEventSourcing.setCustomerId(order.getCustomerIdEvent());
-                orderEventSourcing.setStatus(EventStatus.CREATED.name());
-                orderEventSourcing.setEventTimeStamp(LocalDateTime.now());
-                orderEventSourcing.setDetails("Order Created");
-                orderService.saveOrderEventModel(orderEventSourcing);
-
-                LOGGER.info("Order event with created status sent to Inventory service => {}", event);
-
-            }
-            //String qtyStatus=event.getProductEventDto().getQtyStatus();
-            int qtyUsed = event.getProductItemEventDto().getQty();
-            int qr = orderService.qtyRestante(product.getQty(), qtyUsed, event.getStatus());
-            if (qr >= 0) {
-                orderService.updateQuantity(event.getProductEventDto().getProductIdEvent(), qr);
-                orderService.updateOrderStatus(event.getId(), EventStatus.CREATED.name());
-
-            }else {
-                throw new RuntimeException("Quantite insuffisante");
-            }
+        Order order = orderService.findOrderByOrderRef(orderIdEvent);
+        if (order == null) {
+            LOGGER.warn("⚠️ Commande non trouvée: {}", orderIdEvent);
+            return;
         }
 
-        if (event.getStatus().equalsIgnoreCase(EventStatus.CANCELED.name())) {
-
-            Order order = orderService.findOrderByOrderRef(event.getId());
-
-            boolean oderExist = orderService.existsByOrderIdEventAndOrderStatus(order.getOrderIdEvent(), EventStatus.CREATED.name());
-            ProductItem productItem = orderService.findProductItemByOrderEventId(event.getId());
-            if (oderExist) {
-                orderService.updateOrderStatus(event.getId(), event.getStatus());
-                int qtyUsed = productItem.getQuantity();
-                String productIdEvent= productItem.getProductIdEvent();
-                Product product=orderService.findProductById(productIdEvent);
-                int qr = orderService.qtyRestante(product.getQty(), qtyUsed, event.getStatus());
-                event.getProductEventDto().setQty(qr);
-                orderService.updateQuantity(productIdEvent, qr);
-
-                Order orderToCancel = orderService.findOrderByOrderRef(event.getId());
-
-                //save the event sourcing table with canceled status
-                OrderEventSourcing orderEventSourcing=new OrderEventSourcing();
-                orderEventSourcing.setOrderId(orderToCancel.getOrderIdEvent());
-                orderEventSourcing.setCustomerId(orderToCancel.getCustomerIdEvent());
-                orderEventSourcing.setStatus(EventStatus.CANCELED.name());
-                orderEventSourcing.setEventTimeStamp(LocalDateTime.now());
-                orderEventSourcing.setDetails("Order Canceled");
-                orderService.saveOrderEventModel(orderEventSourcing);
-
-
-                LOGGER.info("Bill event for cancel order received in Order service => {}", event);
-
+        // Si CREATED
+        if (EventStatus.CREATED.name().equalsIgnoreCase(event.getStatus())) {
+            if (!order.getOrderStatus().equalsIgnoreCase(EventStatus.PENDING.name())) {
+                LOGGER.warn("⚠️ Commande non dans l'état PENDING: {}", orderIdEvent);
+                return;
             }
+
+            // MAJ statut
+            orderService.updateOrderStatus(orderIdEvent, EventStatus.CREATED.name());
+
+            // MAJ stock
+            for (ProductItemEventDto item : event.getProductItemEventDtos()) {
+                Product product = orderService.findProductById(item.getProductIdEvent());
+                int qtyRestante = orderService.qtyRestante(product.getQty(), item.getQty(), EventStatus.CREATED.name());
+                orderService.updateQuantity(product.getProductIdEvent(), qtyRestante);
+            }
+
+            // Sauvegarder l’événement
+            saveOrderEvent(order, EventStatus.CREATED.name(), "Order created.");
+            LOGGER.info("✅ Commande {} marquée comme CREATED", orderIdEvent);
         }
+
+        // Si CANCELED
+        else if (EventStatus.CANCELED.name().equalsIgnoreCase(event.getStatus())) {
+            if (!order.getOrderStatus().equalsIgnoreCase(EventStatus.CREATED.name())) {
+                LOGGER.warn("⚠️ Impossible d'annuler une commande non créee: {}", orderIdEvent);
+                return;
+            }
+
+            orderService.updateOrderStatus(orderIdEvent, EventStatus.CANCELED.name());
+
+            // Restituer les quantités
+            for (ProductItemEventDto item : event.getProductItemEventDtos()) {
+                Product product = orderService.findProductById(item.getProductIdEvent());
+                ProductItem productItem = orderService.findProductItemByOrderIdEventAndProductIdEvent(orderIdEvent, item.getProductIdEvent());
+                int qtyRestante = orderService.qtyRestante(product.getQty(), productItem.getQuantity(), EventStatus.CANCELED.name());
+                orderService.updateQuantity(product.getProductIdEvent(), qtyRestante);
+            }
+
+            saveOrderEvent(order, EventStatus.CANCELED.name(), "Order canceled.");
+            LOGGER.info("❌ Commande {} annulée", orderIdEvent);
+        }
+
+        // TODO: Ajouter SHIPPED, DELIVERED ici plus tard
     }
+
+    private void saveOrderEvent(Order order, String status, String details) {
+        OrderEventSourcing event = new OrderEventSourcing();
+        event.setOrderId(order.getOrderIdEvent());
+        event.setCustomerId(order.getCustomerIdEvent());
+        event.setStatus(status);
+        event.setEventTimeStamp(LocalDateTime.now());
+        event.setDetails(details);
+
+        orderService.saveOrderEventModel(event);
+    }
+
+
 }

@@ -3,13 +3,14 @@ package com.gogo.delivered_command_service.service;
 import com.gogo.base_domaine_service.event.CustomerEventDto;
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
+import com.gogo.delivered_command_service.exception.DeliveredCommandNotFoundException;
 import com.gogo.delivered_command_service.kafka.DeliveredCommandProducer;
 import com.gogo.delivered_command_service.model.Delivered;
 import com.gogo.delivered_command_service.repository.DeliveredCommandRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -38,34 +39,32 @@ public class DeliveredCommandService {
         return deliveredCommandRepository.findByPaymentIdAndOrderIdAndStatus(paymentId,orderId,status);
     }
 
-    public void saveAndSendDeliveredCommand(Delivered delivered) {
-       // List<Delivered> deliveredList=this.findByPaymentAndStatus(delivered.getPaymentId(),EventStatus.DELIVERING.name());
-     // Vérifier si cette commande est déjà  délivrée
-      //  boolean isAlreadyProcessed = this.isOrderAlreadyProcessed(delivered.getPaymentId());
-       // for (Delivered orderDelivered:deliveredList){
-        	//if (!isAlreadyProcessed) {
-    	Delivered existingDelivered=deliveredCommandRepository.findByCustomerIdAndOrderIdAndStatus(delivered.getCustomerId(),delivered.getOrderId(), EventStatus.DELIVERING.name());
-        		OrderEventDto orderEventDto=new OrderEventDto();
-                CustomerEventDto customerEventDto=new CustomerEventDto();
+    public void saveAndSendDeliveredCommand(String orderId) throws DeliveredCommandNotFoundException {
 
-                existingDelivered.setStatus(EventStatus.DELIVERED.name());
-                existingDelivered.setDetails("Order is delivered");
-                deliveredCommandRepository.save(existingDelivered);
+        // Cherche la commande en DELIVERING
+        Delivered existingDelivered = deliveredCommandRepository
+                .findByOrderIdAndStatus(orderId, EventStatus.DELIVERING.name())
+                .orElseThrow(() -> new DeliveredCommandNotFoundException("Order not in DELIVERING state: " + orderId));
 
-                customerEventDto.setCustomerIdEvent(existingDelivered.getCustomerId());
-                customerEventDto.setName(existingDelivered.getCustomerName());
-                customerEventDto.setEmail(existingDelivered.getCustomerMail());
+        // Mise à jour de l’état
+        existingDelivered.setStatus(EventStatus.DELIVERED.name());
+        existingDelivered.setDetails("Order is delivered");
+        existingDelivered.setEventTimeStamp(LocalDateTime.now());
+        deliveredCommandRepository.save(existingDelivered);
 
-                orderEventDto.setStatus(EventStatus.DELIVERED.name());
-                orderEventDto.setId(existingDelivered.getOrderId());
-                orderEventDto.setPaymentId(existingDelivered.getPaymentId());
-                orderEventDto.setCustomerEventDto(customerEventDto);
+        // Construction de l’événement à envoyer
+        OrderEventDto event = new OrderEventDto();
+        event.setId(existingDelivered.getOrderId());
+        event.setStatus(EventStatus.DELIVERED.name());
 
-                deliveredCommandProducer.sendMessage(orderEventDto);
+        CustomerEventDto customer = new CustomerEventDto();
+        customer.setCustomerIdEvent(existingDelivered.getCustomerId());
+        customer.setName(existingDelivered.getCustomerName());
+        customer.setEmail(existingDelivered.getCustomerMail());
 
-        	//}
-            
-        //}
+        event.setCustomerEventDto(customer);
+
+        deliveredCommandProducer.sendMessage(event);
     }
     
     public boolean isOrderAlreadyProcessed(String paymentId) {
@@ -78,5 +77,8 @@ public class DeliveredCommandService {
         
         return !events.isEmpty(); // Retourne true si la commande est déjà traitée
     }
-    
+
+    public boolean existsByOrderIdAndStatus(String orderId, String status) {
+        return  deliveredCommandRepository.existsByOrderIdAndStatus(orderId, status);
+    }
 }

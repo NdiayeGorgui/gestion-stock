@@ -1,8 +1,8 @@
 
 package com.gogo.order_service.kafka;
 
-import com.gogo.base_domaine_service.event.ProductEvent;
 import com.gogo.base_domaine_service.event.OrderEventDto;
+import com.gogo.base_domaine_service.event.ProductEvent;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

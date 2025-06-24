@@ -118,8 +118,8 @@ public class ProductService {
 
     }
 
-    public void updateProduct(String productIdEvent, String status, String name,String category, int qty, double price, String qtyStatus ){
-        productRepository.updateProduct(productIdEvent, status, name,category, qty, price, qtyStatus);
+    public void updateProduct(String productIdEvent, String status, String name,String category, String description,String location, int qty, double price, String qtyStatus ){
+        productRepository.updateProduct(productIdEvent, status, name,category, description, location, qty, price, qtyStatus);
 
     }
     public void updateProductQty(String productIdEvent, int qty ){

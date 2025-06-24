@@ -35,4 +35,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     	       "LIMIT 10")
     	List<Object[]> findTop10CustomersByOrderCount();
 
+    List<Order> findByOrderStatus(String status);
+
+    List<Order> findByCustomerIdEventAndOrderStatus(String customerIdEvent, String status);
 }

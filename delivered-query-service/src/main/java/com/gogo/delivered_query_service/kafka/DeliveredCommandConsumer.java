@@ -12,86 +12,58 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
 
 @Service
 public class DeliveredCommandConsumer {
 
     @Autowired
     private DeliveredQueryService deliveredQueryService;
- 
-
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeliveredCommandConsumer.class);
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.delivered.name}"
-            , groupId = "${spring.kafka.consumer.group-id}"
+            topics = "${spring.kafka.topic.delivered.name}",
+            groupId = "${spring.kafka.consumer.group-id}"
     )
-    public void consumeProductStatus(OrderEventDto event) {
+    public void consumeDeliveredEvent(OrderEventDto event) {
 
-    	//save the event sourcing table with shipped status
+        String orderId = event.getId();
+        String paymentId = event.getPaymentId();
+        CustomerEventDto customer = event.getCustomerEventDto();
+
         if (event.getStatus().equalsIgnoreCase(EventStatus.DELIVERING.name())) {
-        	List<Delivered> deliveredList=deliveredQueryService.findByPaymentIdAndOrderIdAndStatus(event.getPaymentId(),event.getId(),EventStatus.DELIVERING.name());
-              if(deliveredList.isEmpty()) {
-            	  Delivered delivered=new Delivered();
-                  delivered.setOrderId(event.getId());
-                  delivered.setPaymentId(event.getPaymentId());
-                  delivered.setCustomerId(event.getCustomerEventDto().getCustomerIdEvent());
-                  delivered.setCustomerName(event.getCustomerEventDto().getName());
-                  delivered.setCustomerMail(event.getCustomerEventDto().getEmail());
-                  delivered.setStatus(EventStatus.DELIVERING.name());
-                  delivered.setEventTimeStamp(LocalDateTime.now());
-                  delivered.setDetails("Order is in delivering status");
-                  deliveredQueryService.saveDeliveredQuery(delivered);
-              }
-           // Vérifier si cette commande est déjà  délivrée
-              boolean isAlreadyProcessed = deliveredQueryService.isOrderAlreadyProcessed(event.getPaymentId(),event.getId());
-              for (Delivered orderDelivered:deliveredList){
-            	
-                  if (!isAlreadyProcessed) {
-                	  orderDelivered.setOrderId(event.getId());
-                	  orderDelivered.setPaymentId(event.getPaymentId());
-                	  orderDelivered.setCustomerId(event.getCustomerEventDto().getCustomerIdEvent());
-                	  orderDelivered.setCustomerName(event.getCustomerEventDto().getName());
-                	  orderDelivered.setCustomerMail(event.getCustomerEventDto().getEmail());
-                	  orderDelivered.setStatus(EventStatus.DELIVERING.name());
-                	  orderDelivered.setEventTimeStamp(LocalDateTime.now());
-                	  orderDelivered.setDetails("Order is in delivering status");
-                	  deliveredQueryService.saveDeliveredQuery(orderDelivered);
-                  }
-            	 
-              }
-               
 
-            LOGGER.info("Oder event received in Delivered command service with delivering status => {}", event);
+            boolean alreadyDelivering = deliveredQueryService.existsByOrderIdAndStatus(orderId, EventStatus.DELIVERING.name());
+            boolean alreadyDelivered = deliveredQueryService.existsByOrderIdAndStatus(orderId, EventStatus.DELIVERED.name());
 
-        }
-    
 
-        if (event.getStatus().equalsIgnoreCase(EventStatus.DELIVERED.name())) {
+                Delivered delivered = new Delivered();
+                delivered.setOrderId(orderId);
+                delivered.setPaymentId(paymentId);
+                delivered.setCustomerId(customer.getCustomerIdEvent());
+                delivered.setCustomerName(customer.getName());
+                delivered.setCustomerMail(customer.getEmail());
+                delivered.setStatus(EventStatus.DELIVERING.name());
+                delivered.setEventTimeStamp(LocalDateTime.now());
+                delivered.setDetails("Order is in delivering status");
 
-        	Delivered existingDelivered=deliveredQueryService.findByCustomerIdAndOrderIdAndStatus(event.getCustomerEventDto().getCustomerIdEvent(),event.getId(), EventStatus.DELIVERING.name());
-    		OrderEventDto orderEventDto=new OrderEventDto();
-            CustomerEventDto customerEventDto=new CustomerEventDto();
+                deliveredQueryService.saveDeliveredQuery(delivered);
+                LOGGER.info("✅ Order marked as DELIVERING in Delivered Query Service => {}", orderId);
 
-            existingDelivered.setStatus(EventStatus.DELIVERED.name());
-            existingDelivered.setDetails("Order is delivered");
-            deliveredQueryService.saveDeliveredQuery(existingDelivered);
 
-            customerEventDto.setCustomerIdEvent(existingDelivered.getCustomerId());
-            customerEventDto.setName(existingDelivered.getCustomerName());
-            customerEventDto.setEmail(existingDelivered.getCustomerMail());
+        } else if (event.getStatus().equalsIgnoreCase(EventStatus.DELIVERED.name())) {
 
-            orderEventDto.setStatus(EventStatus.DELIVERED.name());
-            orderEventDto.setId(existingDelivered.getOrderId());
-            orderEventDto.setPaymentId(existingDelivered.getPaymentId());
-            orderEventDto.setCustomerEventDto(customerEventDto);
+            Delivered existing = deliveredQueryService
+                    .findByOrderIdAndStatus(orderId, EventStatus.DELIVERING.name())
+                    .orElseThrow(() -> new RuntimeException("No delivering order found for id: " + orderId));
 
-            LOGGER.info("Oder event received in Delivered command service with delivering status => {}", event);
+            existing.setStatus(EventStatus.DELIVERED.name());
+            existing.setDetails("Order is delivered");
+            existing.setEventTimeStamp(LocalDateTime.now());
+            // On garde paymentId déjà existant dans l’objet
+            deliveredQueryService.saveDeliveredQuery(existing);
 
+            LOGGER.info("✅ Order marked as DELIVERED in Delivered Query Service => {}", orderId);
         }
     }
 }
-

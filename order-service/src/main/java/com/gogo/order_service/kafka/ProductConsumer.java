@@ -1,8 +1,8 @@
 package com.gogo.order_service.kafka;
 
 import com.gogo.base_domaine_service.event.EventStatus;
-import com.gogo.base_domaine_service.event.ProductEvent;
 import com.gogo.base_domaine_service.event.OrderEventDto;
+import com.gogo.base_domaine_service.event.ProductEvent;
 import com.gogo.base_domaine_service.event.ProductEventDto;
 import com.gogo.order_service.mapper.OrderMapper;
 import com.gogo.order_service.model.Product;
@@ -74,7 +74,7 @@ public class ProductConsumer {
 
             boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name());
             if (productExist) {
-                productRepository.updateProduct(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name(), event.getProduct().getName(),event.getProduct().getCategory(), event.getProduct().getQty(), event.getProduct().getPrice(),event.getProduct().getQtyStatus());
+                productRepository.updateProduct(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name(), event.getProduct().getName(),event.getProduct().getCategory(),event.getProduct().getDescription(),event.getProduct().getLocation(), event.getProduct().getQty(), event.getProduct().getPrice(),event.getProduct().getQtyStatus());
                 ProductEventDto productEventDto=OrderMapper.mapToProductEventDto(event);
 
                 orderEventDto.setStatus(EventStatus.UPDATED.name());
@@ -84,14 +84,10 @@ public class ProductConsumer {
                 productProducer.sendMessage(orderEventDto);
             }
         }
-        if(event.getStatus().equalsIgnoreCase(EventStatus.UNAVAILABLE.name())||event.getStatus().equalsIgnoreCase(EventStatus.LOW.name())){
+        if(event.getStatus().equalsIgnoreCase(EventStatus.UNAVAILABLE.name())){
             Product product=orderService.findProductById(event.getProduct().getProductIdEvent());
             if(product.getQty()==0){
                 product.setQtyStatus(EventStatus.UNAVAILABLE.name());
-                productRepository.updateProductQtyStatus(product.getProductIdEvent(),product.getQtyStatus());
-            }
-            if(product.getQty()<10){
-                product.setQtyStatus(EventStatus.LOW.name());
                 productRepository.updateProductQtyStatus(product.getProductIdEvent(),product.getQtyStatus());
             }
         }
