@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductItemEventDto {
     private String productIdEvent;
+    private String productName;
     private String productItemStatus;
     private int qty;
     private double price;

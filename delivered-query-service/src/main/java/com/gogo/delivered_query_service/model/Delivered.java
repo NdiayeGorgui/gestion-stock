@@ -24,4 +24,6 @@ public class Delivered {
     private String status;
     private String details;
     private LocalDateTime eventTimeStamp;
+
+
 }

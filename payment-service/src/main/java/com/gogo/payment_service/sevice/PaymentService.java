@@ -1,23 +1,25 @@
 package com.gogo.payment_service.sevice;
 
 
-import com.gogo.base_domaine_service.dto.*;
-
-import com.gogo.base_domaine_service.event.*;
-
+import com.gogo.base_domaine_service.dto.Payment;
+import com.gogo.base_domaine_service.event.CustomerEventDto;
+import com.gogo.base_domaine_service.event.EventStatus;
+import com.gogo.base_domaine_service.event.OrderEventDto;
+import com.gogo.base_domaine_service.event.ProductItemEventDto;
+import com.gogo.payment_service.dto.PaymentResponseDto;
 import com.gogo.payment_service.kafka.PaymentProducer;
 import com.gogo.payment_service.mapper.PaymentMapper;
 import com.gogo.payment_service.model.Bill;
 import com.gogo.payment_service.model.PaymentModel;
 import com.gogo.payment_service.repository.BillRepository;
 import com.gogo.payment_service.repository.PaymentRepository;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +30,7 @@ public class PaymentService {
     private BillRepository billRepository;
     @Autowired
     private PaymentProducer paymentProducer;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaymentService.class);
 
     public Bill getBill(String customerId, String status) {
         return billRepository.findByCustomerIdEventAndStatus(customerId, status)
@@ -45,40 +48,74 @@ public class PaymentService {
         billRepository.save(bill);
     }
 
-    public void saveAndSendPayment(Payment payment){
+    public void saveAndSendPayment(Payment payment) {
+        String orderId = payment.getOrderId();
 
-        OrderEventDto orderEventDto=new OrderEventDto();
+        // ✅ 1. Vérifier si un paiement a déjà été effectué
+        if (paymentRepository.existsByOrderId(orderId)) {
+            LOGGER.warn("⚠️ Payment already exists for order: {}", orderId);
+            throw new IllegalStateException("⚠️ Payment already exists for order: " + orderId);
+        }
 
-        double amount= this.getAmount(payment.getCustomerIdEvent(), EventStatus.CREATED.name());
-        double discount=this.getDiscount(payment.getCustomerIdEvent(),EventStatus.CREATED.name());
-        double ttc=amount*1.2; // la taxe est de 20%
+        List<Bill> bills = billRepository.findByOrderRef(orderId);
+        if (bills == null || bills.isEmpty()) {
+            LOGGER.error("❌ No bills found for order: {}", orderId);
+            throw new RuntimeException("No bills found for order: " + orderId);
+        }
 
-        PaymentModel savedPayment= PaymentMapper.mapToPaymentModel(payment,ttc,discount);
+        // 🔢 Calculs
+        double subtotal = bills.stream()
+                .mapToDouble(b -> b.getPrice() * b.getQuantity())
+                .sum();
+        double discount = bills.stream()
+                .mapToDouble(Bill::getDiscount)
+                .sum();
+        double ttc = subtotal * 1.2; // TVA 20%
 
-        Bill billCreated = this.getBill(payment.getCustomerIdEvent(), EventStatus.CREATED.name());
-        String customerNameCreated= billCreated.getCustomerName();
-        String customerMailCreated=billCreated.getCustomerMail();
-        savedPayment.setCustomerName(customerNameCreated);
-        savedPayment.setCustomerMail(customerMailCreated);
-        savedPayment.setOrderId(billCreated.getOrderId());
+        // ✅ Sauvegarder le paiement
+        Bill firstBill = bills.get(0);
+        PaymentModel savedPayment = PaymentMapper.mapToPaymentModel(payment, ttc, discount);
+        savedPayment.setCustomerIdEvent(firstBill.getCustomerIdEvent());
+        savedPayment.setCustomerName(firstBill.getCustomerName());
+        savedPayment.setCustomerMail(firstBill.getCustomerMail());
+        savedPayment.setOrderId(orderId);
 
         this.savePayment(savedPayment);
 
-        billRepository.updateAllBillCustomerStatus(savedPayment.getCustomerIdEvent(),EventStatus.COMPLETED.name());
 
-  
-        CustomerEventDto customerEventDto=new CustomerEventDto();
-        customerEventDto.setCustomerIdEvent(payment.getCustomerIdEvent());
-        customerEventDto.setName(customerNameCreated);
-        customerEventDto.setEmail(customerMailCreated);
+        // ✅ Mettre à jour les factures
+        billRepository.updateAllBillOrderStatus(orderId, EventStatus.COMPLETED.name());
 
+        // ✅ Construire l’événement
+        CustomerEventDto customerEventDto = new CustomerEventDto(
+                firstBill.getCustomerIdEvent(),
+                null,
+                firstBill.getCustomerName(),
+                null,
+                firstBill.getCustomerMail(),
+                null,
+                null,
+                null
+        );
+
+        List<ProductItemEventDto> productItemEventDtos = bills.stream().map(bill -> {
+            ProductItemEventDto dto = new ProductItemEventDto();
+            dto.setProductIdEvent(bill.getProductIdEvent());
+            dto.setProductName(bill.getProductName());
+            dto.setQty(bill.getQuantity());
+            dto.setPrice(bill.getPrice());
+            dto.setDiscount(bill.getDiscount());
+            return dto;
+        }).toList();
+
+        OrderEventDto orderEventDto = new OrderEventDto();
         orderEventDto.setCustomerEventDto(customerEventDto);
         orderEventDto.setStatus(savedPayment.getPaymentStatus());
-
-        orderEventDto.setPaymentId(billCreated.getOrderId());
-
+        orderEventDto.setPaymentId(savedPayment.getPaymentIdEvent());
+        orderEventDto.setId(orderId);
+        orderEventDto.setProductItemEventDtos(productItemEventDtos);
+        LOGGER.info("📤 Sending event to Kafka: {}", orderEventDto);
         paymentProducer.sendMessage(orderEventDto);
-
     }
 
     public void cancelAndSendOrder(Payment payment){
@@ -136,7 +173,7 @@ public class PaymentService {
     }
 
     public Bill findByOrderIdEvent(String orderIdEvent){
-        return billRepository.findByOrderRef(orderIdEvent);
+        return billRepository.findBillByOrderRef(orderIdEvent);
     }
 
     public List<Bill> findByCustomer(String customerIdEvent){
@@ -150,10 +187,47 @@ public class PaymentService {
         return paymentRepository.findAll();
     }
 
+    public List<PaymentResponseDto> getAllPaymentsWithProducts() {
+        List<PaymentModel> payments = paymentRepository.findAll();
+        List<PaymentResponseDto> result = new ArrayList<>();
+
+        for (PaymentModel payment : payments) {
+            List<Bill> bills = billRepository.findByOrderRef(payment.getOrderId());
+            PaymentResponseDto dto = PaymentMapper.mapToPaymentResponseDto(payment, bills);
+            result.add(dto);
+        }
+
+        return result;
+    }
+
+
     public PaymentModel findPaymentById(String paymentIdEvent){
-        return paymentRepository.findByPaymentIdEvent(paymentIdEvent);
+        return paymentRepository.findByPaymentIdEvent(paymentIdEvent)
+                .orElseThrow(() -> new RuntimeException("Payment not found for ID: " + paymentIdEvent));
     }
     public  List<Bill> getBills(){
        return billRepository.findAll();
     }
+
+    public Bill findByOrderIdAndProductIdEvent(String orderRef, String productIdEvent) {
+        return billRepository.findByOrderRefAndProductIdEvent(orderRef,productIdEvent);
+    }
+
+    public PaymentResponseDto findPaymentWithDetails(String orderId) {
+        PaymentModel payment = paymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("Payment not found for ID: " + orderId));
+
+        List<Bill> bills = billRepository.findByOrderRef(payment.getOrderId());
+
+        return PaymentMapper.mapToPaymentResponseDto(payment, bills);
+    }
+
+    private double calculateDiscount(int qty, double price) {
+        double total = qty * price;
+        if (total < 100) return 0;
+        else if (total < 200) return 0.005 * total;
+        else return 0.01 * total;
+    }
+
+
 }

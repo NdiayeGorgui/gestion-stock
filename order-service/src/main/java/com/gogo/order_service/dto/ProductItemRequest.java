@@ -1,0 +1,14 @@
+package com.gogo.order_service.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductItemRequest {
+    private String productIdEvent;
+    private int productQty;
+    private int price;
+}

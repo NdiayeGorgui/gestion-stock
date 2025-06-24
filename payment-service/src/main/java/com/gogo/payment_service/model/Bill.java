@@ -23,7 +23,7 @@ public class Bill {
     private String customerPhone;
     private String customerMail;
     private String orderRef;
-    private String orderId;
+   // private String orderId;
     private String productIdEvent;
     private String productName;
     private int quantity;

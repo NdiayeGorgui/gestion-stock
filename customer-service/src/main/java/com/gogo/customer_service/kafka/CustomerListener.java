@@ -30,11 +30,11 @@ public class CustomerListener {
             }
             if (orderEventDto.getStatus().equalsIgnoreCase(EventStatus.UPDATED.name())) {
 
-                customerService.updateCustomer(orderEventDto.getCustomerEventDto().getCustomerIdEvent(), EventStatus.CREATED.name(), orderEventDto.getCustomerEventDto().getName(), orderEventDto.getCustomerEventDto().getPhone(), orderEventDto.getCustomerEventDto().getEmail(), orderEventDto.getCustomerEventDto().getAddress());
+                customerService.updateCustomer(orderEventDto.getCustomerEventDto().getCustomerIdEvent(), EventStatus.CREATED.name(), orderEventDto.getCustomerEventDto().getName(), orderEventDto.getCustomerEventDto().getPhone(), orderEventDto.getCustomerEventDto().getEmail(), orderEventDto.getCustomerEventDto().getAddress(),orderEventDto.getCustomerEventDto().getCity(),orderEventDto.getCustomerEventDto().getPostalCode());
             }
             if (orderEventDto.getStatus().equalsIgnoreCase(EventStatus.FAILED.name())) {
 
-                customerService.updateCustomer(orderEventDto.getCustomerEventDto().getCustomerIdEvent(), EventStatus.FAILED.name(), orderEventDto.getCustomerEventDto().getName(), orderEventDto.getCustomerEventDto().getPhone(), orderEventDto.getCustomerEventDto().getEmail(), orderEventDto.getCustomerEventDto().getAddress());
+                customerService.updateCustomer(orderEventDto.getCustomerEventDto().getCustomerIdEvent(), EventStatus.FAILED.name(), orderEventDto.getCustomerEventDto().getName(), orderEventDto.getCustomerEventDto().getPhone(), orderEventDto.getCustomerEventDto().getEmail(), orderEventDto.getCustomerEventDto().getAddress(),orderEventDto.getCustomerEventDto().getCity(),orderEventDto.getCustomerEventDto().getPostalCode());
             }
         }
 

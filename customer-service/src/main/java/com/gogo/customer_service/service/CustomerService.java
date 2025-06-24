@@ -76,8 +76,8 @@ public class CustomerService {
         customerRepository.updateCustomerStatus(customerIdEvent, status);
 
     }
-    public void updateCustomer(String customerIdEvent, String status , String name, String phone, String email, String address){
-        customerRepository.updateCustomer(customerIdEvent, status, name, phone, email, address);
+    public void updateCustomer(String customerIdEvent, String status , String name, String phone, String email, String address, String city, String postalCode){
+        customerRepository.updateCustomer(customerIdEvent, status, name, phone, email, address,city,postalCode);
 
     }
     public void deleteCustomer(String customerIdEvent,String status ){

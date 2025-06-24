@@ -2,13 +2,17 @@ package com.gogo.notification_service.kafka;
 
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
+import com.gogo.notification_service.dto.OrderEventForNotificationDto;
+import com.gogo.notification_service.dto.ProductItemNotificationDto;
+import com.gogo.notification_service.mapper.NotificationMapper;
 import com.gogo.notification_service.model.Notification;
 import com.gogo.notification_service.repository.NotificationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class OrderConsumer {
@@ -24,62 +28,71 @@ public class OrderConsumer {
             groupId = "${spring.kafka.consumer.group-id}"
     )
     public void orderConsumer(OrderEventDto event) {
+        LOGGER.info("📩 Order event received in Notification service => {}", event);
 
-        int initialQty = event.getProductEventDto().getQty(); // Stock initial
-        int orderedQty = event.getProductItemEventDto().getQty(); // Quantité commandée
-        int remainingQty = initialQty - orderedQty;
+        if (!EventStatus.PENDING.name().equalsIgnoreCase(event.getStatus())) {
+            LOGGER.warn("Event is not in PENDING status, skipping.");
+            return;
+        }
 
-        String productName = event.getProductEventDto().getName();
-        String username = event.getUserName();
+        // ✅ Mapper vers ton DTO enrichi avec initialQty
+        OrderEventForNotificationDto mapped = NotificationMapper.mapToLocalOrderEvent(event);
+        List<ProductItemNotificationDto> items = mapped.getProductItemEventDtos();
 
-        if (event.getStatus().equalsIgnoreCase(EventStatus.PENDING.name())) {
+        if (items == null || items.isEmpty()) {
+            LOGGER.warn("No product items in event, skipping.");
+            return;
+        }
 
-            String baseKey = productName.toLowerCase().trim(); // Clé produit
+        for (ProductItemNotificationDto item : items) {
+            String productName = item.getProductName();
+            if (productName == null) {
+                LOGGER.warn("⚠️ Product name is null for item: {}, skipping stock logic.", item);
+                continue;
+            }
 
-            // === RUPTURE DE STOCK ===
-            if (remainingQty == 0) {
-                String msg = "Product '" + productName + "' is out of stock!";
+            String baseKey = productName.toLowerCase().trim();
+            int orderedQty = item.getQty();
+            int initialQty = item.getInitialQty();
+            int remainingQty = initialQty - orderedQty;
+
+            // === OUT OF STOCK ===
+            if (remainingQty <= 0) {
                 String uniqueKey = baseKey + "_outofstock";
-
-                boolean alreadyExists = notificationRepository
+                boolean exists = notificationRepository
                         .existsByProductKeyAndTypeAndArchivedIsFalseAndReadValueIsFalse(uniqueKey, "outofstock");
 
-                if (!alreadyExists) {
-                    Notification globalNotif = new Notification();
-                    globalNotif.setMessage(msg);
-                    globalNotif.setReadValue(false);
-                    globalNotif.setUsername("allusers");
-                    globalNotif.setArchived(false);
-                    globalNotif.setType("outofstock");
-                    globalNotif.setProductKey(uniqueKey); // ⚠️ champ supplémentaire recommandé
-                    notificationRepository.save(globalNotif);
+                if (!exists) {
+                    Notification notif = new Notification();
+                    notif.setMessage("Product '" + productName + "' is out of stock!");
+                    notif.setType("outofstock");
+                    notif.setProductKey(uniqueKey);
+                    notif.setReadValue(false);
+                    notif.setUsername("allusers");
+                    notif.setArchived(false);
+                    notificationRepository.save(notif);
+                    LOGGER.info("🔔 Out-of-stock notification saved: {}", uniqueKey);
                 }
             }
 
-            // === STOCK FAIBLE ===
+            // === LOW STOCK ===
             else if (remainingQty < 10) {
-                String msg = "Product '" + productName + "' stock is low (" + remainingQty + ")";
                 String uniqueKey = baseKey + "_lowstock";
-
-                boolean alreadyExists = notificationRepository
+                boolean exists = notificationRepository
                         .existsByProductKeyAndTypeAndArchivedIsFalseAndReadValueIsFalse(uniqueKey, "lowstock");
 
-                if (!alreadyExists) {
-                    Notification globalNotif = new Notification();
-                    globalNotif.setMessage(msg);
-                    globalNotif.setReadValue(false);
-                    globalNotif.setUsername("allusers");
-                    globalNotif.setArchived(false);
-                    globalNotif.setType("lowstock");
-                    globalNotif.setProductKey(uniqueKey); // ⚠️
-                    notificationRepository.save(globalNotif);
+                if (!exists) {
+                    Notification notif = new Notification();
+                    notif.setMessage("Product '" + productName + "' stock is low (" + remainingQty + ")");
+                    notif.setType("lowstock");
+                    notif.setProductKey(uniqueKey);
+                    notif.setReadValue(false);
+                    notif.setUsername("allusers");
+                    notif.setArchived(false);
+                    notificationRepository.save(notif);
+                    LOGGER.info("🔔 Low-stock notification saved: {}", uniqueKey);
                 }
             }
         }
-
-        LOGGER.info("Order event received in Notification service => {}", event);
     }
-
-
-
 }

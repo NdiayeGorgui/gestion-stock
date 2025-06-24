@@ -12,6 +12,8 @@ public class ProductEventDto {
     private String productStatus;
     private String name;
     private String category;
+    private String description;
+    private String location;
     private int qty;
     private double price;
     private String qtyStatus;

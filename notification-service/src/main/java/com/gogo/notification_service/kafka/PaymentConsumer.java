@@ -31,19 +31,19 @@ public class PaymentConsumer {
                 MimeMessageHelper messageHelper=new MimeMessageHelper(mimeMessage);
                 messageHelper.setFrom("noreply@trocady.com");
                 messageHelper.setTo(event.getCustomerEventDto().getEmail());
-                messageHelper.setSubject(String.format("Order Payment Notification with number %s",event.getPaymentId()));
+                messageHelper.setSubject(String.format("Order Payment Notification with number %s",event.getId()));
                 messageHelper.setText(String.format("""
                      ==========================================================
                      Order Completed notification
                      ==========================================================
                      
                      Hi %s,
-                     your order with payment number %s has been completed successfully !.
+                     your order with order number %s has been completed successfully !.
                      Best regards !
                      
                      Trocady Solution Inc Team.
                        \s""",
-                        event.getCustomerEventDto().getName() ,event.getPaymentId()));
+                        event.getCustomerEventDto().getName() ,event.getId()));
             };
 
             try{

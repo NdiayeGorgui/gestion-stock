@@ -1,8 +1,10 @@
 package com.gogo.shipping_service.controller;
 
+import com.gogo.base_domaine_service.event.EventStatus;
+import com.gogo.shipping_service.dto.ShipResponseDto;
+import com.gogo.shipping_service.exception.ShippingNotFoundException;
 import com.gogo.shipping_service.model.Ship;
 import com.gogo.shipping_service.service.ShippingService;
-import com.gogo.shipping_service.exception.ShippingNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:4300"})
+
 @RestController
 @RequestMapping("/api/v1")
 public class ShippingController {
@@ -29,16 +31,21 @@ public class ShippingController {
             description = "Http status 200")
 
     @PostMapping("/ships")
-    public ResponseEntity<Map<String, String>> saveAndSendShip(@RequestBody  Ship ship) throws ShippingNotFoundException {
-        List<Ship> customerShips=shippingService.findByCustomer(ship.getCustomerId());
-         if(customerShips.isEmpty()){
-            throw new ShippingNotFoundException("Customer not available with id: "+ship.getCustomerId());
+    public ResponseEntity<Map<String, String>> saveAndSendShip(@RequestBody Ship ship) throws ShippingNotFoundException {
+        Ship existingShip = shippingService.findByOrderIdAndStatus(ship.getOrderId(), EventStatus.SHIPPING.name());
+
+        if (existingShip == null) {
+            throw new ShippingNotFoundException("Shipping not found for order: " + ship.getOrderId());
         }
+
         shippingService.saveAndSendShip(ship);
+
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Ship sent successfully");
+        response.put("message", "📦 Shipping sent successfully");
         return ResponseEntity.ok(response);
     }
+
+
 
 
     @Operation(
@@ -47,20 +54,22 @@ public class ShippingController {
     @ApiResponse(responseCode = "200",
             description = "Http status 200 ")
     @GetMapping("/ships")
-    public List<Ship> getAllShips(){
-        return shippingService.findAllShips();
+    public List<ShipResponseDto> getAllShips(){
+        return shippingService.getAllShipsWithProducts();
     }
 
-   
-    
+
     @Operation(
             summary = "get Ship REST API",
             description = "get Ship by orderId REST API from Ship object")
     @ApiResponse(responseCode = "200",
             description = "Http status 200 ")
     @GetMapping("/ships/{orderId}")
-    public Ship getShipsByOrder(@PathVariable("orderId") String orderId){
-        return shippingService.findByOrderId(orderId);
+    public ShipResponseDto getShip(@PathVariable("orderId") String orderId){
+        return shippingService.findShipWithDetails(orderId);
     }
+  /*  public Ship getShipsByOrder(@PathVariable("orderId") String orderId){
+        return shippingService.findByOrderId(orderId);
+    }*/
 
 }

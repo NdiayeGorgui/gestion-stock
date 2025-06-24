@@ -13,6 +13,8 @@ public class Customer {
     @NotBlank
     private String name;
     private String address;
+    private String city;
+    private String postalCode;
     private String phone;
     @Email(message = "L'adresse Email saisie est invalide")
     private String email;

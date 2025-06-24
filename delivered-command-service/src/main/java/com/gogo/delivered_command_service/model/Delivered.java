@@ -1,7 +1,6 @@
 package com.gogo.delivered_command_service.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -25,4 +24,5 @@ public class Delivered {
     private String status;
     private String details;
     private LocalDateTime eventTimeStamp;
+
 }

@@ -15,6 +15,8 @@ public class Product {
     private  String productIdEvent;
     @NotBlank
     private String name;
+    private String description;
+    private String location;
     private String category;
     @Min(1)
     private int qty;

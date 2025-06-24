@@ -3,6 +3,7 @@ package com.gogo.inventory_service.mapper;
 
 import com.gogo.base_domaine_service.dto.Product;
 import com.gogo.base_domaine_service.event.EventStatus;
+import com.gogo.inventory_service.dto.ProductNumberGenerator;
 import com.gogo.inventory_service.model.ProductModel;
 
 import java.time.LocalDateTime;
@@ -13,11 +14,14 @@ public class ProductMapper {
 
 
     public static ProductModel mapToProductModel(Product product) {
+        String productId = ProductNumberGenerator.generateProductNumber();
         return new ProductModel(
                 null,
-                UUID.randomUUID().toString(),
+                productId,
                 product.getName(),
                 product.getCategory(),
+                product.getDescription(),
+                product.getLocation(),
                 product.getQty(),
                 product.getPrice(),
                 EventStatus.PENDING.name(),
@@ -33,6 +37,8 @@ public class ProductMapper {
                 productModel.getProductIdEvent(),
                 productModel.getName(),
                 productModel.getCategory(),
+                productModel.getDescription(),
+                productModel.getLocation(),
                 productModel.getQty(),
                 productModel.getPrice(),
                 productModel.getQtyStatus()

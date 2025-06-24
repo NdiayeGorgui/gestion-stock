@@ -1,9 +1,9 @@
 package com.gogo.payment_service.controller;
 
 import com.gogo.base_domaine_service.dto.Payment;
-import com.gogo.payment_service.exception.PaymentNotFoundException;
+import com.gogo.payment_service.dto.PaymentResponseDto;
+import com.gogo.payment_service.dto.SimplePaymentRequest;
 import com.gogo.payment_service.model.Bill;
-import com.gogo.payment_service.model.PaymentModel;
 import com.gogo.payment_service.sevice.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 
-//@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:4300"})
+
 @RestController
 @RequestMapping("/api/v1")
 public class PaymentController {
@@ -31,16 +31,23 @@ public class PaymentController {
             description = "Http status 200")
 
     @PostMapping("/payments")
-    public  ResponseEntity<Map<String, String>> saveAndSendPayment(@RequestBody @Valid Payment payment) throws PaymentNotFoundException {
-        List<Bill> customerBills=paymentService.findByCustomer(payment.getCustomerIdEvent());
-        if(customerBills.isEmpty()){
-            throw new PaymentNotFoundException("Customer not available with id: "+payment.getCustomerIdEvent());
+    public ResponseEntity<Map<String, String>> processSimplePayment(@RequestBody @Valid SimplePaymentRequest request) {
+        if (request.getOrderId() == null || request.getOrderId().isBlank()) {
+            throw new IllegalArgumentException("orderId must not be null or blank");
         }
+
+        Payment payment = new Payment();
+        payment.setOrderId(request.getOrderId());
+        payment.setPaymentMode(request.getPaymentMode());
+
         paymentService.saveAndSendPayment(payment);
+
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Payment sent successfully");
+        response.put("message", "Payment processed for order: " + request.getOrderId());
+
         return ResponseEntity.ok(response);
     }
+
 
     @Operation(
             summary = "get Payments REST API",
@@ -49,8 +56,8 @@ public class PaymentController {
             description = "Http status 200 ")
 
     @GetMapping("/payments")
-    public List<PaymentModel> getAllPayments(){
-        return paymentService.findAllPayments();
+    public List<PaymentResponseDto> getAllPayments(){
+        return paymentService.getAllPaymentsWithProducts();
     }
 
     @Operation(
@@ -59,9 +66,9 @@ public class PaymentController {
     @ApiResponse(responseCode = "200",
             description = "Http status 200 ")
 
-    @GetMapping("/payments/{paymentIdEvent}")
-    public PaymentModel getPayment(@PathVariable("paymentIdEvent") String paymentIdEvent){
-        return paymentService.findPaymentById(paymentIdEvent);
+    @GetMapping("/payments/{orderRef}")
+    public PaymentResponseDto getPayment(@PathVariable("orderRef") String orderRef){
+        return paymentService.findPaymentWithDetails(orderRef);
     }
 
     @Operation(

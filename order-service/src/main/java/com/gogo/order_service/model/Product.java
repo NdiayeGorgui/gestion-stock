@@ -22,6 +22,8 @@ public class Product {
     private String productIdEvent;
     private String name;
     private String category;
+    private String description;
+    private String location;
     private int qty;
     private  double price;
     private String status;

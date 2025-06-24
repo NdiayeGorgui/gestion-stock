@@ -1,13 +1,13 @@
 package com.gogo.notification_service.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.gogo.notification_service.dto.NotificationDto;
 import com.gogo.notification_service.mapper.NotificationMapper;
 import com.gogo.notification_service.model.Notification;
 import com.gogo.notification_service.model.UserNotificationRead;
 import com.gogo.notification_service.repository.NotificationRepository;
 import com.gogo.notification_service.repository.UserNotificationReadRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.EnableScheduling;

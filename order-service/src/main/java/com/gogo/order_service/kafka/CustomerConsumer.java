@@ -1,9 +1,9 @@
 package com.gogo.order_service.kafka;
 
 import com.gogo.base_domaine_service.event.CustomerEvent;
+import com.gogo.base_domaine_service.event.CustomerEventDto;
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
-import com.gogo.base_domaine_service.event.CustomerEventDto;
 import com.gogo.order_service.mapper.OrderMapper;
 import com.gogo.order_service.model.Customer;
 import com.gogo.order_service.repository.CustomerRepository;
@@ -84,7 +84,7 @@ public class CustomerConsumer {
             boolean customerExist = customerRepository.existsByCustomerIdEventAndStatus(event.getCustomer().getCustomerIdEvent(), EventStatus.CREATED.name());
             if (customerExist) {
                // Customer customer = customerRepository.findCustomerByCustomerIdEvent(event.getCustomer().getId());
-                customerRepository.updateCustomer(event.getCustomer().getCustomerIdEvent(),EventStatus.CREATED.name(),event.getCustomer().getName(),event.getCustomer().getPhone(),event.getCustomer().getEmail(),event.getCustomer().getAddress());
+                customerRepository.updateCustomer(event.getCustomer().getCustomerIdEvent(),EventStatus.CREATED.name(),event.getCustomer().getName(),event.getCustomer().getPhone(),event.getCustomer().getEmail(),event.getCustomer().getAddress(),event.getCustomer().getCity(),event.getCustomer().getPostalCode());
                 CustomerEventDto customerEventDto=OrderMapper.mapToCustomerEventDto(event);
 
                 orderEventDto.setStatus(EventStatus.UPDATED.name());
