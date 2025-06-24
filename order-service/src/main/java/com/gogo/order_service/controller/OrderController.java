@@ -124,11 +124,13 @@ public class OrderController {
     }
 
 
-    @GetMapping("/orders/status/{status}")
+   @GetMapping("/orders/status/{status}")
     public List<OrderResponseDto> getOrdersByStatus(@PathVariable("status") String status) {
         orderService.getCustomerAndProduct(); // <- Optionnel si tu veux aussi enrichir les clients
-        return orderService.getOrdersByStatus(status);
+        return orderService.getOrdersWithDetailsByStatus(status);
     }
+
+
 
 
     @Operation(

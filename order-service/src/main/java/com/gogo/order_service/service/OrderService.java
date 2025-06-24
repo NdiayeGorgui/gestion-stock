@@ -854,5 +854,95 @@ public class OrderService {
     }
 
 
+    public List<OrderResponseDto> getOrdersWithDetailsByStatus(String status) {
+        List<Order> orders = orderRepository.findAll()
+                .stream()
+                .filter(order -> order.getOrderStatus().equalsIgnoreCase(status))
+                .collect(Collectors.toList());
+
+        List<Customer> customers = customerRepository.findAll();
+        List<ProductItem> productItems = productItemRepository.findAll();
+        List<Product> products = productRepository.findAll();
+
+        // Créer les maps
+        Map<String, Customer> customerMap = customers.stream()
+                .collect(Collectors.toMap(Customer::getCustomerIdEvent, c -> c));
+
+        Map<String, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getProductIdEvent, p -> p));
+
+        // Associer les clients
+        orders.forEach(order -> order.setCustomer(customerMap.get(order.getCustomerIdEvent())));
+
+        // Préparer la réponse
+        List<OrderResponseDto> responseList = new ArrayList<>();
+
+        for (Order order : orders) {
+            OrderResponseDto dto = new OrderResponseDto();
+            dto.setOrderId(order.getOrderIdEvent());
+
+            Customer customer = order.getCustomer();
+            if (customer != null) {
+                dto.setCustomerName(customer.getName());
+                dto.setCustomerEmail(customer.getEmail());
+            }
+
+            List<ProductItemResponseDto> itemDtos = productItems.stream()
+                    .filter(item -> item.getOrder().getOrderIdEvent().equals(order.getOrderIdEvent()))
+                    .map(item -> {
+                        ProductItemResponseDto itemDto = new ProductItemResponseDto();
+                        itemDto.setProductId(item.getProductIdEvent());
+
+                        Product product = productMap.get(item.getProductIdEvent());
+                        if (product != null) {
+                            itemDto.setProductName(product.getName());
+                        }
+
+                        itemDto.setQuantity(item.getQuantity());
+                        itemDto.setPrice(item.getPrice());
+                        itemDto.setDiscount(item.getDiscount());
+
+                        double netCal = (item.getPrice() * item.getQuantity()) - item.getDiscount();
+                        double tax = Math.round(netCal * 0.20 * 100.0) / 100.0;
+                        itemDto.setTax(tax);
+
+                        return itemDto;
+                    })
+                    .collect(Collectors.toList());
+
+            double subtotal = itemDtos.stream()
+                    .mapToDouble(i -> i.getPrice() * i.getQuantity())
+                    .sum();
+            subtotal = Math.round(subtotal * 100.0) / 100.0;
+
+            double totalDiscount = itemDtos.stream()
+                    .mapToDouble(i -> {
+                        double total = i.getPrice() * i.getQuantity();
+                        if (total < 100) return 0;
+                        else if (total < 200) return 0.005 * total;
+                        else return 0.01 * total;
+                    })
+                    .sum();
+            totalDiscount = Math.round(totalDiscount * 100.0) / 100.0;
+
+            double totalTax = (subtotal - totalDiscount) * 0.20;
+            totalTax = Math.round(totalTax * 100.0) / 100.0;
+
+            double amount = (subtotal - totalDiscount) + totalTax;
+            amount = Math.round(amount * 100.0) / 100.0;
+
+            // Affecter les valeurs
+            dto.setItems(itemDtos);
+            dto.setTotalDiscount(totalDiscount);
+            dto.setTotalTax(totalTax);
+            dto.setAmount(amount);
+
+            responseList.add(dto);
+        }
+
+        return responseList;
+    }
+
+
 }
 
