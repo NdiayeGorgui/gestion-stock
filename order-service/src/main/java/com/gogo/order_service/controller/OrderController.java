@@ -130,6 +130,14 @@ public class OrderController {
         return orderService.getOrdersWithDetailsByStatus(status);
     }
 
+    @GetMapping("/orders/status/{status}/id/{orderId}")
+    public ResponseEntity<OrderResponseDto> getOrderByStatusAndId(@PathVariable("status") String status, @PathVariable("orderId") String orderId) {
+        OrderResponseDto dto = orderService.getOrderWithDetailsByStatusAndId(status, orderId);
+        if (dto == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(dto);
+    }
 
 
 

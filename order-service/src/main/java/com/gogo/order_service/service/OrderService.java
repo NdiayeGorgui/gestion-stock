@@ -944,5 +944,79 @@ public class OrderService {
     }
 
 
+    public OrderResponseDto getOrderWithDetailsByStatusAndId(String status, String orderId) {
+        Order order = orderRepository.findByOrderIdEvent(orderId);
+        if (order == null || !order.getOrderStatus().equalsIgnoreCase(status)) {
+            return null;
+        }
+
+        Customer customer = customerRepository.findByCustomerIdEvent(order.getCustomerIdEvent())
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        List<ProductItem> productItems = productItemRepository.findByOrder_OrderIdEvent(orderId);
+        List<Product> products = productRepository.findAll();
+
+        Map<String, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getProductIdEvent, p -> p));
+
+        OrderResponseDto dto = new OrderResponseDto();
+        dto.setOrderId(order.getOrderIdEvent());
+
+        if (customer != null) {
+            dto.setCustomerName(customer.getName());
+            dto.setCustomerEmail(customer.getEmail());
+        }
+
+        List<ProductItemResponseDto> itemDtos = productItems.stream()
+                .map(item -> {
+                    ProductItemResponseDto itemDto = new ProductItemResponseDto();
+                    itemDto.setProductId(item.getProductIdEvent());
+
+                    Product product = productMap.get(item.getProductIdEvent());
+                    if (product != null) {
+                        itemDto.setProductName(product.getName());
+                    }
+
+                    itemDto.setQuantity(item.getQuantity());
+                    itemDto.setPrice(item.getPrice());
+                    itemDto.setDiscount(item.getDiscount());
+
+                    double net = (item.getPrice() * item.getQuantity()) - item.getDiscount();
+                    double tax = Math.round(net * 0.20 * 100.0) / 100.0;
+                    itemDto.setTax(tax);
+
+                    return itemDto;
+                })
+                .collect(Collectors.toList());
+
+        double subtotal = itemDtos.stream()
+                .mapToDouble(i -> i.getPrice() * i.getQuantity())
+                .sum();
+        subtotal = Math.round(subtotal * 100.0) / 100.0;
+
+        double totalDiscount = itemDtos.stream()
+                .mapToDouble(i -> {
+                    double total = i.getPrice() * i.getQuantity();
+                    if (total < 100) return 0;
+                    else if (total < 200) return 0.005 * total;
+                    else return 0.01 * total;
+                })
+                .sum();
+        totalDiscount = Math.round(totalDiscount * 100.0) / 100.0;
+
+        double totalTax = (subtotal - totalDiscount) * 0.20;
+        totalTax = Math.round(totalTax * 100.0) / 100.0;
+
+        double amount = (subtotal - totalDiscount) + totalTax;
+        amount = Math.round(amount * 100.0) / 100.0;
+
+        dto.setItems(itemDtos);
+        dto.setTotalDiscount(totalDiscount);
+        dto.setTotalTax(totalTax);
+        dto.setAmount(amount);
+
+        return dto;
+    }
+
 }
 
