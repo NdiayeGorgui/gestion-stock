@@ -39,20 +39,29 @@ public class DeliveredCommandService {
         return deliveredCommandRepository.findByPaymentIdAndOrderIdAndStatus(paymentId,orderId,status);
     }
 
-    public void saveAndSendDeliveredCommand(String orderId) throws DeliveredCommandNotFoundException {
+    public void saveAndSendDeliveredCommand(Delivered delivered) {
+        // 🔍 Vérifie si déjà DELIVERED
+        boolean alreadyDelivered = deliveredCommandRepository.existsByOrderIdAndStatus(
+                delivered.getOrderId(),
+                EventStatus.DELIVERED.name()
+        );
 
-        // Cherche la commande en DELIVERING
+        if (alreadyDelivered) {
+            throw new IllegalStateException("⚠️ Order already delivered: " + delivered.getOrderId());
+        }
+
+        // 🔍 Vérifie s’il existe une entrée en DELIVERING
         Delivered existingDelivered = deliveredCommandRepository
-                .findByOrderIdAndStatus(orderId, EventStatus.DELIVERING.name())
-                .orElseThrow(() -> new DeliveredCommandNotFoundException("Order not in DELIVERING state: " + orderId));
+                .findByOrderIdAndStatus(delivered.getOrderId(), EventStatus.DELIVERING.name())
+                .orElseThrow(() -> new IllegalStateException("❌ No delivery record found in DELIVERING state for order: " + delivered.getOrderId()));
 
-        // Mise à jour de l’état
+        // 📝 Mise à jour
         existingDelivered.setStatus(EventStatus.DELIVERED.name());
         existingDelivered.setDetails("Order is delivered");
         existingDelivered.setEventTimeStamp(LocalDateTime.now());
         deliveredCommandRepository.save(existingDelivered);
 
-        // Construction de l’événement à envoyer
+        // 📦 Préparer l’événement
         OrderEventDto event = new OrderEventDto();
         event.setId(existingDelivered.getOrderId());
         event.setStatus(EventStatus.DELIVERED.name());
@@ -64,9 +73,12 @@ public class DeliveredCommandService {
 
         event.setCustomerEventDto(customer);
 
+        // 🚀 Envoyer à Kafka
         deliveredCommandProducer.sendMessage(event);
     }
-    
+
+
+
     public boolean isOrderAlreadyProcessed(String paymentId) {
         List<Delivered> events = deliveredCommandRepository.findByPaymentIdAndStatus(paymentId,EventStatus.DELIVERING.name());
         
@@ -80,5 +92,9 @@ public class DeliveredCommandService {
 
     public boolean existsByOrderIdAndStatus(String orderId, String status) {
         return  deliveredCommandRepository.existsByOrderIdAndStatus(orderId, status);
+    }
+
+    public Delivered findByOrderIdAndStatus(String orderId, String status) {
+        return deliveredCommandRepository.findByOrderIdAndStatus(orderId, status).orElse(null);
     }
 }
