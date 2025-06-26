@@ -12,13 +12,14 @@ public interface ProductItemRepository extends JpaRepository<ProductItem,Long> {
     List<ProductItem> findByOrderCustomerIdEventAndOrderOrderStatus(String id,String status);
     List<ProductItem> findByOrderOrderStatus(String status);
     ProductItem findByOrderIdEvent(String id);
-    
+
     @Query("SELECT pi.productIdEvent, SUM(pi.quantity) AS totalQuantite " +
             "FROM ProductItem pi " +
+            "JOIN pi.order o " +
+            "WHERE o.orderStatus = 'COMPLETED' " +
             "GROUP BY pi.productIdEvent " +
             "ORDER BY totalQuantite DESC")
-     List<Object[]> findMostOrderedProductIds();
-
+    List<Object[]> findMostOrderedProductIds();
 
     List<ProductItem> findByOrderOrderIdEvent(String orderIdEvent);
 
