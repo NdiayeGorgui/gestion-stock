@@ -27,30 +27,23 @@ public class OrderConsumerCancel {
         String username = event.getUserName();
         String orderId = event.getId();
 
-        // === ANNULATION DE COMMANDE — NOTIF SPÉCIFIQUE À L'UTILISATEUR ===
         if (EventStatus.CANCELED.name().equalsIgnoreCase(event.getStatus())) {
+            String msg = "Your order: " + orderId + " has been cancelled.";
 
-            if (event.getProductItemEventDtos() != null) {
-                for (ProductItemEventDto item : event.getProductItemEventDtos()) {
-                    String productName = item.getProductName();
+            Notification userNotif = new Notification();
+            userNotif.setMessage(msg);
+            userNotif.setReadValue(false);
+            userNotif.setUsername(username);
+            userNotif.setArchived(false);
+            userNotif.setType("user");
+            userNotif.setProductKey("order_" + orderId.toLowerCase() + "_canceled");
 
-                    String msg = "Your order of product '" + productName + "' (Order ID: " + orderId + ") has been cancelled.";
+            notificationRepository.save(userNotif);
 
-                    Notification userNotif = new Notification();
-                    userNotif.setMessage(msg);
-                    userNotif.setReadValue(false);
-                    userNotif.setUsername(username);
-                    userNotif.setArchived(false);
-                    userNotif.setType("user");
-                    userNotif.setProductKey(productName.toLowerCase().replaceAll(" ", "_") + "_canceled");
-
-                    notificationRepository.save(userNotif);
-                }
-            } else {
-                LOGGER.warn("⚠️ No product items found in canceled order: {}", orderId);
-            }
+            LOGGER.info("📩 Cancelled order notification saved for user: {}", username);
         }
 
         LOGGER.info("📩 Order event received in Notification service => {}", event);
     }
 }
+
