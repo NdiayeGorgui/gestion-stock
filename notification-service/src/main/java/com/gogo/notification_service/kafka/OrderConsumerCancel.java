@@ -28,7 +28,7 @@ public class OrderConsumerCancel {
         String orderId = event.getId();
 
         if (EventStatus.CANCELED.name().equalsIgnoreCase(event.getStatus())) {
-            String msg = "Your order: " + orderId + " has been cancelled.";
+            String msg = "Your order: " + orderId + " has been cancelled !";
 
             Notification userNotif = new Notification();
             userNotif.setMessage(msg);
