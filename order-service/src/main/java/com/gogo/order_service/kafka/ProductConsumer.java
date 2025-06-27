@@ -57,6 +57,8 @@ public class ProductConsumer {
             boolean productExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name());
             if (productExist) {
                 Product product = productRepository.findProductByProductIdEvent(event.getProduct().getProductIdEvent());
+                orderEventDto.getProductEventDto().setName(product.getName());
+                String name=product.getName();
                 productRepository.deleteProduct(product.getProductIdEvent());
                 //verifying if exists customer object
                 boolean productDeletedExist = productRepository.existsByProductIdEventAndStatus(event.getProduct().getProductIdEvent(), EventStatus.CREATED.name());
@@ -64,7 +66,7 @@ public class ProductConsumer {
                     ProductEventDto productEventDto=OrderMapper.mapToProductEventDto(event);
 
                     orderEventDto.setStatus(EventStatus.DELETED.name());
-                    orderEventDto.getProductEventDto().setName(product.getName());
+                    orderEventDto.getProductEventDto().setName(name);
                     orderEventDto.setProductEventDto(productEventDto);
                     LOGGER.info("Product Update event with deleted status sent to Inventory service => {}", orderEventDto);
                     productProducer.sendMessage(orderEventDto);
