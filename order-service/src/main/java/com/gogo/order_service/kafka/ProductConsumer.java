@@ -64,6 +64,7 @@ public class ProductConsumer {
                     ProductEventDto productEventDto=OrderMapper.mapToProductEventDto(event);
 
                     orderEventDto.setStatus(EventStatus.DELETED.name());
+                    orderEventDto.getProductEventDto().setName(product.getName());
                     orderEventDto.setProductEventDto(productEventDto);
                     LOGGER.info("Product Update event with deleted status sent to Inventory service => {}", orderEventDto);
                     productProducer.sendMessage(orderEventDto);
