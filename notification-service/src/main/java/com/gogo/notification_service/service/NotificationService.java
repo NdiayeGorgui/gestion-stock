@@ -112,11 +112,15 @@ public class NotificationService {
                 .map(r -> r.getNotification().getId())
                 .collect(Collectors.toSet());
 
-        // On fusionne les notifications utilisateur + toutes les globales non archivées
+        // On filtre les globales pour ne garder que celles que l'utilisateur n’a pas encore lues
+        List<Notification> unreadGlobalNotifs = globalNotifs.stream()
+                .filter(n -> !readGlobalNotifIds.contains(n.getId()))
+                .toList();
+
+        // On fusionne les notifications utilisateur + globales non lues
         List<Notification> all = new ArrayList<>();
         all.addAll(userNotifs);
-        all.addAll(globalNotifs);
-
+        all.addAll(unreadGlobalNotifs);
 
         return all.stream()
                 .map(NotificationMapper::fromEntity)
