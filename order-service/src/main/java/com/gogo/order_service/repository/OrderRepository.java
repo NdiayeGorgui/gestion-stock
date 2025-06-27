@@ -30,6 +30,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     
     @Query("SELECT o.customerIdEvent, COUNT(o.id) as orderCount " +
     	       "FROM Order o " +
+               "WHERE o.orderStatus = 'COMPLETED' " +
     	       "GROUP BY o.customerIdEvent " +
     	       "ORDER BY orderCount DESC " +
     	       "LIMIT 10")
