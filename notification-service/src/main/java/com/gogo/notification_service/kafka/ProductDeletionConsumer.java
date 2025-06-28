@@ -20,7 +20,7 @@ public class ProductDeletionConsumer {
 
     @KafkaListener(
             topics = "${spring.kafka.topic.order.name}",
-            groupId = "${spring.kafka.consumer.group-id}"
+            groupId = "${notification.kafka.group.deletion}"
     )
     public void onProductDeleted(OrderEventDto event) {
         LOGGER.info("🗑️ Product DELETED event received => {}", event);
