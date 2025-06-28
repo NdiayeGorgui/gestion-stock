@@ -2,7 +2,6 @@ package com.gogo.notification_service.kafka;
 
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
-import com.gogo.notification_service.model.Notification;
 import com.gogo.notification_service.repository.NotificationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,44 +23,29 @@ public class ProductDeletionConsumer {
             groupId = "${spring.kafka.consumer.group-id}"
     )
     public void onProductDeleted(OrderEventDto event) {
-        LOGGER.info("📩 Product DELETED event received in ProductDeletionConsumer => {}", event);
+        LOGGER.info("🗑️ Product DELETED event received => {}", event);
 
         if (!EventStatus.DELETED.name().equalsIgnoreCase(event.getStatus())) {
-            LOGGER.warn("⛔ Event is not in DELETED status. Skipping.");
+            LOGGER.warn("⛔ Skipping: status {} is not DELETED", event.getStatus());
             return;
         }
 
         if (event.getProductEventDto() == null) {
-            LOGGER.warn("🚫 No product found in event.");
+            LOGGER.warn("🚫 Skipping: productEventDto is null.");
             return;
         }
 
         String productName = event.getProductEventDto().getName();
         if (productName == null || productName.isBlank()) {
-            LOGGER.warn("⚠️ Product name is null or blank.");
+            LOGGER.warn("⚠️ Product name is empty or null.");
             return;
         }
 
-        String baseKey = productName.toLowerCase().trim() + "_deleted";
+        String baseKey = productName.toLowerCase().trim();
+        notificationRepository.archiveByProductKeyIn(
+                java.util.List.of(baseKey + "_lowstock", baseKey + "_outofstock", baseKey + "_restocked")
+        );
 
-        boolean alreadyNotified = notificationRepository
-                .existsByProductKeyAndTypeAndArchivedIsFalseAndReadValueIsFalse(baseKey, "deleted");
-
-        if (alreadyNotified) {
-            LOGGER.info("🔁 Notification for deleted product '{}' already exists. Skipping.", productName);
-            return;
-        }
-
-        Notification notif = new Notification();
-        notif.setMessage("Product '" + productName + "' has been removed from the catalog !");
-        notif.setType("deleted");
-        notif.setProductKey(baseKey);
-        notif.setReadValue(false);
-        notif.setUsername("allusers");
-        notif.setArchived(false);
-
-        notificationRepository.save(notif);
-        LOGGER.info("✅ Deleted product notification saved for '{}'", productName);
+        LOGGER.info("📦 Notifications liées au produit '{}' archivées avec succès", productName);
     }
 }
-
