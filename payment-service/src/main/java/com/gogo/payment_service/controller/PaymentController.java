@@ -31,7 +31,8 @@ public class PaymentController {
             description = "Http status 200")
 
     @PostMapping("/payments")
-    public ResponseEntity<Map<String, String>> processSimplePayment(@RequestBody @Valid SimplePaymentRequest request) {
+    public ResponseEntity<Map<String, String>> processSimplePayment(@RequestBody @Valid SimplePaymentRequest request,
+                                                                    @RequestHeader("X-Username") String username) {
         if (request.getOrderId() == null || request.getOrderId().isBlank()) {
             throw new IllegalArgumentException("orderId must not be null or blank");
         }
@@ -40,7 +41,7 @@ public class PaymentController {
         payment.setOrderId(request.getOrderId());
         payment.setPaymentMode(request.getPaymentMode());
 
-        paymentService.saveAndSendPayment(payment);
+        paymentService.saveAndSendPayment(payment,username);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Payment processed for order: " + request.getOrderId());
