@@ -55,7 +55,7 @@ public class ProductDeletionConsumer {
         // 2️⃣ Créer une notification globale
         Notification notification = Notification.builder()
                 .username("allusers") // 💡 Tous les utilisateurs verront ça
-                .message("Product '" + productName + "' has been deleted by admin.")
+                .message("Product '" + productName + "' has been deleted by the admin.")
                 .productKey(baseKey + "_deleted")
                 .type("deleted")
                 .readValue(false)
