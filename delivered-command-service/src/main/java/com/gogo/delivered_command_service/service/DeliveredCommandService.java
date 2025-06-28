@@ -39,7 +39,7 @@ public class DeliveredCommandService {
         return deliveredCommandRepository.findByPaymentIdAndOrderIdAndStatus(paymentId,orderId,status);
     }
 
-    public void saveAndSendDeliveredCommand(Delivered delivered) {
+    public void saveAndSendDeliveredCommand(Delivered delivered, String username) {
         // 🔍 Vérifie si déjà DELIVERED
         boolean alreadyDelivered = deliveredCommandRepository.existsByOrderIdAndStatus(
                 delivered.getOrderId(),
@@ -63,6 +63,7 @@ public class DeliveredCommandService {
 
         // 📦 Préparer l’événement
         OrderEventDto event = new OrderEventDto();
+        event.setUserName(username);
         event.setId(existingDelivered.getOrderId());
         event.setStatus(EventStatus.DELIVERED.name());
 
