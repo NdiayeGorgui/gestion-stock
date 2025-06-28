@@ -24,7 +24,7 @@ public class InventoryRestockConsumer {
 
     @KafkaListener(
             topics = "${spring.kafka.topic.order.name}",
-            groupId = "${spring.kafka.consumer.group-id}"
+            groupId = "${notification.kafka.group.restock}"
     )
     public void onInventoryUpdate(OrderEventDto event) {
         LOGGER.info("📩 Product UPDATE event received in InventoryRestockConsumer => {}", event);

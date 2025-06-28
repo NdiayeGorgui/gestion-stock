@@ -21,7 +21,7 @@ public class ProductCreationConsumer {
 
     @KafkaListener(
             topics = "${spring.kafka.topic.order.name}",
-            groupId = "${spring.kafka.consumer.group-id}"
+            groupId = "${notification.kafka.group.creation}"
     )
     public void onProductCreated(OrderEventDto event) {
         LOGGER.info("📩 Product CREATED event received in ProductCreationConsumer => {}", event);
