@@ -31,14 +31,14 @@ public class ShippingController {
             description = "Http status 200")
 
     @PostMapping("/ships")
-    public ResponseEntity<Map<String, String>> saveAndSendShip(@RequestBody Ship ship) throws ShippingNotFoundException {
+    public ResponseEntity<Map<String, String>> saveAndSendShip(@RequestBody Ship ship,@RequestHeader("X-Username") String username) throws ShippingNotFoundException {
         Ship existingShip = shippingService.findByOrderIdAndStatus(ship.getOrderId(), EventStatus.SHIPPING.name());
 
         if (existingShip == null) {
             throw new ShippingNotFoundException("Shipping not found for order: " + ship.getOrderId());
         }
 
-        shippingService.saveAndSendShip(ship);
+        shippingService.saveAndSendShip(ship,username);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "📦 Shipping sent successfully");
