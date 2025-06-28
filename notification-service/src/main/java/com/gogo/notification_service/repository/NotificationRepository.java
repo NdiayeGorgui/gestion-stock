@@ -4,6 +4,7 @@ import com.gogo.notification_service.model.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,7 +32,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Modifying
     @org.springframework.transaction.annotation.Transactional
     @Query("UPDATE Notification n SET n.archived = true WHERE n.productKey IN (:keys) AND n.archived = false")
-    void archiveByProductKeyIn(List<String> keys);
+    void archiveByProductKeyIn(@Param("keys") List<String> keys);
+
 
 }
 
