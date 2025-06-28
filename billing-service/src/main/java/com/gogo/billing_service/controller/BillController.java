@@ -5,12 +5,17 @@ import com.gogo.billing_service.exception.BillNotFoundException;
 import com.gogo.billing_service.model.Bill;
 import com.gogo.billing_service.service.BillExcelExporter;
 import com.gogo.billing_service.service.BillingService;
+import com.gogo.billing_service.service.PdfGeneratorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -23,6 +28,8 @@ import java.util.Optional;
 public class BillController {
     @Autowired
     private BillingService billingService;
+    @Autowired
+    private PdfGeneratorService pdfGeneratorService;
 
     @Operation(
             summary = "get Bill REST API",
@@ -96,6 +103,24 @@ public class BillController {
             throw new RuntimeException("Aucune facture trouvée pour la commande : " + orderRef);
         }
     }
+    @GetMapping("/bills/pdf/{orderRef}")
+    public ResponseEntity<byte[]> downloadInvoice(@PathVariable("orderRef") String orderRef) throws BillNotFoundException {
+        // On récupère le DTO complet avec les produits, montants, etc.
+        BillResponseDto billDto = pdfGeneratorService.getBillDetails(orderRef);
+
+        // On génère le PDF à partir du DTO
+        ByteArrayInputStream pdf = pdfGeneratorService.generateInvoicePdf(billDto);
+
+        // Préparation des headers de la réponse HTTP
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=facture_" + orderRef + ".pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf.readAllBytes());
+    }
+
 
 
    /* @Operation(

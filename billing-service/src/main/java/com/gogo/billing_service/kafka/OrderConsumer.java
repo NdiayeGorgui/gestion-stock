@@ -64,7 +64,7 @@ public class OrderConsumer {
 
         // ✅ Annulation d'une commande complète (ORDER)
         else if (EventStatus.CANCELLING.name().equalsIgnoreCase(event.getStatus())) {
-            List<Bill> bills = billingService.findByOrderRef(event.getId());
+            List<Bill> bills = billingService.findAllByOrderRef(event.getId());
 
             if (bills != null && !bills.isEmpty()) {
                 List<ProductItemEventDto> canceledItems = new java.util.ArrayList<>();
