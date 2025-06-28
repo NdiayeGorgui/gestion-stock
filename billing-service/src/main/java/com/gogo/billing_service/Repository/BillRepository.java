@@ -17,7 +17,7 @@ public interface BillRepository extends JpaRepository<Bill,Long> {
     void updateBillStatus(@Param("productIdEvent") String productIdEvent, @Param("status") String status);
 
     //Bill  findByOrderRef(String orderRef);
-    List<Bill> findByOrderRef(String orderRef);
+    List<Bill> findAllByOrderRef(String orderRef);
 
 
     @Modifying
@@ -36,4 +36,5 @@ public interface BillRepository extends JpaRepository<Bill,Long> {
     void updateAllBillCustomerStatus(@Param("customerIdEvent") String customerIdEvent, @Param("status") String status);
 
     List<Bill> findByOrderRefAndProductIdEvent(String orderRef, String productIdEvent);
+
 }

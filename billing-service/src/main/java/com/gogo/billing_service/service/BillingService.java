@@ -65,7 +65,7 @@ public class BillingService {
         return billRepository.findByOrderRef(orderIdEvent);
     }*/
     public Bill findFirstByOrderIdEvent(String orderIdEvent) {
-        return billRepository.findByOrderRef(orderIdEvent)
+        return billRepository.findAllByOrderRef(orderIdEvent)
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Aucune facture trouvée pour la commande : " + orderIdEvent));
@@ -150,7 +150,7 @@ public class BillingService {
 
 
     public BillResponseDto findBillWithDetails(String orderRef) {
-        List<Bill> bills = billRepository.findByOrderRef(orderRef);
+        List<Bill> bills = billRepository.findAllByOrderRef(orderRef);
 
         if (bills.isEmpty()) {
             throw new RuntimeException("Aucune facture trouvée pour l'orderRef : " + orderRef);
@@ -209,14 +209,15 @@ public class BillingService {
     }
 
     public List<Bill> getBillsByOrderRefAndStatus(String orderRef, String status) {
-        return billRepository.findByOrderRef(orderRef).stream()
+        return billRepository.findAllByOrderRef(orderRef).stream()
                 .filter(bill -> bill.getStatus().equalsIgnoreCase(status))
                 .toList();
     }
 
-    public List<Bill> findByOrderRef(String orderRef) {
-        return billRepository.findByOrderRef(orderRef);
+    public List<Bill> findAllByOrderRef(String orderRef) {
+        return billRepository.findAllByOrderRef(orderRef);
     }
+
 
 
 }
