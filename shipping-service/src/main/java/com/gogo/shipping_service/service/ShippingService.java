@@ -43,7 +43,7 @@ public class ShippingService {
 		return shippingRepository.findByCustomerId( customerId);
 	}
 
-	public void saveAndSendShip(Ship ship) {
+	public void saveAndSendShip(Ship ship, String username) {
 		// 🔍 Vérifier si déjà SHIPPED
 		boolean alreadyShipped = shippingRepository.existsByOrderIdAndStatus(
 				ship.getOrderId(),
@@ -66,6 +66,7 @@ public class ShippingService {
 
 		// ✅ Construire l’événement à envoyer
 		OrderEventDto orderEventDto = new OrderEventDto();
+		orderEventDto.setUserName(username);
 		orderEventDto.setId(existingShip.getOrderId());
 		orderEventDto.setPaymentId(existingShip.getPaymentId());
 		orderEventDto.setStatus(EventStatus.SHIPPED.name());
