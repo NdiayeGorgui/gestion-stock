@@ -28,7 +28,7 @@ public class OrderConsumerShipped {
         String orderId = event.getId();
 
         if (EventStatus.SHIPPED.name().equalsIgnoreCase(event.getStatus())) {
-            String msg = "The order: " + orderId + " has been shipped!";
+            String msg = "The order: " + orderId + " has been shipped successfully!";
 
             Notification userNotif = new Notification();
             userNotif.setMessage(msg);
