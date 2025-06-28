@@ -2,11 +2,15 @@ package com.gogo.notification_service.kafka;
 
 import com.gogo.base_domaine_service.event.EventStatus;
 import com.gogo.base_domaine_service.event.OrderEventDto;
+import com.gogo.notification_service.model.Notification;
 import com.gogo.notification_service.repository.NotificationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ProductDeletionConsumer {
@@ -42,10 +46,26 @@ public class ProductDeletionConsumer {
         }
 
         String baseKey = productName.toLowerCase().trim();
+
+        // 1️⃣ Archiver les anciennes notifications
         notificationRepository.archiveByProductKeyIn(
-                java.util.List.of(baseKey + "_lowstock", baseKey + "_outofstock", baseKey + "_restocked")
+                List.of(baseKey + "_lowstock", baseKey + "_outofstock", baseKey + "_restocked")
         );
 
-        LOGGER.info("📦 Notifications liées au produit '{}' archivées avec succès", productName);
+        // 2️⃣ Créer une notification globale
+        Notification notification = Notification.builder()
+                .username("allusers") // 💡 Tous les utilisateurs verront ça
+                .message("Product '" + productName + "' has been deleted by admin.")
+                .productKey(baseKey + "_deleted")
+                .type("deleted")
+                .readValue(false)
+                .archived(false)
+                .createdDate(LocalDateTime.now())
+                .build();
+
+        notificationRepository.save(notification);
+
+        LOGGER.info("📢 Notification de suppression enregistrée pour 'allusers'");
     }
+
 }
