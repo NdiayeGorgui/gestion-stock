@@ -48,7 +48,7 @@ public class PaymentService {
         billRepository.save(bill);
     }
 
-    public void saveAndSendPayment(Payment payment) {
+    public void saveAndSendPayment(Payment payment, String username) {
         String orderId = payment.getOrderId();
 
         // ✅ 1. Vérifier si un paiement a déjà été effectué
@@ -109,6 +109,7 @@ public class PaymentService {
         }).toList();
 
         OrderEventDto orderEventDto = new OrderEventDto();
+        orderEventDto.setUserName(username);
         orderEventDto.setCustomerEventDto(customerEventDto);
         orderEventDto.setStatus(savedPayment.getPaymentStatus());
         orderEventDto.setPaymentId(savedPayment.getPaymentIdEvent());
