@@ -20,7 +20,7 @@ public class OrderConsumerCompleted {
     }
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.billing.name}",
+            topics = "${spring.kafka.topic.payment.name}",
             groupId = "${notification.kafka.group.completed}"
     )
     public void orderConsumer(OrderEventDto event) {
