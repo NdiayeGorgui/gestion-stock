@@ -880,6 +880,7 @@ public class OrderService {
         for (Order order : orders) {
             OrderResponseDto dto = new OrderResponseDto();
             dto.setOrderId(order.getOrderIdEvent());
+            dto.setCreatedDate(order.getDate());
 
             Customer customer = order.getCustomer();
             if (customer != null) {
