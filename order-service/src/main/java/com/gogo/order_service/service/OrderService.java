@@ -849,6 +849,8 @@ public class OrderService {
         dto.setAmount(amount);
         dto.setTotalDiscount(totalDiscount);
         dto.setTotalTax(totalTax);
+        dto.setCreatedDate(order.getDate());
+
 
         return dto;
     }
