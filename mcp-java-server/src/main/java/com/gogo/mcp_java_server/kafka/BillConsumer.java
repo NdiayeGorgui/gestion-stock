@@ -23,8 +23,8 @@ public class BillConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(BillConsumer.class);
 
     @KafkaListener(
-            topics = "${spring.kafka.topic.billing.name}",
-            groupId = "${spring.kafka.consumer.bill.group-id}"
+            topics = "${spring.kafka.topic.billing.name}"
+            , groupId = "${spring.kafka.consumer.bill.group-id}"
     )
     public void billConsumer(OrderEventDto event) {
         LOGGER.info("💰 Mpc service received event => {}", event);
