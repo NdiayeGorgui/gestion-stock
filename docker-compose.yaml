@@ -437,6 +437,9 @@ services:
     environment:
       - eureka.client.service-url.defaultZone=http://eureka-registry-service:8761/eureka/
       - SPRING_CONFIG_IMPORT=configserver:http://config-service:9191/
+      - STOCK_API_KEY=${STOCK_API_KEY}
+    env_file:
+      - .env
     depends_on:
       mcp-java-server:
         condition: service_healthy

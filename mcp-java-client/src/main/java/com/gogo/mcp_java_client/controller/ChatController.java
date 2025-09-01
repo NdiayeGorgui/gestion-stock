@@ -3,8 +3,8 @@ import com.gogo.mcp_java_client.agents.MyAIAgent;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@CrossOrigin("*")
+@RequestMapping("/api/v1")
+@RestController
 public class ChatController {
     private final MyAIAgent agent;
 
