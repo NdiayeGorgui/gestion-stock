@@ -75,6 +75,22 @@ scrape_configs:
         labels:
           application: 'Shipping Service Application'
 
+  - job_name: 'mpc_java_server'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'mpc-java-server:8899' ]
+        labels:
+          application: 'MPC Server Application'
+
+  - job_name: 'mpc_java_client'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'mpc-java-client:8866' ]
+        labels:
+          application: 'MPC Client Application'
+
   - job_name: 'api_gateway_service'
     metrics_path: '/actuator/prometheus'
     scrape_interval: 5s

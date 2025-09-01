@@ -404,6 +404,46 @@ services:
     networks:
       - my_network
 
+  # MPC Server (utilise Kafka et se connecte à la BD)
+  mpc-java-server:
+    image: gorgui/mpc-java-server:latest
+    container_name: mpc-java-server
+    ports:
+      - "8899:8899"
+    expose:
+      - "8899"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/mpc_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:9092,kafka-2:9093
+      - eureka.client.service-url.defaultZone=http://eureka-registry-service:8761/eureka/
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:9191/
+    depends_on:
+      customer-service:
+        condition: service_healthy
+
+    networks:
+      - my_network
+
+  # MPC Client
+  mpc-java-client:
+    image: gorgui/mpc-java-client:latest
+    container_name: mpc-java-client
+    ports:
+      - "8688:8688"
+    expose:
+      - "8688"
+    environment:
+      - eureka.client.service-url.defaultZone=http://eureka-registry-service:8761/eureka/
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:9191/
+    depends_on:
+      customer-service:
+        condition: service_healthy
+
+    networks:
+      - my_network
+
 # Angular Project (Pour exploiter les services du backend)
   stock-web-app:
     image: gorgui/stock-web-app:latest

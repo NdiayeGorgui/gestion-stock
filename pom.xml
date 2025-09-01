@@ -22,6 +22,8 @@
         <module>delivered-query-service</module>
         <module>eureka-registry-service</module>
         <module>inventory-service</module>
+        <module>mcp-java-client</module>
+        <module>mcp-java-server</module>
         <module>notification-service</module>
         <module>order-service</module>
         <module>payment-service</module>
