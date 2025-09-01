@@ -438,7 +438,7 @@ services:
       - eureka.client.service-url.defaultZone=http://eureka-registry-service:8761/eureka/
       - SPRING_CONFIG_IMPORT=configserver:http://config-service:9191/
     depends_on:
-      customer-service:
+      mcp-java-server:
         condition: service_healthy
 
     networks:
