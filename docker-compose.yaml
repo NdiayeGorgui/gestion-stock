@@ -406,7 +406,7 @@ services:
 
   # MCP Server (utilise Kafka et se connecte à la BD)
   mcp-java-server:
-    image: gorgui/mpc-java-server:latest
+    image: gorgui/mcp-java-server:latest
     container_name: mcp-java-server
     ports:
       - "8899:8899"
