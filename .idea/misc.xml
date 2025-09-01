@@ -18,6 +18,8 @@
         <option value="$PROJECT_DIR$/notification-service/pom.xml" />
         <option value="$PROJECT_DIR$/delivered-command-service/pom.xml" />
         <option value="$PROJECT_DIR$/delivered-query-service/pom.xml" />
+        <option value="$PROJECT_DIR$/mcp-java-server/pom.xml" />
+        <option value="$PROJECT_DIR$/mcp-java-client/pom.xml" />
       </list>
     </option>
   </component>

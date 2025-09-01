@@ -7,6 +7,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="mcp-java-server" />
         <module name="config-service" />
         <module name="customer-service" />
         <module name="eureka-registry-service" />
@@ -15,6 +16,7 @@
         <module name="delivered-command-service" />
         <module name="billing-service" />
         <module name="base-domaine-service" />
+        <module name="mcp-java-client" />
         <module name="inventory-service" />
         <module name="payment-service" />
         <module name="api-gateway-service" />
@@ -38,6 +40,7 @@
       <module name="eureka-registry-service" options="" />
       <module name="inventory-service" options="" />
       <module name="inventory-service (1)" options="-parameters" />
+      <module name="mcp-java-client" options="-parameters" />
       <module name="notification-service" options="" />
       <module name="order-service" options="" />
       <module name="payment-service" options="" />

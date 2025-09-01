@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\ProjetJava\\Projets\\mcp-java-client"
+      ]
+
+    },
+    "Python-MCP-Server": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--with",
+        "mcp[cli]",
+        "mcp",
+        "run",
+        "C:\\ProjetJava\\Projets\\ai\\mcp-python-server\\server.py"
+      ]
+    }
+  }
+}
