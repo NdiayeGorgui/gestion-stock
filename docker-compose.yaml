@@ -404,10 +404,10 @@ services:
     networks:
       - my_network
 
-  # MPC Server (utilise Kafka et se connecte à la BD)
-  mpc-java-server:
+  # MCP Server (utilise Kafka et se connecte à la BD)
+  mcp-java-server:
     image: gorgui/mpc-java-server:latest
-    container_name: mpc-java-server
+    container_name: mcp-java-server
     ports:
       - "8899:8899"
     expose:
@@ -426,14 +426,14 @@ services:
     networks:
       - my_network
 
-  # MPC Client
-  mpc-java-client:
-    image: gorgui/mpc-java-client:latest
-    container_name: mpc-java-client
+  # MCP Client
+  mcp-java-client:
+    image: gorgui/mcp-java-client:latest
+    container_name: mcp-java-client
     ports:
-      - "8688:8688"
+      - "8866:8866"
     expose:
-      - "8688"
+      - "8866"
     environment:
       - eureka.client.service-url.defaultZone=http://eureka-registry-service:8761/eureka/
       - SPRING_CONFIG_IMPORT=configserver:http://config-service:9191/
