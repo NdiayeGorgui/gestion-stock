@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-#  # Keycloak
+  #  # Keycloak
   keycloak:
     image: quay.io/keycloak/keycloak:21.1.1
     container_name: keycloak
@@ -434,12 +434,12 @@ services:
       - "8866:8866"
     expose:
       - "8866"
+    env_file:
+      - .env
     environment:
       - eureka.client.service-url.defaultZone=http://eureka-registry-service:8761/eureka/
       - SPRING_CONFIG_IMPORT=configserver:http://config-service:9191/
-      - STOCK_API_KEY=${STOCK_API_KEY}
-    env_file:
-      - .env
+
     depends_on:
       mcp-java-server:
         condition: service_healthy
@@ -447,7 +447,7 @@ services:
     networks:
       - my_network
 
-# Angular Project (Pour exploiter les services du backend)
+  # Angular Project (Pour exploiter les services du backend)
   stock-web-app:
     image: gorgui/stock-web-app:latest
     container_name: stock-web-app
