@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-alpine
+FROM openjdk:17-oracle
 VOLUME /tmp
 COPY target/*.jar customer-service.jar
 ENTRYPOINT ["java", "-jar", "customer-service.jar"]
