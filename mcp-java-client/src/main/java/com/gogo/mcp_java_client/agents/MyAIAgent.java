@@ -21,6 +21,6 @@ public class MyAIAgent {
     }
     public Flux<String> prompt(String question) {
         return chatClient.prompt()
-                .user(question).call().content();
+                .user(question).stream().content();
     }
 }
