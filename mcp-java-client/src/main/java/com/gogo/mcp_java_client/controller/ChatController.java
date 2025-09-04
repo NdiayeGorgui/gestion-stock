@@ -19,7 +19,7 @@ public class ChatController {
 
     @PostMapping("/chat/send")
     @ResponseBody
-    public String sendMessage(@RequestParam String message) {
+    public Flux<String> sendMessage(@RequestParam String message) {
         return agent.prompt(message);
     }
 }
