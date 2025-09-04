@@ -16,7 +16,7 @@ public class AiWebAPIController {
         this.agent = agent;
     }
     @GetMapping("/chat")
-    public String askAgent(String query) {
+    public Flux<String> askAgent(String query) {
         return agent.prompt(query);
     }
 }
