@@ -22,6 +22,7 @@ public class MyAIAgent {
     }
     public Flux<String> prompt(String question) {
         return chatClient.prompt()
+                .system("Use markdown style when you answer")
                 .user(question).stream().content();
     }
 }
