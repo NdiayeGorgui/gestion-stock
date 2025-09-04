@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-alpine
+FROM openjdk:17-oracle
 VOLUME /tmp
 COPY target/*.jar mcp-java-client.jar
 ENTRYPOINT ["java", "-jar", "mcp-java-client.jar"]
